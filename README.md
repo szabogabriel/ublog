@@ -21,7 +21,9 @@ An example of the configuration is present in the `run.sh` script. The `pom.xml`
 ### Database settings (via environment variables)
 
 `DB_USERNAME` sets the DB user.
+
 `DB_PASSWORD` sets the DB password.
+
 `DB_FILE_PATH` path to the DB file. It can be a relative path. We are using H2 in single file mode here.
 
 `H2_WEB_PORT` port for the H2 web console. Not activated by default.
@@ -29,10 +31,13 @@ An example of the configuration is present in the `run.sh` script. The `pom.xml`
 ### Templating configuration
 
 `MUSTACHE_TEMPLATES_CACHING_ENABLED` this feature when enabled, compiles the templates once and then uses them over and over, thus making the rendering faster.
+
 `export MUSTACHE_TEMPLATES_FOLDER` the folder of where the templates are to be found.
 
 ### Technical settings
 
 `SERVER_PORT` the port the server is listening to.
+
 `SOCKET_HANDLER_THREAD_POOL_SIZE` the size of the thread pool for the request handlers. By default is set to 10 threads.
+
 `TARGET_FOLDER` the folder where the markdown files are hosted. For example `/var/www/markdown`.
