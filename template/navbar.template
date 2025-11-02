@@ -1,0 +1,11 @@
+      <nav class="navbar navbar-default">
+        <div class="container-fluid">
+          <div class="navbar-header"><a class="navbar-brand" href="index">Blog</a></div>
+          <ul class="nav navbar-nav">
+          {{#TOPICS}}<li><a href="/{{name}}">{{name}}</a></li>{{/TOPICS}}
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+          {{#QUICK_LINKS}}<li><a href="/{{name}}">{{name}}</a></li>{{/QUICK_LINKS}}
+          </ul>
+        </div>
+      </nav>

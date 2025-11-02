@@ -1,0 +1,7 @@
+{{>html_start.template}}
+{{>navbar.template}}
+{{{DATA}}}
+{{#ENTRIES}}
+<h2><a href="/{{category}}/{{name}}">{{name}}</a><br/></h2>
+{{/ENTRIES}}
+{{>html_end.template}}
