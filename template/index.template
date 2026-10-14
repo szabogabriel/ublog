@@ -4,4 +4,7 @@
 {{#ENTRIES}}
 <h2><a href="/{{category}}/{{name}}">{{name}}</a><br/></h2>
 {{/ENTRIES}}
+{{#LOGIN}}
+{{>login.template}}
+{{/LOGIN}}
 {{>html_end.template}}

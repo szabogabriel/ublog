@@ -1,4 +1,4 @@
-package info.gabrielszabo.ublog.service;
+package info.gabrielszabo.ublog.service.blog;
 
 public interface BlogContextFactory {
 

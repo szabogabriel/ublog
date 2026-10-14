@@ -1,5 +1,6 @@
 package info.gabrielszabo.ublog.server.socket;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -14,8 +15,8 @@ import info.gabrielszabo.ublog.server.http.HttpResponse;
 
 public class PooledSocketHandler implements SocketHandler {
 
-    private ThreadPoolExecutor executor;
-    private HttpRequestHandler requestHandler;
+    private final ThreadPoolExecutor executor;
+    private final HttpRequestHandler requestHandler;
 
     public PooledSocketHandler(MarkdownContentProvider fileSystemHandler, HttpRequestHandler requestHandler) {
         // Constructor implementation
@@ -24,6 +25,7 @@ public class PooledSocketHandler implements SocketHandler {
     }
 
     @Override
+    @SuppressWarnings("CallToPrintStackTrace")
     public void handle(Socket socket) {
         executor.execute(() -> {
             try {
@@ -52,7 +54,7 @@ public class PooledSocketHandler implements SocketHandler {
                 outStream.write(response.getBytes());
                 outStream.flush();
                 socket.close();
-            } catch (Exception e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         });

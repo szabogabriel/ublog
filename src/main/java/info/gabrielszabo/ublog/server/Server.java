@@ -1,11 +1,12 @@
 package info.gabrielszabo.ublog.server;
 
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 import info.gabrielszabo.ublog.config.Config;
-import info.gabrielszabo.ublog.log.LogService;
 import info.gabrielszabo.ublog.server.socket.SocketHandler;
+import info.gabrielszabo.ublog.service.log.LogService;
 
 public class Server {
     private LogService logService;
@@ -15,6 +16,7 @@ public class Server {
         this(logService, socketHandler, Integer.parseInt(Config.SERVER_PORT.value()));
     }
 
+    @SuppressWarnings("CallToPrintStackTrace")
     public Server(LogService logService, SocketHandler socketHandler, int port) {
         this.logService = logService;
         this.socketHandler = socketHandler;
@@ -28,13 +30,13 @@ public class Server {
                 this.logService.logInfo("Accepted a connection");
                 this.socketHandler.handle(socket);
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
             if (serverSocket != null) {
                 try {
                     serverSocket.close();
-                } catch (Exception e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }

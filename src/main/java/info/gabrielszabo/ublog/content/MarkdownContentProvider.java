@@ -2,8 +2,8 @@ package info.gabrielszabo.ublog.content;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
@@ -188,7 +188,7 @@ public class MarkdownContentProvider implements ContentProvider {
 
     @Override
     public Category[] getCategories() {
-        return categoriesCache.values().toArray(new Category[0]);
+        return categoriesCache.values().toArray(Category[]::new);
     }
 
     @Override
@@ -197,7 +197,7 @@ public class MarkdownContentProvider implements ContentProvider {
         if (entries == null) {
             return new EntryDescriptor[0];
         }
-        return entries.values().toArray(new EntryDescriptor[0]);
+        return entries.values().toArray(EntryDescriptor[]::new);
     }
 
     private String stripExtension(String fileName) {
@@ -209,6 +209,7 @@ public class MarkdownContentProvider implements ContentProvider {
     }
 
     @Override
+    @SuppressWarnings("CallToPrintStackTrace")
     public String getEntryContentAsHttp(EntryDescriptor entry) {
         File categoryFolder = new File(rootFolder + "/" + (entry.getCategory() == null ? "" : entry.getCategory().getName()));
         File entryFile = entry.getName() == null ? null : new File(categoryFolder, entry.getName() + ".md");
@@ -242,7 +243,7 @@ public class MarkdownContentProvider implements ContentProvider {
 
     @Override
     public EntryDescriptor[] getQuickLinks() {
-        return quickLinksCache.values().toArray(new EntryDescriptor[0]);
+        return quickLinksCache.values().toArray(EntryDescriptor[]::new);
     }
 
     @Override

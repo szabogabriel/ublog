@@ -1,4 +1,4 @@
-package info.gabrielszabo.ublog.service.mustache;
+package info.gabrielszabo.ublog.service.template.mustache;
 
 import java.io.File;
 import java.util.HashMap;
@@ -7,18 +7,18 @@ import java.util.Map;
 import com.jmtemplate.Template;
 
 import info.gabrielszabo.ublog.config.Config;
-import info.gabrielszabo.ublog.service.BlogContext;
-import info.gabrielszabo.ublog.service.TemplateService;
+import info.gabrielszabo.ublog.service.blog.BlogContext;
+import info.gabrielszabo.ublog.service.template.TemplateService;
 
 public class MustacheTemplateService implements TemplateService {
 
-    private Map<String, Template> templateCache = new HashMap<>();
+    private final Map<String, Template> templateCache = new HashMap<>();
 
-    private Boolean cachingEnabled = Boolean.parseBoolean(Config.MUSTACHE_TEMPLATES_CACHING_ENABLED.value());
+    private final Boolean cachingEnabled = Boolean.valueOf(Config.MUSTACHE_TEMPLATES_CACHING_ENABLED.value());
 
     @Override
     public String render(String template, BlogContext context) {
-        String ret = "";
+        String ret;
         if (template == null) {
             throw new IllegalArgumentException("Template name cannot be null");
         }

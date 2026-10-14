@@ -1,4 +1,4 @@
-package info.gabrielszabo.ublog.service.mustache;
+package info.gabrielszabo.ublog.service.template.mustache;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,16 +8,22 @@ import java.util.Map;
 import info.gabrielszabo.ublog.content.ContentProvider;
 import info.gabrielszabo.ublog.domain.Category;
 import info.gabrielszabo.ublog.domain.EntryDescriptor;
-import info.gabrielszabo.ublog.service.BlogContext;
+import info.gabrielszabo.ublog.service.blog.BlogContext;
 
 public class MustacheBlogContext implements BlogContext{
         private static final String CONTENT = "DATA";
+    private static final String LOGIN = "LOGIN";
     private static final String TITLE = "PAGE_TITLE";
     private static final String BLOG_ENTRIES = "ENTRIES";
     private static final String BLOG_CATEGORIES = "TOPICS";
     private static final String QUICK_LINKS = "QUICK_LINKS";
+    private static final String USERNAME = "USERNAME";
+    private static final String NAME = "NAME";
+    private static final String LOGGED_IN = "LOGGED_IN";
+    private static final String INITIAL_LOGIN = "INITIAL_LOGIN";
+    private static final String LOGGING_OUT = "LOGGING_OUT";
 
-    private Map<String, Object> context;
+    private final Map<String, Object> context;
 
     private final ContentProvider contentProvider;
 
@@ -32,6 +38,7 @@ public class MustacheBlogContext implements BlogContext{
         context.put(QUICK_LINKS, getQuickLinks());
     }
 
+    @Override 
     public void addBlogEntryContentToContext(String[] pathParts) {
         String categoryName = pathParts[1];
         String entryName = pathParts[2];
@@ -41,12 +48,14 @@ public class MustacheBlogContext implements BlogContext{
         context.put(TITLE, requestedEntry.getName());
     }
 
+    @Override
     public void addIndexToContext() {
         EntryDescriptor indexEntry = contentProvider.getIndex();
         context.put(CONTENT, contentProvider.getEntryContentAsHttp(indexEntry));
         context.put(TITLE, indexEntry.getName());
     }
 
+    @Override
     public void setRequestedSingleEntry(String entryName) {
         if (contentProvider.isQuickLink(entryName)) {
             EntryDescriptor requestedEntry = new EntryDescriptor(entryName, null);
@@ -96,5 +105,62 @@ public class MustacheBlogContext implements BlogContext{
 
     public Map<String, Object> getContextData() {
         return context;
+    }
+
+    @Override
+    public void setIsLogin() {
+        context.put(LOGIN, Boolean.TRUE);
+        context.put(CONTENT, "");
+        context.put(TITLE, "Login");
+    }
+
+    @Override
+    public void setUsername(String username) {
+        context.put(USERNAME, username);
+    }
+
+    @Override
+    public void setLoggedIn(boolean loginSuccessful) {
+        context.put(LOGGED_IN, loginSuccessful);
+    }
+
+    @Override
+    public void setName(String name) {
+        context.put(NAME, name);
+    }
+
+    @Override
+    public boolean isLoggedIn() {
+        return context.containsKey(USERNAME);
+    }
+
+    @Override
+    public String getUsername() {
+        return (String) context.get(USERNAME);
+    }
+
+    @Override
+    public String getName() {
+        return (String) context.get(NAME);
+    }
+
+    @Override
+    public void setInitialLogin() {
+        context.put(INITIAL_LOGIN, Boolean.TRUE);
+    }
+
+    @Override
+    public boolean isInitialLogin() {
+        return context.containsKey(INITIAL_LOGIN) && (Boolean) context.get(INITIAL_LOGIN);
+    }
+
+    @Override
+    public void setLoggingOut() {
+        context.put(LOGGING_OUT, Boolean.TRUE);
+    }
+
+    @Override
+    public boolean isLoggingOut() {
+        return context.containsKey(LOGGING_OUT) && (Boolean) context.get(LOGGING_OUT);
     }
 }

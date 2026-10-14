@@ -1,7 +1,8 @@
 package info.gabrielszabo.ublog.server.http;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class HttpRequest {
@@ -14,7 +15,7 @@ public class HttpRequest {
     private int contentLength;
     private String contentType;
     private MimeType mimeType;
-    private Map<String, String> cookies = new HashMap<>();
+    private List<Cookie> cookies = new ArrayList<>();
 
     private Map<String, String> headers;
 
@@ -64,15 +65,9 @@ public class HttpRequest {
                 mimeType = MimeType.fromString(contentType);
             }
             if (lower.startsWith("cookie:")) {
-                String[] cookiePairs = line.substring(7).trim().split(";");
-                for (String cookie : cookiePairs) {
-                    String[] cookieParts = cookie.split("=", 2);
-                    if (cookieParts.length == 2) {
-                        this.cookies.put(cookieParts[0].trim(), cookieParts[1].trim());
-                    } else {
-                        this.cookies.put(cookieParts[0].trim(), "");
-                    }
-                }
+                Cookie newCookie = new Cookie(line.substring(7).trim());
+                System.out.println("Parsing cookie: " + newCookie);
+                cookies.add(newCookie);
             }
 
             int colonIndex = line.indexOf(":");
@@ -142,7 +137,7 @@ public class HttpRequest {
         return mimeType;
     }
 
-    public Map<String, String> getCookies() {
+    public List<Cookie> getCookies() {
         return cookies;
     }
 

@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class QueryString {
 
-    private Map<String, String> parameters = new HashMap<>();
+    private final Map<String, String> parameters = new HashMap<>();
 
     public QueryString(String queryString) {
         String[] pairs = queryString.split("&");

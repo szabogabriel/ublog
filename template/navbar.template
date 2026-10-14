@@ -6,6 +6,13 @@
           </ul>
           <ul class="nav navbar-nav navbar-right">
           {{#QUICK_LINKS}}<li><a href="/{{name}}">{{name}}</a></li>{{/QUICK_LINKS}}
+          {{#LOGGED_IN}}
+            <li><a href="/user">{{USERNAME}}</a></li>
+            <li><a href="/logout">Logout</a></li>
+          {{/LOGGED_IN}}
+          {{^LOGGED_IN}}
+            <li><a href="/login">Login</a></li>
+          {{/LOGGED_IN}}
           </ul>
         </div>
       </nav>

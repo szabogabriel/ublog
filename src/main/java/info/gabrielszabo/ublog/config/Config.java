@@ -9,8 +9,6 @@ import java.util.Properties;
 import info.gabrielszabo.jdi.services.ServiceFactory;
 import info.gabrielszabo.ublog.content.ContentProvider;
 import info.gabrielszabo.ublog.content.MarkdownContentProvider;
-import info.gabrielszabo.ublog.log.ConsoleLogService;
-import info.gabrielszabo.ublog.log.LogService;
 import info.gabrielszabo.ublog.markdown.CommonmarkRenderingService;
 import info.gabrielszabo.ublog.markdown.MarkdownRenderingService;
 import info.gabrielszabo.ublog.persistence.Database;
@@ -19,11 +17,15 @@ import info.gabrielszabo.ublog.server.Server;
 import info.gabrielszabo.ublog.server.http.HttpRequestHandler;
 import info.gabrielszabo.ublog.server.socket.PooledSocketHandler;
 import info.gabrielszabo.ublog.server.socket.SocketHandler;
-import info.gabrielszabo.ublog.service.BlogContextFactory;
-import info.gabrielszabo.ublog.service.BlogRequestHandler;
-import info.gabrielszabo.ublog.service.TemplateService;
-import info.gabrielszabo.ublog.service.mustache.MustacheBlogContextFactory;
-import info.gabrielszabo.ublog.service.mustache.MustacheTemplateService;
+import info.gabrielszabo.ublog.service.LoginService;
+import info.gabrielszabo.ublog.service.RequestHandlerService;
+import info.gabrielszabo.ublog.service.UserService;
+import info.gabrielszabo.ublog.service.blog.BlogContextFactory;
+import info.gabrielszabo.ublog.service.log.ConsoleLogService;
+import info.gabrielszabo.ublog.service.log.LogService;
+import info.gabrielszabo.ublog.service.template.TemplateService;
+import info.gabrielszabo.ublog.service.template.mustache.MustacheBlogContextFactory;
+import info.gabrielszabo.ublog.service.template.mustache.MustacheTemplateService;
 
 public enum Config {
 
@@ -38,19 +40,24 @@ public enum Config {
 
     SERVER_PORT("server.port", "8080"),
 
+    SESSION_TIMEOUT("session.timeout", "60"),
+
     SOCKET_HANDLER_THREAD_POOL_SIZE("socket.handler.thread.pool.size", "10"),
 
     TARGET_FOLDER("target.folder", "./blogFolder"),
+    USER_FOLDER("user.folder", "./userFolder"),
 
     SERVICE_BLOG_CONTEXT_FACTORY(ServiceFactory.PREFIX_IMPL + BlogContextFactory.class.getName(), MustacheBlogContextFactory.class.getName()),
     SERVICE_CONTENT_HANDLER(ServiceFactory.PREFIX_IMPL + ContentProvider.class.getName(), MarkdownContentProvider.class.getName()),
     SERVICE_DB(ServiceFactory.PREFIX_IMPL + Database.class.getName(), H2Database.class.getName()),
     SERVICE_HTTP_SERVER(ServiceFactory.PREFIX_IMPL + Server.class.getName(), Server.class.getName()),
     SERVICE_LOG(ServiceFactory.PREFIX_IMPL + LogService.class.getName(), ConsoleLogService.class.getName()),
+    SERVICE_LOGIN(ServiceFactory.PREFIX_IMPL + LoginService.class.getName(), LoginService.class.getName()),
     SERVICE_MARKDOWN_RENDERING(ServiceFactory.PREFIX_IMPL + MarkdownRenderingService.class.getName(), CommonmarkRenderingService.class.getName()),
-    SERVICE_REQUEST_HANDLER(ServiceFactory.PREFIX_IMPL + HttpRequestHandler.class.getName(), BlogRequestHandler.class.getName()),
+    SERVICE_REQUEST_HANDLER(ServiceFactory.PREFIX_IMPL + HttpRequestHandler.class.getName(), RequestHandlerService.class.getName()),
     SERVICE_SOCKET_HANDLER(ServiceFactory.PREFIX_IMPL + SocketHandler.class.getName(), PooledSocketHandler.class.getName()),
     SERVICE_TEMPLATE_SERVICE(ServiceFactory.PREFIX_IMPL + TemplateService.class.getName(), MustacheTemplateService.class.getName()),
+    SERVICE_USER_SERVICE(ServiceFactory.PREFIX_IMPL + UserService.class.getName(), UserService.class.getName()),
 
     ;
 

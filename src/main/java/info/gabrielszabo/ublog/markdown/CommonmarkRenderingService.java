@@ -4,7 +4,7 @@ import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 
-import info.gabrielszabo.ublog.log.LogService;
+import info.gabrielszabo.ublog.service.log.LogService;
 
 public class CommonmarkRenderingService implements MarkdownRenderingService {
 

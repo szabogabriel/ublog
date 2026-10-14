@@ -1,8 +1,8 @@
-package info.gabrielszabo.ublog.service.mustache;
+package info.gabrielszabo.ublog.service.template.mustache;
 
 import info.gabrielszabo.ublog.content.ContentProvider;
-import info.gabrielszabo.ublog.service.BlogContext;
-import info.gabrielszabo.ublog.service.BlogContextFactory;
+import info.gabrielszabo.ublog.service.blog.BlogContext;
+import info.gabrielszabo.ublog.service.blog.BlogContextFactory;
 
 public class MustacheBlogContextFactory implements BlogContextFactory {
 

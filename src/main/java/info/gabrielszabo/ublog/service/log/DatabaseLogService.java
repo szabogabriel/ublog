@@ -1,4 +1,4 @@
-package info.gabrielszabo.ublog.log;
+package info.gabrielszabo.ublog.service.log;
 
 import info.gabrielszabo.ublog.persistence.Database;
 

@@ -1,6 +1,8 @@
 package info.gabrielszabo.ublog.server.http;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HttpResponse {
 
@@ -8,6 +10,7 @@ public class HttpResponse {
     private HttpStatus status;
     private String body;
     private String contentType = "text/plain; charset=UTF-8";
+    private final List<Cookie> cookies = new ArrayList<>();
 
     public HttpResponse() {
         // Constructor implementation
@@ -33,6 +36,14 @@ public class HttpResponse {
         this.contentType = contentType;
     }
 
+    public void addCookie(Cookie cookie) {
+        this.cookies.add(cookie);
+    }
+
+    public void removeCookie(Cookie cookie) {
+        this.cookies.remove(cookie);
+    }
+
     public String toHttpResponseMessage() {
         StringBuilder response = new StringBuilder();
         String bodyStr = (body == null) ? "" : body;
@@ -40,8 +51,13 @@ public class HttpResponse {
         response.append(httpVersion.startsWith("HTTP/") ? httpVersion : "HTTP/" + httpVersion).append(" ")
                 .append(status.toStatusLine()).append("\r\n")
                 .append("Content-Type: ").append(contentType).append("\r\n")
-                .append("Content-Length: ").append(contentLength).append("\r\n")
-                .append("\r\n")
+                .append("Content-Length: ").append(contentLength).append("\r\n");
+        if (!cookies.isEmpty()) {
+            for (Cookie cookie : cookies) {
+                response.append("Set-Cookie: ").append(cookie.toString()).append("\r\n");
+            }
+        }
+        response.append("\r\n")
                 .append(bodyStr);
         return response.toString();
     }
