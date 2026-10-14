@@ -3,13 +3,13 @@ package info.gabrielszabo.ublog.service;
 import java.util.HashMap;
 import java.util.Map;
 
-import info.gabrielszabo.ublog.server.http.Cookie;
 import info.gabrielszabo.ublog.service.log.LogService;
 
 public class SessionService {
 
     private final Long sessionTimeout;
-    private final Map<String, Long> sessions = new HashMap<>();
+    private final Map<Long, Long> sessions = new HashMap<>();
+    private final Map<Long, String> sessionUsernames = new HashMap<>();
     private final LogService log;
 
     public SessionService(LogService log) {
@@ -17,50 +17,63 @@ public class SessionService {
         this.log = log;
     }
 
-    public void  createSession(String userName) {
-        invalidateSession(userName);
-        long sessionId = System.currentTimeMillis();
-        sessions.put(userName, sessionId);
+    public Long createSession(String username) {
+        long ret = generateSessionId();
+        
+        sessions.put(ret, System.currentTimeMillis());
+        sessionUsernames.put(ret, username);
+        return ret;
     }
 
-    public Cookie getSessionCookie(String userName) {
-        log.logTrace("Creating session cookie for " + userName);
-        if (sessions.containsKey(userName)) {
-            Cookie ret = new Cookie("session", userName);
-            log.logTrace("Cookie created: " + ret);
-            return ret;
-        }
-        return null;
-    }
-
-    public Cookie getSessionInvalidationCookie(String userName) {
-        return new Cookie("session", "", 0);
-    }
-
-    public void invalidateSession(String userName) {
-        if (sessions.containsKey(userName)) {
-            sessions.remove(userName);
-            log.logInfo("Invalidated session for user: " + userName);
+    public void invalidateSession(Long sessionId) {
+        if (sessions.containsKey(sessionId)) {
+            sessions.remove(sessionId);
+            sessionUsernames.remove(sessionId);
         }
     }
 
-    public boolean isSessionValid(String userName) {
+    public boolean isSessionValid(Long sessionId) {
         boolean isValid = false;
-        if (sessions.containsKey(userName)) {
-            long sessionTimestamp = sessions.get(userName);
+        if (sessions.containsKey(sessionId)) {
+            long sessionTimestamp = sessions.get(sessionId);
             isValid = (System.currentTimeMillis() - sessionTimestamp) <= sessionTimeout;
         }
 
-        log.logInfo("Session validity check for user: " + userName + " - " + isValid);
-        return isValid;
+            return isValid;
     }
 
-    public void refreshSession(String userName) {
-        if (sessions.containsKey(userName)) {
-            long sessionId = System.currentTimeMillis();
-            sessions.put(userName, sessionId);
-            log.logInfo("Refreshed session for user: " + userName);
+    public void refreshSession(Long sessionId) {
+        if (sessions.containsKey(sessionId)) {
+            long newTimestamp = System.currentTimeMillis();
+            sessions.put(sessionId, newTimestamp);
+            log.logInfo("Refreshed session: " + sessionId);
         }
     }
-    
+
+    public String getUsernameForSession(Long sessionId) {
+        if (sessionId == null || !sessions.containsKey(sessionId)) {
+            return null;
+        }
+        return sessionUsernames.get(sessionId);
+    }
+
+    private long generateSessionId() {
+        long ret = 0L;
+        do {
+            long currentMillis = System.currentTimeMillis();
+            long reversedNano = reverseNumber(System.nanoTime());
+            ret = currentMillis ^ reversedNano;
+        } while (sessions.containsKey(ret));
+        return ret;
+    }
+
+    private long reverseNumber(long value) {
+        long reversed = 0;
+        while (value != 0) {
+            reversed = reversed * 10 + (value % 10);
+            value /= 10;
+        }
+        return reversed;
+    }
+
 }

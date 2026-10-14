@@ -2,6 +2,7 @@ package info.gabrielszabo.ublog.service;
 
 import java.util.List;
 
+import info.gabrielszabo.ublog.domain.SessionContext;
 import info.gabrielszabo.ublog.server.http.Cookie;
 import info.gabrielszabo.ublog.server.http.HttpRequest;
 import info.gabrielszabo.ublog.server.http.HttpRequestHandler;
@@ -34,18 +35,26 @@ public class RequestHandlerService implements HttpRequestHandler {
     @Override
     public HttpResponse handleRequest(HttpRequest request) {
         log.logInfo("Handling request " + request.getPath());
-        BlogContext context = contextFactory.createContext();
+        BlogContext blogContext = contextFactory.createContext();
+        SessionContext sessionContext = new SessionContext();
 
         String requestedPath = request.getPath();
 
+        Long sessionId = getSessionId(request);
+        String sessionUsername = sessionService.getUsernameForSession(sessionId);
+        boolean isLoggedIn = sessionUsername != null;
+
+        sessionContext.setLoggedIn(isLoggedIn);
+        sessionContext.setSessionId(sessionId);
+        blogContext.setLoggedIn(isLoggedIn);
+
         if (isIndex(requestedPath)) {
-            context.addIndexToContext();
-            context.setLoggedIn(isLoggedIn(request));
-            context.setUsername(getSessionUsername(request));
+            blogContext.setUsername(sessionUsername);
+            blogContext.addIndexToContext();
         } else if (isLogin(requestedPath)) {
-            context.setIsLogin();
+            blogContext.setIsLogin();
         } else if (isLoginAction(requestedPath)) {
-            
+
             String body = request.getBody();
 
             String username = getUsernameFromLoginData(body);
@@ -56,56 +65,74 @@ public class RequestHandlerService implements HttpRequestHandler {
             boolean loginSuccessful = loginService.login(username, password);
             if (loginSuccessful) {
                 log.logInfo("Login successful for user: " + username);
-                context.setInitialLogin();
-                context.setName(userService.getFullName(username));
-                context.setUsername(username);
-                sessionService.createSession(username);
+                sessionContext.setInitialLogin(true);
+                blogContext.setName(userService.getFullName(username));
+                blogContext.setUsername(username);
+                Long newSessionId = sessionService.createSession(username);
+                sessionContext.setSessionId(newSessionId);
+                sessionContext.setLoggedIn(true);
             } else {
                 log.logInfo("Login failed for user: " + username);
             }
 
-            context.setLoggedIn(loginSuccessful);
-            context.addIndexToContext();
+            blogContext.setLoggedIn(loginSuccessful);
+            blogContext.addIndexToContext();
         } else if (isLogout(requestedPath)) {
-            context.setLoggingOut();
-            context.setUsername(getSessionUsername(request));
-            context.addIndexToContext();
+            sessionContext.setLoggingOut(true);
+            blogContext.setLoggingOut();
+            sessionContext.setLoggedIn(false);
+            blogContext.setLoggedIn(false);
+            blogContext.setUsername(getSessionUsername(request));
+            blogContext.addIndexToContext();
         } else {
-            context.setLoggedIn(isLoggedIn(request));
-            context.setUsername(getSessionUsername(request));
+            blogContext.setUsername(getSessionUsername(request));
             String[] pathParts = requestedPath.split("/");
             if (pathParts.length == 2) {
                 String entryName = pathParts[1];
-                context.setRequestedSingleEntry(entryName);
+                blogContext.setRequestedSingleEntry(entryName);
             } else if (pathParts.length == 3) {
                 // Should render entry
-                context.addBlogEntryContentToContext(pathParts);
+                blogContext.addBlogEntryContentToContext(pathParts);
             }
         }
 
-        return createHttpResponseFromContext(context);
+        if (isLoggedIn) {
+            sessionService.refreshSession(sessionId);
+        }
+
+        return createHttpResponseFromContext(blogContext, sessionContext);
     }
 
-    private HttpResponse createHttpResponseFromContext(BlogContext context) {
+    private HttpResponse createHttpResponseFromContext(BlogContext context, SessionContext session) {
         HttpResponse response = new HttpResponse();
 
         response.setStatusCode(200);
         response.setContentType("text/html");
         response.setBody(templateService.render(PAGE_TEMPLATE, context));
 
-        //Session handling
-        if (context.isLoggedIn()) {
-            if (context.isInitialLogin()) {
-                response.addCookie(sessionService.getSessionCookie(context.getUsername()));
+        // Session handling
+        if (session.isLoggedIn()) {
+            if (session.isInitialLogin()) {
+                response.addCookie(createSessionCookie(session.getSessionId()));
             } else if (context.isLoggingOut()) {
-                sessionService.invalidateSession(context.getUsername());
-                response.addCookie(sessionService.getSessionInvalidationCookie(context.getUsername()));
+                sessionService.invalidateSession(session.getSessionId());
+                response.addCookie(createSessionInvalidationCookie());
             } else {
-                sessionService.refreshSession(context.getUsername());
+                sessionService.refreshSession(session.getSessionId());
             }
         }
 
         return response;
+    }
+
+    private Cookie createSessionCookie(Long sessionId) {
+        Cookie ret = new Cookie("session", sessionId + "");
+        return ret;
+    }
+
+    private Cookie createSessionInvalidationCookie() {
+        Cookie ret = new Cookie("session", "", 0);
+        return ret;
     }
 
     private boolean isIndex(String requestPath) {
@@ -156,16 +183,26 @@ public class RequestHandlerService implements HttpRequestHandler {
         return false;
     }
 
-    private String getSessionUsername(HttpRequest request) {
+    private Long getSessionId(HttpRequest request) {
         List<Cookie> cookies = request.getCookies();
         for (Cookie cookie : cookies) {
             if (cookie.getName().equals("session")) {
-                System.out.println("XXX Found session cookie: " + cookie);
-                return cookie.getValue();
+                try {
+                    return Long.parseLong(cookie.getValue());
+                } catch (NumberFormatException e) {
+                    return null;
+                }
             }
         }
-        System.out.println("XXX No session cookie found");
         return null;
+    }
+
+    private String getSessionUsername(HttpRequest request) {
+        Long sessionId = getSessionId(request);
+        if (sessionId == null) {
+            return null;
+        }
+        return sessionService.getUsernameForSession(sessionId);
     }
 
 }
