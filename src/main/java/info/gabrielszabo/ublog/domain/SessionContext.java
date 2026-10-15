@@ -1,7 +1,7 @@
 package info.gabrielszabo.ublog.domain;
 
 public class SessionContext {
-    private Long sessionId = 0L;
+    private String sessionId;
     private boolean isLoggedIn = false;
     private boolean isInitialLogin = false;
     private boolean isLoggingOut = false;
@@ -10,11 +10,11 @@ public class SessionContext {
 
     }
 
-    public Long getSessionId() {
+    public String getSessionId() {
         return sessionId;
     }
 
-    public void setSessionId(Long sessionId) {
+    public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
 

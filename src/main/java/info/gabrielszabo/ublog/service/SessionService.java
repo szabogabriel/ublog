@@ -1,38 +1,41 @@
 package info.gabrielszabo.ublog.service;
 
+import java.security.SecureRandom;
 import java.util.HashMap;
+import java.util.HexFormat;
 import java.util.Map;
-
-import info.gabrielszabo.ublog.service.log.LogService;
 
 public class SessionService {
 
+    private static final SecureRandom RANDOM = new SecureRandom();
     private final Long sessionTimeout;
-    private final Map<Long, Long> sessions = new HashMap<>();
-    private final Map<Long, String> sessionUsernames = new HashMap<>();
-    private final LogService log;
+    private final Map<String, Long> sessions = new HashMap<>();
+    private final Map<String, String> sessionUsernames = new HashMap<>();
 
-    public SessionService(LogService log) {
+    public SessionService() {
         this.sessionTimeout = Long.parseLong(System.getenv().getOrDefault("SESSION_TIMEOUT", "60")) * 60 * 1000;
-        this.log = log;
     }
 
-    public Long createSession(String username) {
-        long ret = generateSessionId();
+    public String createSession(String username) {
+        String ret = null;
+        
+        do {
+            ret = generateSessionId();
+        } while (sessions.containsKey(ret));
         
         sessions.put(ret, System.currentTimeMillis());
         sessionUsernames.put(ret, username);
         return ret;
     }
 
-    public void invalidateSession(Long sessionId) {
+    public void invalidateSession(String sessionId) {
         if (sessions.containsKey(sessionId)) {
             sessions.remove(sessionId);
             sessionUsernames.remove(sessionId);
         }
     }
 
-    public boolean isSessionValid(Long sessionId) {
+    public boolean isSessionValid(String sessionId) {
         boolean isValid = false;
         if (sessions.containsKey(sessionId)) {
             long sessionTimestamp = sessions.get(sessionId);
@@ -42,38 +45,28 @@ public class SessionService {
             return isValid;
     }
 
-    public void refreshSession(Long sessionId) {
+    public void refreshSession(String sessionId) {
         if (sessions.containsKey(sessionId)) {
             long newTimestamp = System.currentTimeMillis();
             sessions.put(sessionId, newTimestamp);
-            log.logInfo("Refreshed session: " + sessionId);
         }
     }
 
-    public String getUsernameForSession(Long sessionId) {
+    public String getUsernameForSession(String sessionId) {
         if (sessionId == null || !sessions.containsKey(sessionId)) {
             return null;
         }
         return sessionUsernames.get(sessionId);
     }
 
-    private long generateSessionId() {
-        long ret = 0L;
+    private String generateSessionId() {
+        byte[] randomBytes = new byte[16];
+        String ret;
         do {
-            long currentMillis = System.currentTimeMillis();
-            long reversedNano = reverseNumber(System.nanoTime());
-            ret = currentMillis ^ reversedNano;
+            RANDOM.nextBytes(randomBytes);
+            ret = HexFormat.of().formatHex(randomBytes);
         } while (sessions.containsKey(ret));
         return ret;
-    }
-
-    private long reverseNumber(long value) {
-        long reversed = 0;
-        while (value != 0) {
-            reversed = reversed * 10 + (value % 10);
-            value /= 10;
-        }
-        return reversed;
     }
 
 }

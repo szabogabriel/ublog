@@ -40,7 +40,7 @@ public class RequestHandlerService implements HttpRequestHandler {
 
         String requestedPath = request.getPath();
 
-        Long sessionId = getSessionId(request);
+        String sessionId = getSessionId(request);
         String sessionUsername = sessionService.getUsernameForSession(sessionId);
         boolean isLoggedIn = sessionUsername != null;
 
@@ -68,7 +68,7 @@ public class RequestHandlerService implements HttpRequestHandler {
                 sessionContext.setInitialLogin(true);
                 blogContext.setName(userService.getFullName(username));
                 blogContext.setUsername(username);
-                Long newSessionId = sessionService.createSession(username);
+                String newSessionId = sessionService.createSession(username);
                 sessionContext.setSessionId(newSessionId);
                 sessionContext.setLoggedIn(true);
             } else {
@@ -125,7 +125,7 @@ public class RequestHandlerService implements HttpRequestHandler {
         return response;
     }
 
-    private Cookie createSessionCookie(Long sessionId) {
+    private Cookie createSessionCookie(String sessionId) {
         Cookie ret = new Cookie("session", sessionId + "");
         return ret;
     }
@@ -183,22 +183,18 @@ public class RequestHandlerService implements HttpRequestHandler {
         return false;
     }
 
-    private Long getSessionId(HttpRequest request) {
+    private String getSessionId(HttpRequest request) {
         List<Cookie> cookies = request.getCookies();
         for (Cookie cookie : cookies) {
             if (cookie.getName().equals("session")) {
-                try {
-                    return Long.parseLong(cookie.getValue());
-                } catch (NumberFormatException e) {
-                    return null;
-                }
+                return cookie.getValue();
             }
         }
         return null;
     }
 
     private String getSessionUsername(HttpRequest request) {
-        Long sessionId = getSessionId(request);
+        String sessionId = getSessionId(request);
         if (sessionId == null) {
             return null;
         }
