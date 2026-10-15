@@ -1,8 +1,8 @@
 package info.gabrielszabo.ublog.service.template.mustache;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.jmtemplate.Template;
 
@@ -12,7 +12,7 @@ import info.gabrielszabo.ublog.service.template.TemplateService;
 
 public class MustacheTemplateService implements TemplateService {
 
-    private final Map<String, Template> templateCache = new HashMap<>();
+    private final ConcurrentMap<String, Template> templateCache = new ConcurrentHashMap<>();
 
     private final Boolean cachingEnabled = Boolean.valueOf(Config.MUSTACHE_TEMPLATES_CACHING_ENABLED.value());
 
@@ -23,36 +23,27 @@ public class MustacheTemplateService implements TemplateService {
             throw new IllegalArgumentException("Template name cannot be null");
         }
 
-        Template t = getFromCache(template);
-
-        if (t == null) {
-            File templateFolder = new File(Config.MUSTACHE_TEMPLATES_FOLDER.value());
-
-            if (!templateFolder.exists() || !templateFolder.isDirectory()) {
-                throw new IllegalStateException(
-                        "Template folder does not exist or is not a directory: " + templateFolder.getAbsolutePath());
-            }
-
-            t = new Template(templateFolder, template);
-
-            cacheTemplate(template, t);
+        Template templateInstance = getTemplate(template);
+        synchronized (templateInstance) {
+            ret = templateInstance.render(((MustacheBlogContext) context).getContextData());
         }
-        ret = t.render(((MustacheBlogContext)context).getContextData());
         return ret;
     }
 
-    private void cacheTemplate(String templateName, Template template) {
-        if (cachingEnabled) {
-            templateCache.put(templateName, template);
+    private Template getTemplate(String templateName) {
+        if (!cachingEnabled) {
+            return createTemplate(templateName);
         }
+        return templateCache.computeIfAbsent(templateName, this::createTemplate);
     }
 
-    private Template getFromCache(String template) {
-        if (cachingEnabled && templateCache.containsKey(template)) {
-            return templateCache.get(template);
-        } else {
-            return null;
+    private Template createTemplate(String templateName) {
+        File templateFolder = new File(Config.MUSTACHE_TEMPLATES_FOLDER.value());
+        if (!templateFolder.exists() || !templateFolder.isDirectory()) {
+            throw new IllegalStateException(
+                    "Template folder does not exist or is not a directory: " + templateFolder.getAbsolutePath());
         }
+        return new Template(templateFolder, templateName);
     }
 
 }

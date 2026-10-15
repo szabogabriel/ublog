@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.LinkOption;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
@@ -21,6 +22,7 @@ import info.gabrielszabo.ublog.markdown.MarkdownRenderingService;
 public class MarkdownContentProvider implements ContentProvider {
 
     private final File rootFolder;
+    private final Path contentRoot;
     private final MarkdownRenderingService markdownRenderingService;
     
     // Cache for quick links, categories, and entries
@@ -34,6 +36,7 @@ public class MarkdownContentProvider implements ContentProvider {
 
     public MarkdownContentProvider(MarkdownRenderingService markdownRenderingService) {
         this.rootFolder = new File(Config.TARGET_FOLDER.value());
+        this.contentRoot = resolveContentRoot(rootFolder.toPath());
         this.markdownRenderingService = markdownRenderingService;
         
         // Initial cache population
@@ -57,6 +60,9 @@ public class MarkdownContentProvider implements ContentProvider {
         
         // Scan for quick links and categories
         for (File file : rootFiles) {
+            if (Files.isSymbolicLink(file.toPath())) {
+                continue;
+            }
             if (file.isDirectory()) {
                 // Cache category
                 String categoryName = file.getName();
@@ -67,7 +73,8 @@ public class MarkdownContentProvider implements ContentProvider {
                 File[] categoryFiles = file.listFiles();
                 if (categoryFiles != null) {
                     for (File entryFile : categoryFiles) {
-                        if (entryFile.isFile() && entryFile.getName().endsWith(".md")) {
+                        if (!Files.isSymbolicLink(entryFile.toPath()) && entryFile.isFile()
+                                && entryFile.getName().endsWith(".md")) {
                             String entryName = stripExtension(entryFile.getName());
                             categoryEntries.put(entryName, 
                                 new EntryDescriptor(entryName, new Category(categoryName)));
@@ -211,12 +218,11 @@ public class MarkdownContentProvider implements ContentProvider {
     @Override
     @SuppressWarnings("CallToPrintStackTrace")
     public String getEntryContentAsHttp(EntryDescriptor entry) {
-        File categoryFolder = new File(rootFolder + "/" + (entry.getCategory() == null ? "" : entry.getCategory().getName()));
-        File entryFile = entry.getName() == null ? null : new File(categoryFolder, entry.getName() + ".md");
         String ret = "";
-        if (entryFile != null && entryFile.exists() && entryFile.isFile()) {
+        Path entryFile = resolveEntryPath(entry);
+        if (entryFile != null && Files.isRegularFile(entryFile, LinkOption.NOFOLLOW_LINKS)) {
             try {
-                ret = Files.readString(entryFile.toPath());
+                ret = Files.readString(entryFile);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -229,6 +235,44 @@ public class MarkdownContentProvider implements ContentProvider {
             ret = "# Error\n\nRequested content not found.";
         }
         return markdownRenderingService.renderToHtml(ret);
+    }
+
+    private Path resolveEntryPath(EntryDescriptor entry) {
+        if (entry == null || entry.getName() == null || entry.getName().isEmpty()
+                || entry.getName().contains("/") || entry.getName().contains("\\")) {
+            return null;
+        }
+        Path candidate = contentRoot;
+        if (entry.getCategory() != null) {
+            String categoryName = entry.getCategory().getName();
+            if (categoryName == null || categoryName.isEmpty() || categoryName.contains("/")
+                    || categoryName.contains("\\")) {
+                return null;
+            }
+            candidate = candidate.resolve(categoryName);
+        }
+        candidate = candidate.resolve(entry.getName() + ".md").normalize();
+        if (!candidate.startsWith(contentRoot)) {
+            return null;
+        }
+
+        Path current = contentRoot;
+        for (Path part : contentRoot.relativize(candidate)) {
+            current = current.resolve(part);
+            if (Files.isSymbolicLink(current)) {
+                return null;
+            }
+        }
+        return candidate;
+    }
+
+    private Path resolveContentRoot(Path configuredRoot) {
+        Path absoluteRoot = configuredRoot.toAbsolutePath().normalize();
+        try {
+            return absoluteRoot.toRealPath();
+        } catch (IOException e) {
+            return absoluteRoot;
+        }
     }
 
     @Override

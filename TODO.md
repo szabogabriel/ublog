@@ -22,68 +22,68 @@
 **Affected:** `SessionService.java`, `RequestHandlerService.java`
 
 ### 3. Correct logout handling
-- [ ] Fix the condition preventing logout from invalidating sessions.
-- [ ] Clear the browser's session cookie.
-- [ ] Ensure logout works even when the session has expired.
-- [ ] Separate logout processing from template context generation.
+- [x] Fix the condition preventing logout from invalidating sessions.
+- [x] Clear the browser's session cookie.
+- [x] Ensure logout works even when the session has expired.
+- [x] Separate logout processing from template context generation.
 
 **Affected:** `RequestHandlerService.java`
 
 ### 4. Fix HTTP request framing
-- [ ] Read HTTP headers until the complete header terminator (`\r\n\r\n`) is received.
-- [ ] Read the request body according to `Content-Length`, measured in bytes.
-- [ ] Handle incomplete requests and unexpected connection termination.
-- [ ] Introduce request-size and header-size limits.
-- [ ] Introduce socket read timeouts.
-- [ ] Reject unsupported transfer encodings safely.
-- [ ] Handle malformed HTTP requests without terminating worker threads unexpectedly.
+- [x] Read HTTP headers until the complete header terminator (`\r\n\r\n`) is received.
+- [x] Read the request body according to `Content-Length`, measured in bytes.
+- [x] Handle incomplete requests and unexpected connection termination.
+- [x] Introduce request-size and header-size limits.
+- [x] Introduce socket read timeouts.
+- [x] Reject unsupported transfer encodings safely.
+- [x] Handle malformed HTTP requests without terminating worker threads unexpectedly.
 
 **Affected:** `PooledSocketHandler.java`, `HttpRequest.java`
 
 ### 5. Fix HTTP character encoding
-- [ ] Use explicit UTF-8 encoding when writing responses.
-- [ ] Calculate `Content-Length` based on the actual response bytes.
-- [ ] Decode incoming request bodies using the appropriate character encoding.
-- [ ] Ensure special and non-ASCII characters work correctly.
+- [x] Use explicit UTF-8 encoding when writing responses.
+- [x] Calculate `Content-Length` based on the actual response bytes.
+- [x] Decode incoming request bodies using the appropriate character encoding.
+- [x] Ensure special and non-ASCII characters work correctly.
 
 **Affected:** `PooledSocketHandler.java`, `HttpRequest.java`, `HttpResponse.java`
 
 ### 6. Secure password handling
-- [ ] Replace plaintext password comparison with password-hash verification.
-- [ ] Use Argon2id, bcrypt, or another established password-hashing algorithm.
-- [ ] Store algorithm parameters and salts alongside password hashes.
-- [ ] Handle missing or malformed password properties safely.
-- [ ] Introduce basic login rate limiting.
+- [x] Replace plaintext password comparison with password-hash verification.
+- [x] Use Argon2id, bcrypt, or another established password-hashing algorithm.
+- [x] Store algorithm parameters and salts alongside password hashes.
+- [x] Handle missing or malformed password properties safely.
+- [x] Introduce basic login rate limiting.
 
 **Affected:** `LoginService.java`, `UserService.java`, `User.java`
 
 ### 7. Secure cookies and cookie parsing
-- [ ] Properly parse multiple cookies from a single `Cookie` header.
-- [ ] Add support for `HttpOnly`, `Secure`, `SameSite`, and `Path` attributes in response cookies.
-- [ ] Validate cookie names and values before serialization.
-- [ ] Prevent HTTP header injection.
-- [ ] Handle invalid and missing session cookies safely.
-- [ ] Avoid logging sensitive cookie values.
+- [x] Properly parse multiple cookies from a single `Cookie` header.
+- [x] Add support for `HttpOnly`, `Secure`, `SameSite`, and `Path` attributes in response cookies.
+- [x] Validate cookie names and values before serialization.
+- [x] Prevent HTTP header injection.
+- [x] Handle invalid and missing session cookies safely.
+- [x] Avoid logging sensitive cookie values.
 
 **Affected:** `Cookie.java`, `HttpRequest.java`, `HttpResponse.java`
 
 ### 8. Protect filesystem paths
-- [ ] Validate usernames before converting them into filenames.
-- [ ] Prevent `../` path traversal.
-- [ ] Normalize and validate requested content paths.
-- [ ] Restrict content access to the configured content root.
-- [ ] Prevent access to user property files and other private application files.
-- [ ] Define how symbolic links should be handled.
-- [ ] Apply the same restrictions to future file-editing functionality.
+- [x] Validate usernames before converting them into filenames.
+- [x] Prevent `../` path traversal.
+- [x] Normalize and validate requested content paths.
+- [x] Restrict content access to the configured content root.
+- [x] Prevent access to user property files and other private application files.
+- [x] Define how symbolic links should be handled.
+- [x] Apply the same restrictions to future file-editing functionality.
 
 **Affected:** `UserService.java`, `MarkdownContentProvider.java`, `RequestHandlerService.java`
 
 ### 9. Fix concurrent access to shared state
-- [ ] Replace the session `HashMap` instances with a thread-safe design.
-- [ ] Consider using a single map associating session IDs with session objects.
-- [ ] Replace or remove the `WeakHashMap` user cache.
-- [ ] Make template caching safe for concurrent requests.
-- [ ] Ensure session creation, validation, refresh, and invalidation behave correctly under concurrency.
+- [x] Replace the session `HashMap` instances with a thread-safe design.
+- [x] Consider using a single map associating session IDs with session objects.
+- [x] Replace or remove the `WeakHashMap` user cache.
+- [x] Make template caching safe for concurrent requests.
+- [x] Ensure session creation, validation, refresh, and invalidation behave correctly under concurrency.
 
 **Affected:** `SessionService.java`, `UserService.java`, `MustacheTemplateService.java`
 

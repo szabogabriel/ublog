@@ -10,7 +10,7 @@ public class App {
     public static final ServiceFactory serviceFactory = new ServiceFactoryImpl(ConfigServiceImpl.INSTANCE);
 
     private App() {
-        serviceFactory.getServiceImpl(Server.class);;
+        serviceFactory.getServiceImpl(Server.class);
     }
 
     public static void main(String[] args) {

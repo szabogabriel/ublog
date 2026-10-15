@@ -78,6 +78,7 @@ public class RequestHandlerService implements HttpRequestHandler {
             blogContext.setLoggedIn(loginSuccessful);
             blogContext.addIndexToContext();
         } else if (isLogout(requestedPath)) {
+            sessionService.invalidateSession(sessionId);
             sessionContext.setLoggingOut(true);
             blogContext.setLoggingOut();
             sessionContext.setLoggedIn(false);
@@ -96,7 +97,7 @@ public class RequestHandlerService implements HttpRequestHandler {
             }
         }
 
-        if (isLoggedIn) {
+        if (isLoggedIn && !isLogout(requestedPath)) {
             sessionService.refreshSession(sessionId);
         }
 
@@ -111,28 +112,25 @@ public class RequestHandlerService implements HttpRequestHandler {
         response.setBody(templateService.render(PAGE_TEMPLATE, context));
 
         // Session handling
-        if (session.isLoggedIn()) {
-            if (session.isInitialLogin()) {
-                response.addCookie(createSessionCookie(session.getSessionId()));
-            } else if (context.isLoggingOut()) {
-                sessionService.invalidateSession(session.getSessionId());
-                response.addCookie(createSessionInvalidationCookie());
-            } else {
-                sessionService.refreshSession(session.getSessionId());
-            }
+        if (session.isLoggingOut()) {
+            response.addCookie(createSessionInvalidationCookie());
+        } else if (session.isInitialLogin()) {
+            response.addCookie(createSessionCookie(session.getSessionId()));
         }
 
         return response;
     }
 
     private Cookie createSessionCookie(String sessionId) {
-        Cookie ret = new Cookie("session", sessionId + "");
-        return ret;
+        return configureSessionCookie(new Cookie("session", sessionId));
     }
 
     private Cookie createSessionInvalidationCookie() {
-        Cookie ret = new Cookie("session", "", 0);
-        return ret;
+        return configureSessionCookie(new Cookie("session", "", 0));
+    }
+
+    private Cookie configureSessionCookie(Cookie cookie) {
+        return cookie.setPath("/").setHttpOnly(true).setSameSite("Lax");
     }
 
     private boolean isIndex(String requestPath) {
