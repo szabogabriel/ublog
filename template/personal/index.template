@@ -1,0 +1,56 @@
+{{>html_start.template}}
+{{>navbar.template}}
+<main class="page-shell">
+  <section class="opening" aria-labelledby="opening-title">
+    <div class="opening-copy">
+      <p class="eyebrow"><span class="eyebrow-mark"></span> A PERSONAL JOURNAL <span class="eyebrow-divider">/</span> {{PAGE_TITLE}}</p>
+      <h1 id="opening-title">Good things happen when you pay attention.</h1>
+      <p class="opening-note">Stories, places, and small things worth keeping.</p>
+      <a class="text-link" href="#latest">Read the latest <span aria-hidden="true">&darr;</span></a>
+    </div>
+    <div class="opening-image" role="img" aria-label="A quiet mountain lake at the end of the day">
+      <span class="image-caption">NOTES FROM HERE AND THERE</span>
+    </div>
+  </section>
+
+  <div class="content-grid" id="latest">
+    <section class="writing-column" aria-label="Blog content">
+      <div class="section-heading">
+        <p class="eyebrow">THE JOURNAL</p>
+        <span class="section-rule"></span>
+      </div>
+      <article class="prose">{{{DATA}}}</article>
+      {{#ENTRIES}}
+      <a class="entry-row" href="/{{category}}/{{name}}">
+        <span class="entry-label">FIELD NOTE</span>
+        <span class="entry-title">{{name}}</span>
+        <span class="entry-category">{{category}}</span>
+        <span class="entry-arrow" aria-hidden="true">&rarr;</span>
+      </a>
+      {{/ENTRIES}}
+      {{#LOGIN}}
+      {{>login.template}}
+      {{/LOGIN}}
+    </section>
+
+    <aside class="sidebar">
+      <section class="sidebar-section">
+        <p class="eyebrow">BROWSE BY TOPIC</p>
+        <ul class="topic-list">
+          {{#TOPICS}}<li><a href="/{{name}}">{{name}}<span aria-hidden="true">&nearr;</span></a></li>{{/TOPICS}}
+        </ul>
+      </section>
+      <section class="sidebar-section">
+        <p class="eyebrow">A FEW MORE THINGS</p>
+        <ul class="topic-list">
+          {{#QUICK_LINKS}}<li><a href="/{{name}}">{{name}}<span aria-hidden="true">&nearr;</span></a></li>{{/QUICK_LINKS}}
+        </ul>
+      </section>
+      <div class="sidebar-note">
+        <span class="note-symbol" aria-hidden="true">*</span>
+        <p>Made slowly, shared openly.</p>
+      </div>
+    </aside>
+  </div>
+</main>
+{{>html_end.template}}

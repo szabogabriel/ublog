@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export MUSTACHE_TEMPLATES_CACHING_ENABLED=true
-export MUSTACHE_TEMPLATES_FOLDER=./template
+export MUSTACHE_TEMPLATES_FOLDER=./template/personal
 
 export SERVER_PORT=8080
 

@@ -1,0 +1,14 @@
+<section class="login-panel" aria-labelledby="login-title">
+  <h2 id="login-title">Welcome back</h2>
+  <form action="/loginaction" method="post">
+    <div class="login-field">
+      <label for="username">USERNAME</label>
+      <input type="text" id="username" name="username" autocomplete="username" required>
+    </div>
+    <div class="login-field">
+      <label for="password">PASSWORD</label>
+      <input type="password" id="password" name="password" autocomplete="current-password" required>
+    </div>
+    <button class="login-submit" type="submit">Log in</button>
+  </form>
+</section>

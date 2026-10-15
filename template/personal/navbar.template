@@ -1,0 +1,26 @@
+<header class="site-header">
+  <div class="nav-wrap">
+    <a class="wordmark" href="/index" aria-label="Fieldnotes home">
+      <span class="wordmark-symbol" aria-hidden="true">f.</span>
+      <span class="wordmark-text">
+        <span class="wordmark-name">Fieldnotes</span>
+        <span class="wordmark-caption">A PERSONAL BLOG</span>
+      </span>
+    </a>
+    <div class="nav-groups">
+      <ul class="nav-links">
+        {{#TOPICS}}<li><a href="/{{name}}">{{name}}</a></li>{{/TOPICS}}
+        {{#QUICK_LINKS}}<li><a href="/{{name}}">{{name}}</a></li>{{/QUICK_LINKS}}
+      </ul>
+      <div class="account-links">
+        {{#LOGGED_IN}}
+        <a href="/user">{{USERNAME}}</a>
+        <a href="/logout">Log out</a>
+        {{/LOGGED_IN}}
+        {{^LOGGED_IN}}
+        <a class="login-link" href="/login">Log in</a>
+        {{/LOGGED_IN}}
+      </div>
+    </div>
+  </div>
+</header>

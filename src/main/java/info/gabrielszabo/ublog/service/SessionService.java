@@ -42,10 +42,19 @@ public class SessionService {
             isValid = (System.currentTimeMillis() - sessionTimestamp) <= sessionTimeout;
         }
 
-            return isValid;
+        if (!isValid){
+            invalidateSession(sessionId);
+        }
+        
+
+        return isValid;
     }
 
     public void refreshSession(String sessionId) {
+        if (!isSessionValid(sessionId)) {
+            invalidateSession(sessionId);
+            return;
+        }
         if (sessions.containsKey(sessionId)) {
             long newTimestamp = System.currentTimeMillis();
             sessions.put(sessionId, newTimestamp);
@@ -53,6 +62,10 @@ public class SessionService {
     }
 
     public String getUsernameForSession(String sessionId) {
+        if (!isSessionValid(sessionId)) {
+            invalidateSession(sessionId);
+            return null;
+        }
         if (sessionId == null || !sessions.containsKey(sessionId)) {
             return null;
         }
