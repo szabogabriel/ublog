@@ -8,7 +8,11 @@
           {{#QUICK_LINKS}}<li><a href="/{{name}}">{{name}}</a></li>{{/QUICK_LINKS}}
           {{#LOGGED_IN}}
             <li><a href="/user">{{USERNAME}}</a></li>
-            <li><a href="/logout">Logout</a></li>
+            <li>
+              <form action="/logout" method="post">
+                <button type="submit">Logout</button>
+              </form>
+            </li>
           {{/LOGGED_IN}}
           {{^LOGGED_IN}}
             <li><a href="/login">Login</a></li>

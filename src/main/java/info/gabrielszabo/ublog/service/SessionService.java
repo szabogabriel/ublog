@@ -4,18 +4,22 @@ import java.security.SecureRandom;
 import java.util.HexFormat;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SessionService {
 
     private static final SecureRandom RANDOM = new SecureRandom();
+    private static final int CLEANUP_INTERVAL = 256;
     private final Long sessionTimeout;
     private final ConcurrentMap<String, Session> sessions = new ConcurrentHashMap<>();
+    private final AtomicInteger operationCounter = new AtomicInteger();
 
     public SessionService() {
         this.sessionTimeout = Long.parseLong(System.getenv().getOrDefault("SESSION_TIMEOUT", "60")) * 60 * 1000;
     }
 
     public String createSession(String username) {
+        maybeCleanupExpiredSessions(System.currentTimeMillis());
         String sessionId;
         do {
             sessionId = generateSessionId();
@@ -24,6 +28,7 @@ public class SessionService {
     }
 
     public void invalidateSession(String sessionId) {
+        maybeCleanupExpiredSessions(System.currentTimeMillis());
         if (sessionId != null) {
             sessions.remove(sessionId);
         }
@@ -38,6 +43,7 @@ public class SessionService {
             return;
         }
         long now = System.currentTimeMillis();
+        maybeCleanupExpiredSessions(now);
         sessions.computeIfPresent(sessionId, (id, session) -> session.isValidAt(now, sessionTimeout)
                 ? new Session(session.username, now) : null);
     }
@@ -52,8 +58,19 @@ public class SessionService {
             return null;
         }
         long now = System.currentTimeMillis();
+        maybeCleanupExpiredSessions(now);
         return sessions.computeIfPresent(sessionId, (id, session) ->
                 session.isValidAt(now, sessionTimeout) ? session : null);
+    }
+
+    private void maybeCleanupExpiredSessions(long now) {
+        if ((operationCounter.incrementAndGet() % CLEANUP_INTERVAL) == 0) {
+            sessions.forEach((sessionId, session) -> {
+                if (!session.isValidAt(now, sessionTimeout)) {
+                    sessions.remove(sessionId, session);
+                }
+            });
+        }
     }
 
     private String generateSessionId() {

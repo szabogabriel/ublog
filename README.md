@@ -40,4 +40,8 @@ An example of the configuration is present in the `run.sh` script. The `pom.xml`
 
 `SOCKET_HANDLER_THREAD_POOL_SIZE` the size of the thread pool for the request handlers. By default is set to 10 threads.
 
+`SOCKET_HANDLER_QUEUE_CAPACITY` the maximum number of queued connections waiting for a request handler. Excess connections receive HTTP 503. Defaults to 100.
+
+`SESSION_COOKIE_SECURE` enables the `Secure` attribute on session cookies. Set to `true` when serving over HTTPS; defaults to `false` for the plain-HTTP local server.
+
 `TARGET_FOLDER` the folder where the markdown files are hosted. For example `/var/www/markdown`.

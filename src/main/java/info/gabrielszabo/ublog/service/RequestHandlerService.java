@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import info.gabrielszabo.ublog.config.Config;
 import info.gabrielszabo.ublog.domain.SessionContext;
 import info.gabrielszabo.ublog.server.http.Cookie;
 import info.gabrielszabo.ublog.server.http.HttpRequest;
@@ -55,6 +56,11 @@ public class RequestHandlerService implements HttpRequestHandler {
             } catch (IllegalArgumentException e) {
                 return createClientError(400, "Invalid login form");
             }
+        }
+        if (isLogout(requestedPath) && request.getMethod() != info.gabrielszabo.ublog.server.http.HttpMethods.POST) {
+            HttpResponse response = createClientError(405, "Logout requires POST");
+            response.addHeader("Allow", "POST");
+            return response;
         }
 
         BlogContext blogContext = contextFactory.createContext();
@@ -148,7 +154,8 @@ public class RequestHandlerService implements HttpRequestHandler {
     }
 
     private Cookie configureSessionCookie(Cookie cookie) {
-        return cookie.setPath("/").setHttpOnly(true).setSameSite("Lax");
+        return cookie.setPath("/").setHttpOnly(true).setSecure(Boolean.parseBoolean(Config.SESSION_COOKIE_SECURE.value()))
+            .setSameSite("Lax");
     }
 
     private boolean isIndex(String requestPath) {

@@ -15,7 +15,9 @@
       <div class="account-links">
         {{#LOGGED_IN}}
         <a href="/user">{{USERNAME}}</a>
-        <a href="/logout">Log out</a>
+        <form action="/logout" method="post">
+          <button type="submit">Log out</button>
+        </form>
         {{/LOGGED_IN}}
         {{^LOGGED_IN}}
         <a class="login-link" href="/login">Log in</a>

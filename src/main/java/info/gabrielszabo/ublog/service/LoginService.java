@@ -1,8 +1,9 @@
 package info.gabrielszabo.ublog.service;
 
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
@@ -15,12 +16,15 @@ public class LoginService {
     private static final int HASH_MEMORY_KIB = 7168;
     private static final int HASH_PARALLELISM = 1;
     private static final int MAX_FAILURES = 5;
+    private static final int MAX_FAILURE_ENTRIES = 10_000;
     private static final long FAILURE_WINDOW_MILLIS = 30 * 60 * 1000L;
+    private static final int CLEANUP_INTERVAL = 256;
     private static final String ARGON2ID_PREFIX = "$argon2id$";
 
     private final UserService userService;
     private final LogService log;
     private final ConcurrentMap<String, FailureWindow> failures = new ConcurrentHashMap<>();
+    private final AtomicInteger cleanupCounter = new AtomicInteger();
 
     public LoginService(UserService userService, LogService log) {
         this.userService = userService;
@@ -79,9 +83,10 @@ public class LoginService {
     }
 
     private boolean isRateLimited(String username, long now) {
+        cleanupExpiredEntriesIfDue(now);
         FailureWindow window = failures.get(username);
         if (window == null) {
-            return false;
+            return failures.size() >= MAX_FAILURE_ENTRIES;
         }
         if (now - window.windowStartedAt >= FAILURE_WINDOW_MILLIS) {
             failures.remove(username, window);
@@ -90,13 +95,27 @@ public class LoginService {
         return window.failures >= MAX_FAILURES;
     }
 
-    private void recordFailure(String username, long now) {
+    private synchronized void recordFailure(String username, long now) {
+        cleanupExpiredEntriesIfDue(now);
+        if (!failures.containsKey(username) && failures.size() >= MAX_FAILURE_ENTRIES) {
+            return;
+        }
         failures.compute(username, (key, existing) -> {
             if (existing == null || now - existing.windowStartedAt >= FAILURE_WINDOW_MILLIS) {
                 return new FailureWindow(now, 1);
             }
             return new FailureWindow(existing.windowStartedAt, existing.failures + 1);
         });
+    }
+
+    private void cleanupExpiredEntriesIfDue(long now) {
+        if ((cleanupCounter.incrementAndGet() % CLEANUP_INTERVAL) == 0) {
+            failures.forEach((username, window) -> {
+                if (now - window.windowStartedAt >= FAILURE_WINDOW_MILLIS) {
+                    failures.remove(username, window);
+                }
+            });
+        }
     }
 
     private static final class FailureWindow {

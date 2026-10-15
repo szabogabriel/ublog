@@ -7,16 +7,17 @@ import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
-import java.util.Locale;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class HttpRequest {
 
     private static final int MAX_HEADER_BYTES = 16 * 1024;
     private static final int MAX_REQUEST_BYTES = 1024 * 1024;
+    private static final int MAX_AUTH_REQUEST_BODY_BYTES = 8 * 1024;
     private static final byte[] HEADER_TERMINATOR = { '\r', '\n', '\r', '\n' };
 
     private HttpMethods method;
@@ -51,6 +52,9 @@ public class HttpRequest {
             body = rawRequest.substring(separator + 4);
             if (contentLength == 0) {
                 contentLength = body.getBytes(StandardCharsets.UTF_8).length;
+            }
+            if (isAuthenticationPath(path) && contentLength > MAX_AUTH_REQUEST_BODY_BYTES) {
+                throw new IllegalArgumentException("Authentication request body too large");
             }
         }
     }
@@ -189,7 +193,14 @@ public class HttpRequest {
             headers.put(name, value);
         }
         this.contentLength = contentLength == null ? 0 : contentLength;
+        if (isAuthenticationPath(path) && this.contentLength > MAX_AUTH_REQUEST_BODY_BYTES) {
+            throw new RequestException(413, "Authentication request body too large");
+        }
         return this.contentLength;
+    }
+
+    private boolean isAuthenticationPath(String requestPath) {
+        return requestPath.equals("/login") || requestPath.equals("/loginaction") || requestPath.equals("/logout");
     }
 
     public static class RequestException extends IOException {

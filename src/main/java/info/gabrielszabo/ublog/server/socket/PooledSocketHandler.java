@@ -6,8 +6,10 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import info.gabrielszabo.ublog.config.Config;
 import info.gabrielszabo.ublog.server.http.HttpRequest;
@@ -22,43 +24,53 @@ public class PooledSocketHandler implements SocketHandler {
     private final HttpRequestHandler requestHandler;
 
     public PooledSocketHandler(HttpRequestHandler requestHandler) {
-        // Constructor implementation
         this.requestHandler = requestHandler;
-        executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(Integer.parseInt(Config.SOCKET_HANDLER_THREAD_POOL_SIZE.value()));
+        int threadCount = Integer.parseInt(Config.SOCKET_HANDLER_THREAD_POOL_SIZE.value());
+        int queueCapacity = Integer.parseInt(Config.SOCKET_HANDLER_QUEUE_CAPACITY.value());
+        executor = new ThreadPoolExecutor(threadCount, threadCount, 0L, TimeUnit.MILLISECONDS,
+            new ArrayBlockingQueue<>(queueCapacity));
     }
 
     @Override
     @SuppressWarnings("CallToPrintStackTrace")
     public void handle(Socket socket) {
-        executor.execute(() -> {
-            try (Socket client = socket) {
-                client.setSoTimeout(SOCKET_READ_TIMEOUT_MILLIS);
-                InputStream inStream = client.getInputStream();
-                OutputStream outStream = client.getOutputStream();
+        try {
+            executor.execute(() -> {
+                try (Socket client = socket) {
+                    client.setSoTimeout(SOCKET_READ_TIMEOUT_MILLIS);
+                    InputStream inStream = client.getInputStream();
+                    OutputStream outStream = client.getOutputStream();
 
-                HttpRequest httpRequest;
-                try {
-                    httpRequest = HttpRequest.readFrom(inStream);
-                } catch (HttpRequest.RequestException e) {
-                    writeErrorResponse(outStream, e.getStatusCode(), e.getMessage());
-                    return;
-                } catch (SocketTimeoutException e) {
-                    writeErrorResponse(outStream, 408, "Request timed out");
-                    return;
-                }
+                    HttpRequest httpRequest;
+                    try {
+                        httpRequest = HttpRequest.readFrom(inStream);
+                    } catch (HttpRequest.RequestException e) {
+                        writeErrorResponse(outStream, e.getStatusCode(), e.getMessage());
+                        return;
+                    } catch (SocketTimeoutException e) {
+                        writeErrorResponse(outStream, 408, "Request timed out");
+                        return;
+                    }
 
-                try {
-                    HttpResponse httpResponse = requestHandler.handleRequest(httpRequest);
-                    outStream.write(httpResponse.toHttpResponseMessage().getBytes(StandardCharsets.UTF_8));
-                    outStream.flush();
-                } catch (RuntimeException e) {
+                    try {
+                        HttpResponse httpResponse = requestHandler.handleRequest(httpRequest);
+                        outStream.write(httpResponse.toHttpResponseMessage().getBytes(StandardCharsets.UTF_8));
+                        outStream.flush();
+                    } catch (RuntimeException e) {
+                        e.printStackTrace();
+                        writeErrorResponse(outStream, 500, "Internal server error");
+                    }
+                } catch (IOException e) {
                     e.printStackTrace();
-                    writeErrorResponse(outStream, 500, "Internal server error");
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
+            });
+        } catch (RejectedExecutionException e) {
+            try (Socket rejected = socket) {
+                writeErrorResponse(rejected.getOutputStream(), 503, "Server is busy");
+            } catch (IOException ignored) {
+                // The connection may close before the overload response is written.
             }
-        });
+        }
     }
 
     private void writeErrorResponse(OutputStream outStream, int statusCode, String message) throws IOException {

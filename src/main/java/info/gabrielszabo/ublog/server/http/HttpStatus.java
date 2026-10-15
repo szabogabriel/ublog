@@ -10,7 +10,8 @@ public enum HttpStatus {
     REQUEST_HEADER_FIELDS_TOO_LARGE(431, "Request Header Fields Too Large"),
     NOT_IMPLEMENTED(501, "Not Implemented"),
     NOT_FOUND(404, "Not Found"),
-    INTERNAL_SERVER_ERROR(500, "Internal Server Error");
+    INTERNAL_SERVER_ERROR(500, "Internal Server Error"),
+    SERVICE_UNAVAILABLE(503, "Service Unavailable");
 
     private final int code;
     private final String reasonPhrase;

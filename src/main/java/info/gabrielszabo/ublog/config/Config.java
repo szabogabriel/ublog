@@ -33,8 +33,10 @@ public enum Config {
     SERVER_PORT("server.port", "8080"),
 
     SESSION_TIMEOUT("session.timeout", "60"),
+    SESSION_COOKIE_SECURE("session.cookie.secure", "false"),
 
     SOCKET_HANDLER_THREAD_POOL_SIZE("socket.handler.thread.pool.size", "10"),
+    SOCKET_HANDLER_QUEUE_CAPACITY("socket.handler.queue.capacity", "100"),
 
     TARGET_FOLDER("target.folder", "./blogFolder"),
     USER_FOLDER("user.folder", "./userFolder"),
