@@ -1,6 +1,10 @@
 package info.gabrielszabo.ublog.service;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import info.gabrielszabo.ublog.domain.SessionContext;
 import info.gabrielszabo.ublog.server.http.Cookie;
@@ -35,10 +39,26 @@ public class RequestHandlerService implements HttpRequestHandler {
     @Override
     public HttpResponse handleRequest(HttpRequest request) {
         log.logInfo("Handling request " + request.getPath());
+        String requestedPath = request.getPath();
+        LoginForm loginForm = null;
+        if (isLoginAction(requestedPath)) {
+            if (request.getMethod() != info.gabrielszabo.ublog.server.http.HttpMethods.POST) {
+                HttpResponse response = createClientError(405, "Login requires POST");
+                response.addHeader("Allow", "POST");
+                return response;
+            }
+            if (!isFormContentType(request.getContentType())) {
+                return createClientError(415, "Expected application/x-www-form-urlencoded");
+            }
+            try {
+                loginForm = parseLoginForm(request.getBody());
+            } catch (IllegalArgumentException e) {
+                return createClientError(400, "Invalid login form");
+            }
+        }
+
         BlogContext blogContext = contextFactory.createContext();
         SessionContext sessionContext = new SessionContext();
-
-        String requestedPath = request.getPath();
 
         String sessionId = getSessionId(request);
         String sessionUsername = sessionService.getUsernameForSession(sessionId);
@@ -55,10 +75,8 @@ public class RequestHandlerService implements HttpRequestHandler {
             blogContext.setIsLogin();
         } else if (isLoginAction(requestedPath)) {
 
-            String body = request.getBody();
-
-            String username = getUsernameFromLoginData(body);
-            String password = getPasswordFromLoginData(body);
+            String username = loginForm.username();
+            String password = loginForm.password();
 
             log.logTrace("Login action: " + username);
 
@@ -149,27 +167,48 @@ public class RequestHandlerService implements HttpRequestHandler {
         return requestPath.equals("/logout");
     }
 
-    private String getUsernameFromLoginData(String loginData) {
-        String[] parts = loginData.split("&");
-        for (String part : parts) {
-            String[] keyValue = part.split("=");
-            if (keyValue.length == 2 && keyValue[0].equals("username")) {
-                return keyValue[1];
-            }
+    private boolean isFormContentType(String contentType) {
+        if (contentType == null) {
+            return false;
         }
-        return null;
+        int parameterStart = contentType.indexOf(';');
+        String mediaType = parameterStart >= 0 ? contentType.substring(0, parameterStart) : contentType;
+        return mediaType.trim().equalsIgnoreCase("application/x-www-form-urlencoded");
     }
 
-    private String getPasswordFromLoginData(String loginData) {
-        String[] parts = loginData.split("&");
-        for (String part : parts) {
-            String[] keyValue = part.split("=");
-            if (keyValue.length == 2 && keyValue[0].equals("password")) {
-                return keyValue[1];
+    private LoginForm parseLoginForm(String body) {
+        if (body == null || body.isEmpty()) {
+            throw new IllegalArgumentException("Missing login form fields");
+        }
+        Map<String, String> fields = new LinkedHashMap<>();
+        for (String pair : body.split("&", -1)) {
+            int separator = pair.indexOf('=');
+            if (separator < 0) {
+                throw new IllegalArgumentException("Malformed form field");
+            }
+            String name = URLDecoder.decode(pair.substring(0, separator), StandardCharsets.UTF_8);
+            String value = URLDecoder.decode(pair.substring(separator + 1), StandardCharsets.UTF_8);
+            if (fields.putIfAbsent(name, value) != null) {
+                throw new IllegalArgumentException("Duplicate form field");
             }
         }
-        return null;
+        String username = fields.get("username");
+        String password = fields.get("password");
+        if (username == null || username.isBlank() || password == null || password.isEmpty()) {
+            throw new IllegalArgumentException("Missing login form field");
+        }
+        return new LoginForm(username, password);
     }
+
+    private HttpResponse createClientError(int statusCode, String message) {
+        HttpResponse response = new HttpResponse();
+        response.setStatusCode(statusCode);
+        response.setContentType("text/plain; charset=UTF-8");
+        response.setBody(message);
+        return response;
+    }
+
+    private record LoginForm(String username, String password) {}
 
     private boolean isLoggedIn(HttpRequest request) {
         List<Cookie> cookies = request.getCookies();

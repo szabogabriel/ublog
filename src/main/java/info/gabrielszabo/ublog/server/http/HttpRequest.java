@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.Locale;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,66 +39,18 @@ public class HttpRequest {
 
     public HttpRequest(String rawRequest) {
         this();
-        // Split headers and body at the first empty line
-        String[] sections = rawRequest.split("\r\n\r\n", 2);
-        String headerSection = sections.length > 0 ? sections[0] : "";
-        String bodySection = sections.length > 1 ? sections[1] : "";
-
-        String[] lines = headerSection.split("\r\n");
-        for (int i = 0; i < lines.length; i++) {
-            String line = lines[i];
-            if (i == 0) {
-                // First line: Request line
-                String[] parts = line.split(" ");
-                method = HttpMethods.fromString(parts[0]);
-                httpVersion = parts.length > 2 ? parts[2] : "";
-                String pathWithQueryString = parts.length > 1 ? parts[1] : "";
-                String[] pathParts = pathWithQueryString.split("\\?", 2);
-                path = pathParts[0];
-                if (pathParts.length > 1) {
-                    queryString = new QueryString(pathParts[1]);
-                }
-                continue;
-            }
-
-            String lower = line.toLowerCase();
-            if (lower.startsWith("host:")) {
-                host = line.substring(5).trim();
-            }
-            if (lower.startsWith("content-length:")) {
-                try {
-                    contentLength = Integer.parseInt(line.substring(16).trim());
-                } catch (NumberFormatException e) {
-                    contentLength = 0;
-                }
-            }
-            if (lower.startsWith("content-type:")) {
-                contentType = line.substring(14).trim();
-                mimeType = MimeType.fromString(contentType);
-            }
-            if (lower.startsWith("cookie:")) {
-                parseCookies(line.substring(7));
-            }
-
-            int colonIndex = line.indexOf(":");
-            if (colonIndex != -1) {
-                String name = line.substring(0, colonIndex).trim();
-                String value = line.substring(colonIndex + 1).trim();
-                headers.put(name, value);
-            }
+        int separator = rawRequest.indexOf("\r\n\r\n");
+        String headerSection = separator < 0 ? rawRequest + "\r\n\r\n"
+                : rawRequest.substring(0, separator + 4);
+        try {
+            parseHeaders(headerSection);
+        } catch (RequestException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
-
-        // Handle body if present. If Content-Length was provided, respect it.
-        if (bodySection != null && !bodySection.isEmpty()) {
-            if (contentLength > 0) {
-                if (bodySection.length() > contentLength) {
-                    setBody(bodySection.substring(0, contentLength));
-                } else {
-                    setBody(bodySection);
-                }
-            } else {
-                setBody(bodySection);
-                contentLength = bodySection.length();
+        if (separator >= 0) {
+            body = rawRequest.substring(separator + 4);
+            if (contentLength == 0) {
+                contentLength = body.getBytes(StandardCharsets.UTF_8).length;
             }
         }
     }
@@ -139,9 +92,13 @@ public class HttpRequest {
         }
 
         byte[] header = headerBytes.toByteArray();
+        if (header.length > MAX_REQUEST_BYTES) {
+            throw new RequestException(413, "Request too large");
+        }
+        HttpRequest request = new HttpRequest();
         String headerSection = new String(header, StandardCharsets.ISO_8859_1);
-        int contentLength = getContentLength(headerSection);
-        if (header.length + contentLength > MAX_REQUEST_BYTES) {
+        int contentLength = request.parseHeaders(headerSection);
+        if (contentLength > MAX_REQUEST_BYTES - header.length) {
             throw new RequestException(413, "Request too large");
         }
 
@@ -154,24 +111,21 @@ public class HttpRequest {
             }
             bodyOffset += bytesRead;
         }
-        Charset bodyCharset = getBodyCharset(headerSection);
-        String body = new String(bodyBytes, bodyCharset);
-        return new HttpRequest(headerSection + body);
+        request.body = new String(bodyBytes, request.getBodyCharset());
+        return request;
     }
 
-    private static Charset getBodyCharset(String headerSection) throws RequestException {
-        for (String line : headerSection.split("\\r\\n")) {
-            if (line.regionMatches(true, 0, "Content-Type:", 0, 13)) {
-                String[] parameters = line.substring(13).split(";");
-                for (int i = 1; i < parameters.length; i++) {
-                    String parameter = parameters[i].trim();
-                    if (parameter.regionMatches(true, 0, "charset=", 0, 8)) {
-                        String charsetName = parameter.substring(8).trim().replace("\"", "");
-                        try {
-                            return Charset.forName(charsetName);
-                        } catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
-                            throw new RequestException(400, "Unsupported request charset");
-                        }
+    private Charset getBodyCharset() throws RequestException {
+        if (contentType != null) {
+            String[] parameters = contentType.split(";");
+            for (int i = 1; i < parameters.length; i++) {
+                String parameter = parameters[i].trim();
+                if (parameter.regionMatches(true, 0, "charset=", 0, 8)) {
+                    String charsetName = parameter.substring(8).trim().replace("\"", "");
+                    try {
+                        return Charset.forName(charsetName);
+                    } catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
+                        throw new RequestException(400, "Unsupported request charset");
                     }
                 }
             }
@@ -179,7 +133,7 @@ public class HttpRequest {
         return StandardCharsets.UTF_8;
     }
 
-    private static int getContentLength(String headerSection) throws RequestException {
+    private int parseHeaders(String headerSection) throws RequestException {
         String[] lines = headerSection.substring(0, headerSection.length() - 4).split("\\r\\n");
         if (lines.length == 0 || lines[0].isBlank()) {
             throw new RequestException(400, "Missing request line");
@@ -188,6 +142,13 @@ public class HttpRequest {
         if (requestLine.length != 3 || HttpMethods.fromString(requestLine[0]) == null
                 || !requestLine[2].startsWith("HTTP/")) {
             throw new RequestException(400, "Malformed request line");
+        }
+        method = HttpMethods.fromString(requestLine[0]);
+        httpVersion = requestLine[2];
+        String[] pathParts = requestLine[1].split("\\?", 2);
+        path = pathParts[0];
+        if (pathParts.length > 1) {
+            queryString = new QueryString(pathParts[1]);
         }
 
         Integer contentLength = null;
@@ -199,11 +160,23 @@ public class HttpRequest {
             }
             String name = line.substring(0, colon).trim();
             String value = line.substring(colon + 1).trim();
+            String lowerName = name.toLowerCase(Locale.ROOT);
+            if (lowerName.equals("host")) {
+                host = value;
+            } else if (lowerName.equals("content-type")) {
+                contentType = value;
+                mimeType = MimeType.fromString(contentType);
+            } else if (lowerName.equals("cookie")) {
+                parseCookies(value);
+            }
             if (name.equalsIgnoreCase("Transfer-Encoding")) {
                 throw new RequestException(501, "Transfer-Encoding is not supported");
             }
             if (name.equalsIgnoreCase("Content-Length")) {
                 try {
+                    if (value.isEmpty() || !value.chars().allMatch(character -> character >= '0' && character <= '9')) {
+                        throw new NumberFormatException();
+                    }
                     int parsedLength = Integer.parseInt(value);
                     if (parsedLength < 0 || (contentLength != null && contentLength != parsedLength)) {
                         throw new NumberFormatException();
@@ -213,8 +186,10 @@ public class HttpRequest {
                     throw new RequestException(400, "Invalid Content-Length");
                 }
             }
+            headers.put(name, value);
         }
-        return contentLength == null ? 0 : contentLength;
+        this.contentLength = contentLength == null ? 0 : contentLength;
+        return this.contentLength;
     }
 
     public static class RequestException extends IOException {
@@ -280,10 +255,6 @@ public class HttpRequest {
 
     public boolean hasBody() {
         return contentLength > 0;
-    }
-
-    private void setBody(String body) {
-        this.body = body;
     }
 
     public String getBody() {

@@ -1,6 +1,7 @@
 {{>html_start.template}}
 {{>navbar.template}}
 <main class="page-shell">
+  {{#IS_INDEX}}
   <section class="opening" aria-labelledby="opening-title">
     <div class="opening-copy">
       <p class="eyebrow"><span class="eyebrow-mark"></span> A PERSONAL JOURNAL <span class="eyebrow-divider">/</span> {{PAGE_TITLE}}</p>
@@ -12,6 +13,13 @@
       <span class="image-caption">NOTES FROM HERE AND THERE</span>
     </div>
   </section>
+  {{/IS_INDEX}}
+  {{^IS_INDEX}}
+  <section class="page-header" aria-labelledby="page-title">
+    <p class="eyebrow"><span class="eyebrow-mark"></span> A PERSONAL JOURNAL</p>
+    <h1 id="page-title">{{PAGE_TITLE}}</h1>
+  </section>
+  {{/IS_INDEX}}
 
   <div class="content-grid" id="latest">
     <section class="writing-column" aria-label="Blog content">

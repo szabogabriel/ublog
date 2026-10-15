@@ -10,7 +10,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import info.gabrielszabo.ublog.config.Config;
-import info.gabrielszabo.ublog.content.MarkdownContentProvider;
 import info.gabrielszabo.ublog.server.http.HttpRequest;
 import info.gabrielszabo.ublog.server.http.HttpRequestHandler;
 import info.gabrielszabo.ublog.server.http.HttpResponse;
@@ -22,7 +21,7 @@ public class PooledSocketHandler implements SocketHandler {
     private final ThreadPoolExecutor executor;
     private final HttpRequestHandler requestHandler;
 
-    public PooledSocketHandler(MarkdownContentProvider fileSystemHandler, HttpRequestHandler requestHandler) {
+    public PooledSocketHandler(HttpRequestHandler requestHandler) {
         // Constructor implementation
         this.requestHandler = requestHandler;
         executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(Integer.parseInt(Config.SOCKET_HANDLER_THREAD_POOL_SIZE.value()));

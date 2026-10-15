@@ -3,8 +3,10 @@ package info.gabrielszabo.ublog.server.http;
 public enum HttpStatus {
     OK(200, "OK"),
     BAD_REQUEST(400, "Bad Request"),
+    METHOD_NOT_ALLOWED(405, "Method Not Allowed"),
     REQUEST_TIMEOUT(408, "Request Timeout"),
     PAYLOAD_TOO_LARGE(413, "Payload Too Large"),
+    UNSUPPORTED_MEDIA_TYPE(415, "Unsupported Media Type"),
     REQUEST_HEADER_FIELDS_TOO_LARGE(431, "Request Header Fields Too Large"),
     NOT_IMPLEMENTED(501, "Not Implemented"),
     NOT_FOUND(404, "Not Found"),

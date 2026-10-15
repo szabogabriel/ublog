@@ -2,7 +2,9 @@ package info.gabrielszabo.ublog.server.http;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class HttpResponse {
 
@@ -11,6 +13,7 @@ public class HttpResponse {
     private String body;
     private String contentType = "text/plain; charset=UTF-8";
     private final List<Cookie> cookies = new ArrayList<>();
+    private final Map<String, String> headers = new LinkedHashMap<>();
 
     public HttpResponse() {
         // Constructor implementation
@@ -44,6 +47,23 @@ public class HttpResponse {
         this.cookies.remove(cookie);
     }
 
+    public void addHeader(String name, String value) {
+        if (name == null || name.isEmpty() || value == null) {
+            throw new IllegalArgumentException("Invalid HTTP response header");
+        }
+        for (int i = 0; i < name.length(); i++) {
+            char character = name.charAt(i);
+            if (!(character >= '0' && character <= '9' || character >= 'A' && character <= 'Z'
+                    || character >= 'a' && character <= 'z' || "!#$%&'*+-.^_`|~".indexOf(character) >= 0)) {
+                throw new IllegalArgumentException("Invalid HTTP response header name");
+            }
+        }
+        if (value.indexOf('\r') >= 0 || value.indexOf('\n') >= 0) {
+            throw new IllegalArgumentException("Invalid HTTP response header value");
+        }
+        headers.put(name, value);
+    }
+
     public String toHttpResponseMessage() {
         StringBuilder response = new StringBuilder();
         String bodyStr = (body == null) ? "" : body;
@@ -52,6 +72,9 @@ public class HttpResponse {
                 .append(status.toStatusLine()).append("\r\n")
                 .append("Content-Type: ").append(contentType).append("\r\n")
                 .append("Content-Length: ").append(contentLength).append("\r\n");
+        for (Map.Entry<String, String> header : headers.entrySet()) {
+            response.append(header.getKey()).append(": ").append(header.getValue()).append("\r\n");
+        }
         if (!cookies.isEmpty()) {
             for (Cookie cookie : cookies) {
                 response.append("Set-Cookie: ").append(cookie.toString()).append("\r\n");

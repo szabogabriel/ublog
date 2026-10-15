@@ -89,6 +89,102 @@
 
 ---
 
+# uBlog – Remaining Issues After Security Refactoring
+
+**Reviewed commit:** `22cd100b70d96a1fbe94ae3087936daccec0446d`
+
+## Objective
+
+Review and fix the following remaining correctness, security, and concurrency concerns.
+
+**Important constraints:**
+- Preserve the existing lightweight, filesystem-based architecture.
+- Do not introduce a web framework, database, or unnecessary dependencies.
+- Preserve compatibility with Java 17+.
+- Keep memory allocations low. The application has successfully handled authentication and page rendering with low memory footprint like `-Xmx4m`.
+- Avoid major refactoring outside the affected components.
+- Do not mark an issue complete without verifying its implementation.
+
+---
+
+## P0 – Fix before public deployment
+
+### 1. HTTP request-size integer overflow
+
+**File:** `HttpRequest.java`
+
+Current code:
+
+```java
+if (header.length + contentLength > MAX_REQUEST_BYTES) {
+    throw new RequestException(413, "Request too large");
+}
+```
+
+Integer overflow can bypass this limit when a very large `Content-Length` is supplied.
+
+**Tasks:**
+- [x] Replace addition-based checking with overflow-safe bounds validation.
+- [x] Reject oversized bodies before allocating the body buffer.
+- [x] Reject negative, invalid, and conflicting `Content-Length` values.
+- [x] Test maximum integer values and requests just above the configured limit.
+
+Suggested approach:
+
+```java
+if (contentLength > MAX_REQUEST_BYTES - header.length) {
+    throw new RequestException(413, "Request too large");
+}
+```
+
+### 2. Eliminate redundant HTTP request parsing
+
+**File:** `HttpRequest.java`
+
+`readFrom(InputStream)` correctly reads the request body as bytes, but then reconstructs a textual HTTP request:
+
+```java
+return new HttpRequest(headerSection + body);
+```
+
+The existing string constructor subsequently reparses the request and uses string lengths where byte lengths are required.
+
+**Tasks:**
+- [x] Parse HTTP headers once.
+- [x] Preserve the decoded request body directly.
+- [x] Avoid reconstructing the original HTTP request string.
+- [x] Remove legacy body-truncation logic based on `String.length()`.
+- [x] Ensure charset decoding happens exactly once.
+- [x] Test UTF-8 characters and multibyte request bodies.
+- [x] Retain header limits, body limits, socket timeouts, and malformed-request handling.
+
+**Acceptance criteria:** UTF-8 form submissions are handled correctly, including non-ASCII text, without body truncation or duplicate parsing.
+
+### 3. Correct login form parsing
+
+**File:** `RequestHandlerService.java`
+
+Login form fields are currently extracted using string splitting:
+
+```java
+String[] parts = loginData.split("&");
+String[] keyValue = part.split("=");
+```
+
+This does not correctly handle standard URL-encoded form data.
+
+**Tasks:**
+- [x] Parse `application/x-www-form-urlencoded` correctly.
+- [x] Decode percent-encoded characters.
+- [x] Handle `+` as a space within form values.
+- [x] Preserve `=` and `&` characters when encoded in passwords.
+- [x] Handle missing and duplicate fields safely.
+- [x] Validate the form content type.
+- [x] Require HTTP `POST` for `/loginaction`.
+
+
+---
+
 ## P1 – Architecture & Maintainability
 
 ### 10. Separate request, session, and rendering contexts

@@ -22,6 +22,7 @@ public class MustacheBlogContext implements BlogContext{
     private static final String LOGGED_IN = "LOGGED_IN";
     private static final String INITIAL_LOGIN = "INITIAL_LOGIN";
     private static final String LOGGING_OUT = "LOGGING_OUT";
+    private static final String IS_INDEX = "IS_INDEX";
 
     private final Map<String, Object> context;
 
@@ -53,6 +54,7 @@ public class MustacheBlogContext implements BlogContext{
         EntryDescriptor indexEntry = contentProvider.getIndex();
         context.put(CONTENT, contentProvider.getEntryContentAsHttp(indexEntry));
         context.put(TITLE, indexEntry.getName());
+        context.put(IS_INDEX, true);
     }
 
     @Override

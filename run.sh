@@ -14,4 +14,4 @@ export USER_FOLDER=./testContent/userFolder
 
 mvn clean install
 
-java -cp target/ublog*-fat.jar info.gabrielszabo.ublog.App
+java -Xms4m -Xmx4m -cp target/ublog*-fat.jar info.gabrielszabo.ublog.App
