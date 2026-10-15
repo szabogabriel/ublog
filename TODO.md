@@ -14,10 +14,10 @@
 **Affected:** `SessionService.java`
 
 ### 2. Enforce session expiration
-- [ ] Ensure session validity is checked when resolving a session.
-- [ ] Reject expired sessions before returning user information.
-- [ ] Remove expired sessions from memory.
-- [ ] Prevent expired sessions from being refreshed.
+- [x] Ensure session validity is checked when resolving a session.
+- [x] Reject expired sessions before returning user information.
+- [x] Remove expired sessions from memory.
+- [x] Prevent expired sessions from being refreshed.
 
 **Affected:** `SessionService.java`, `RequestHandlerService.java`
 
@@ -164,9 +164,9 @@
 **Affected:** `MustacheBlogContext.java`, `RequestHandlerService.java`
 
 ### 17. Remove unused database infrastructure
-- [ ] Remove H2 if no longer required.
-- [ ] Remove unused database classes and services.
-- [ ] Remove database-related configuration properties.
+- [x] Remove H2 if no longer required.
+- [x] Remove unused database classes and services.
+- [x] Remove database-related configuration properties.
 - [ ] Remove database setup from the container image.
 - [ ] Remove unused database documentation.
 - [ ] Confirm that the application runs without database dependencies.
