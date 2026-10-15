@@ -27,12 +27,6 @@ import info.gabrielszabo.ublog.service.template.mustache.MustacheTemplateService
 
 public enum Config {
 
-    DB_USERNAME("db.username", "admin"),
-    DB_PASSWORD("db.password", "admin"),
-    DB_FILE_PATH("db.file.path", "./my.db"),
-
-    H2_WEB_PORT("h2.web.port", "8082"),
-
     MUSTACHE_TEMPLATES_CACHING_ENABLED("mustache.templates.caching.enabled", "true"),
     MUSTACHE_TEMPLATES_FOLDER("mustache.templates.folder", "./template"),
 

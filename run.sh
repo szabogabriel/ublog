@@ -1,11 +1,5 @@
 #!/bin/bash
 
-export DB_USERNAME=admin
-export DB_PASSWORD=admin
-export DB_FILE_PATH=./db/my.db
-
-export H2_WEB_PORT=8082
-
 export MUSTACHE_TEMPLATES_CACHING_ENABLED=true
 export MUSTACHE_TEMPLATES_FOLDER=./template
 
