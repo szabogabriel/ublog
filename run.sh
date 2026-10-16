@@ -13,7 +13,8 @@ export SOCKET_HANDLER_QUEUE_CAPACITY=100
 
 export TARGET_FOLDER=./testContent/blogFolder
 export USER_FOLDER=./testContent/userFolder
+export IMAGE_FOLDER=./testContent/imageFolder
 
 mvn clean install
 
-java -Xms4m -Xmx4m -cp target/ublog*-fat.jar info.gabrielszabo.ublog.App
+java -Xms8m -Xmx8m -cp target/ublog*-fat.jar info.gabrielszabo.ublog.App

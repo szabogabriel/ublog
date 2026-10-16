@@ -1,5 +1,8 @@
 package info.gabrielszabo.ublog.service;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
@@ -16,6 +19,7 @@ import info.gabrielszabo.ublog.service.blog.BlogContext;
 import info.gabrielszabo.ublog.service.blog.BlogContextFactory;
 import info.gabrielszabo.ublog.service.log.LogService;
 import info.gabrielszabo.ublog.service.template.TemplateService;
+import info.gabrielszabo.ublog.utils.MimeUtil;
 
 public class RequestHandlerService implements HttpRequestHandler {
     private static final String PAGE_TEMPLATE = "index.template";
@@ -110,7 +114,31 @@ public class RequestHandlerService implements HttpRequestHandler {
             blogContext.setUsername(getSessionUsername(request));
             blogContext.addIndexToContext();
         } else if (isImageRequest(requestedPath)) {
+            HttpResponse imageResponse = new HttpResponse();
+            String imageName = getImageNameFromPath(requestedPath);
+            if (imageName != null) {
+                String mimeType = MimeUtil.getMimeType(imageName);
 
+                File imageFile = new File(Config.IMAGE_FOLDER.value() + "/" + imageName);
+                log.logTrace("Loading image " + imageFile.toString());
+
+                if (!imageFile.exists()) {
+                    log.logError("Image not found: " + imageName);
+                    imageResponse.setStatusCode(404);
+                    return imageResponse;
+                }
+
+                imageResponse.setStatusCode(200);
+                imageResponse.setContentType(mimeType);
+                try {
+                    imageResponse.setBody(new FileInputStream(imageFile), (int) imageFile.length());
+                } catch (FileNotFoundException e) {
+                    log.logError("Error loading image: " + imageName);
+                    e.printStackTrace();
+                }
+                return imageResponse;
+            }
+            return imageResponse;
         } else {
             blogContext.setUsername(getSessionUsername(request));
             String[] pathParts = requestedPath.split("/");
@@ -128,6 +156,13 @@ public class RequestHandlerService implements HttpRequestHandler {
         }
 
         return createHttpResponseFromContext(blogContext, sessionContext);
+    }
+
+    private String getImageNameFromPath(String requestPath) {
+        if (requestPath.startsWith("/image/") && !requestPath.contains("..")) {
+            return requestPath.substring("/image/".length());
+        }
+        return null;
     }
 
     private HttpResponse createHttpResponseFromContext(BlogContext context, SessionContext session) {

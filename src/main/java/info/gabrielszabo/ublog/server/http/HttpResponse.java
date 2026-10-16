@@ -77,7 +77,7 @@ public class HttpResponse {
         headers.put(name, value);
     }
 
-    private String toHttpResponseMessage() {
+    private String toHttpResponseHead() {
         StringBuilder response = new StringBuilder();
         response.append(httpVersion.startsWith("HTTP/") ? httpVersion : "HTTP/" + httpVersion).append(" ")
                 .append(status.toStatusLine()).append("\r\n")
@@ -91,18 +91,16 @@ public class HttpResponse {
                 response.append("Set-Cookie: ").append(cookie.toString()).append("\r\n");
             }
         }
-        response.append("\r\n")
-                .append(body);
+        response.append("\r\n");
         return response.toString();
     }
 
     public void writeResponse(OutputStream outputStream) throws IOException {
+        outputStream.write(toHttpResponseHead().getBytes(StandardCharsets.UTF_8));
         if (body != null) {
-            outputStream.write(toHttpResponseMessage().getBytes(StandardCharsets.UTF_8));
+            outputStream.write(body.getBytes(StandardCharsets.UTF_8));
             outputStream.flush();
         } else if (bodyStream != null) {
-            outputStream.write(toHttpResponseMessage().getBytes(StandardCharsets.UTF_8));
-            outputStream.flush();
             byte[] buffer = new byte[8192];
             int bytesRead;
             while ((bytesRead = bodyStream.read(buffer)) != -1) {
