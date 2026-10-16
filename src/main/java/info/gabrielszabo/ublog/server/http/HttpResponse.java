@@ -1,5 +1,8 @@
 package info.gabrielszabo.ublog.server.http;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -11,6 +14,8 @@ public class HttpResponse {
     private String httpVersion = "1.1";
     private HttpStatus status;
     private String body;
+    private InputStream bodyStream;
+    private int contentLength;
     private String contentType = "text/plain; charset=UTF-8";
     private final List<Cookie> cookies = new ArrayList<>();
     private final Map<String, String> headers = new LinkedHashMap<>();
@@ -32,7 +37,15 @@ public class HttpResponse {
     }
 
     public void setBody(String body) {
-        this.body = body;
+        bodyStream = null;
+        this.body = (body == null) ? "" : body;
+        contentLength = this.body.getBytes(StandardCharsets.UTF_8).length;
+    }
+
+    public void setBody(InputStream bodyStream, int contentLength) {
+        body = null;
+        this.bodyStream = bodyStream;
+        this.contentLength = contentLength;
     }
 
     public void setContentType(String contentType) {
@@ -64,10 +77,8 @@ public class HttpResponse {
         headers.put(name, value);
     }
 
-    public String toHttpResponseMessage() {
+    private String toHttpResponseMessage() {
         StringBuilder response = new StringBuilder();
-        String bodyStr = (body == null) ? "" : body;
-        int contentLength = bodyStr.getBytes(StandardCharsets.UTF_8).length;
         response.append(httpVersion.startsWith("HTTP/") ? httpVersion : "HTTP/" + httpVersion).append(" ")
                 .append(status.toStatusLine()).append("\r\n")
                 .append("Content-Type: ").append(contentType).append("\r\n")
@@ -81,8 +92,24 @@ public class HttpResponse {
             }
         }
         response.append("\r\n")
-                .append(bodyStr);
+                .append(body);
         return response.toString();
+    }
+
+    public void writeResponse(OutputStream outputStream) throws IOException {
+        if (body != null) {
+            outputStream.write(toHttpResponseMessage().getBytes(StandardCharsets.UTF_8));
+            outputStream.flush();
+        } else if (bodyStream != null) {
+            outputStream.write(toHttpResponseMessage().getBytes(StandardCharsets.UTF_8));
+            outputStream.flush();
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = bodyStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+            outputStream.flush();
+        }
     }
 
 }

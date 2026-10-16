@@ -5,6 +5,7 @@ public class SessionContext {
     private boolean isLoggedIn = false;
     private boolean isInitialLogin = false;
     private boolean isLoggingOut = false;
+    private boolean isImageRequest = false;
 
     public SessionContext() {
 
@@ -40,5 +41,13 @@ public class SessionContext {
 
     public void setLoggingOut(boolean isLoggingOut) {
         this.isLoggingOut = isLoggingOut;
+    }
+
+    public boolean isImageRequest() {
+        return isImageRequest;
+    }
+
+    public void setImageRequest(boolean isImageRequest) {
+        this.isImageRequest = isImageRequest;
     }
 }

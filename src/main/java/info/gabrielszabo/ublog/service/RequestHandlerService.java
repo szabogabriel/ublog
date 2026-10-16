@@ -109,6 +109,8 @@ public class RequestHandlerService implements HttpRequestHandler {
             blogContext.setLoggedIn(false);
             blogContext.setUsername(getSessionUsername(request));
             blogContext.addIndexToContext();
+        } else if (isImageRequest(requestedPath)) {
+
         } else {
             blogContext.setUsername(getSessionUsername(request));
             String[] pathParts = requestedPath.split("/");
@@ -131,6 +133,10 @@ public class RequestHandlerService implements HttpRequestHandler {
     private HttpResponse createHttpResponseFromContext(BlogContext context, SessionContext session) {
         HttpResponse response = new HttpResponse();
 
+        if (session.isImageRequest()) {
+            response.setContentType("image/jpeg");
+        }
+        
         response.setStatusCode(200);
         response.setContentType("text/html");
         response.setBody(templateService.render(PAGE_TEMPLATE, context));
@@ -172,6 +178,10 @@ public class RequestHandlerService implements HttpRequestHandler {
 
     private boolean isLogout(String requestPath) {
         return requestPath.equals("/logout");
+    }
+
+    private boolean isImageRequest(String requestPath) {
+        return requestPath.startsWith("/image/");
     }
 
     private boolean isFormContentType(String contentType) {

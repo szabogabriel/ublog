@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -54,8 +53,7 @@ public class PooledSocketHandler implements SocketHandler {
 
                     try {
                         HttpResponse httpResponse = requestHandler.handleRequest(httpRequest);
-                        outStream.write(httpResponse.toHttpResponseMessage().getBytes(StandardCharsets.UTF_8));
-                        outStream.flush();
+                        httpResponse.writeResponse(outStream);
                     } catch (RuntimeException e) {
                         e.printStackTrace();
                         writeErrorResponse(outStream, 500, "Internal server error");
@@ -78,8 +76,7 @@ public class PooledSocketHandler implements SocketHandler {
         response.setStatusCode(statusCode);
         response.setContentType("text/plain; charset=UTF-8");
         response.setBody(message);
-        outStream.write(response.toHttpResponseMessage().getBytes(StandardCharsets.UTF_8));
-        outStream.flush();
+        response.writeResponse(outStream);
     }
 
 }
