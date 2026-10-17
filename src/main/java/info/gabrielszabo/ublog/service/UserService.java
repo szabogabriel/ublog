@@ -48,6 +48,10 @@ public class UserService {
             return Optional.empty();
         }
         User user = new User(props);
+        if (user.getStatus() == null || !user.getStatus().equals("active")) {
+            log.logWarning("User is not active: " + username);
+            return Optional.empty();
+        }
         userCache.put(username, user);
 
         log.logInfo("User loaded from files and cached: " + username);
