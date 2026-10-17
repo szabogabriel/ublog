@@ -107,6 +107,7 @@ public class HttpResponse {
                 outputStream.write(buffer, 0, bytesRead);
             }
             outputStream.flush();
+            bodyStream.close();
         }
     }
 
