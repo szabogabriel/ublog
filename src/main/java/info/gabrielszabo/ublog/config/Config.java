@@ -29,6 +29,7 @@ public enum Config {
 
     MUSTACHE_TEMPLATES_CACHING_ENABLED("mustache.templates.caching.enabled", "true"),
     MUSTACHE_TEMPLATES_FOLDER("mustache.templates.folder", "./template"),
+    MUSTACHE_TEMPLATE_UPDATE("mustache.template.update", "false"),
 
     SERVER_PORT("server.port", "8080"),
 
