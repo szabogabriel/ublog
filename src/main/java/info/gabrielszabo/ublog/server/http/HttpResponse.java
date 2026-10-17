@@ -101,13 +101,16 @@ public class HttpResponse {
             outputStream.write(body.getBytes(StandardCharsets.UTF_8));
             outputStream.flush();
         } else if (bodyStream != null) {
-            byte[] buffer = new byte[8192];
-            int bytesRead;
-            while ((bytesRead = bodyStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
+            try (InputStream is = bodyStream) {
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = is.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+                outputStream.flush();
+            } catch (IOException e) {
+                throw new IllegalStateException("Failed to write HTTP response body", e);
             }
-            outputStream.flush();
-            bodyStream.close();
         }
     }
 
