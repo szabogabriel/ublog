@@ -1,0 +1,37 @@
+<section class="login-panel" aria-labelledby="user-details-title">
+	<h2 id="user-details-title">Your profile</h2>
+	{{#HAS_SUCCESS_MESSAGE}}
+	<div style="margin-bottom: 18px; padding: 12px 14px; color: #174538; background: #dfeee4; border-left: 3px solid #286452; font: 13px/1.5 var(--sans);" role="status">{{SUCCESS_MESSAGE}}</div>
+	{{/HAS_SUCCESS_MESSAGE}}
+	{{#HAS_INFO_MESSAGE}}
+	<div style="margin-bottom: 18px; padding: 12px 14px; color: #23546b; background: #e3eef3; border-left: 3px solid #5f8ea1; font: 13px/1.5 var(--sans);" role="status">{{INFO_MESSAGE}}</div>
+	{{/HAS_INFO_MESSAGE}}
+	{{#HAS_ERROR_MESSAGE}}
+	<div style="margin-bottom: 18px; padding: 12px 14px; color: #7a2f24; background: #f7e6e0; border-left: 3px solid #e45e3a; font: 13px/1.5 var(--sans);" role="alert">{{ERROR_MESSAGE}}</div>
+	{{/HAS_ERROR_MESSAGE}}
+	<div class="login-field">
+		<label for="user-name">NAME</label>
+		<input type="text" id="user-name" value="{{USER_NAME}}" readonly aria-readonly="true">
+	</div>
+	<div class="login-field">
+		<label for="user-username">USERNAME</label>
+		<input type="text" id="user-username" value="{{USER_USERNAME}}" readonly aria-readonly="true">
+	</div>
+
+	<form action="/passwordchange" method="post">
+		<h3 style="margin: 28px 0 18px; font: 500 21px/1.2 var(--serif);">Change password</h3>
+		<div class="login-field">
+			<label for="current-password">CURRENT PASSWORD</label>
+			<input type="password" id="current-password" name="currentPassword" autocomplete="current-password" required>
+		</div>
+		<div class="login-field">
+			<label for="new-password">NEW PASSWORD</label>
+			<input type="password" id="new-password" name="newPassword" autocomplete="new-password" required>
+		</div>
+        <div class="login-field">
+			<label for="new-password-repeat">REPEAT PASSWORD</label>
+			<input type="password" id="new-password-repeat" name="newPasswordRepeat" autocomplete="new-password-repeat" required>
+		</div>
+		<button class="login-submit" type="submit">Update password</button>
+	</form>
+</section>

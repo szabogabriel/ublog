@@ -1,0 +1,49 @@
+<div style="display: flex; justify-content: center; align-items: center; min-height: 50vh;">
+	<div class="panel panel-default" style="width: 100%; max-width: 520px;">
+		<div class="panel-body" style="padding: 30px;">
+			<h1 class="text-center" style="font-size: 24px; margin-top: 0; margin-bottom: 10px;">User details</h1>
+			<p class="text-center text-muted" style="margin-bottom: 24px;">Your account information for this blog.</p>
+
+			{{#HAS_SUCCESS_MESSAGE}}
+			<div class="alert alert-success" role="alert">{{SUCCESS_MESSAGE}}</div>
+			{{/HAS_SUCCESS_MESSAGE}}
+			{{#HAS_INFO_MESSAGE}}
+			<div class="alert alert-info" role="alert">{{INFO_MESSAGE}}</div>
+			{{/HAS_INFO_MESSAGE}}
+			{{#HAS_ERROR_MESSAGE}}
+			<div class="alert alert-danger" role="alert">{{ERROR_MESSAGE}}</div>
+			{{/HAS_ERROR_MESSAGE}}
+
+			<div class="form-group">
+				<label for="user-name" class="control-label">Name</label>
+				<input type="text" class="form-control" id="user-name" value="{{USER_NAME}}" readonly>
+			</div>
+
+			<div class="form-group" style="margin-bottom: 0;">
+				<label for="user-username" class="control-label">Username</label>
+				<input type="text" class="form-control" id="user-username" value="{{USER_USERNAME}}" readonly>
+			</div>
+
+			<hr style="margin: 30px 0 24px;">
+
+			<h2 style="font-size: 20px; margin-top: 0; margin-bottom: 18px;">Change password</h2>
+			<form action="/passwordchange" method="post" novalidate>
+				<div class="form-group">
+					<label for="current-password" class="control-label">Current password</label>
+					<input type="password" class="form-control" id="current-password" name="currentPassword" autocomplete="current-password" required>
+				</div>
+
+				<div class="form-group" style="margin-bottom: 24px;">
+					<label for="new-password" class="control-label">New password</label>
+					<input type="password" class="form-control" id="new-password" name="newPassword" autocomplete="new-password" required>
+				</div>
+
+				<div class="form-group" style="margin-bottom: 24px;">
+					<label for="new-password-repeat" class="control-label">Repeat password</label>
+					<input type="password" class="form-control" id="new-password-repeat" name="newPasswordRepeat" autocomplete="new-password-repeat" required>
+				</div>
+				<button type="submit" class="btn btn-primary btn-block">Update password</button>
+			</form>
+		</div>
+	</div>
+</div>

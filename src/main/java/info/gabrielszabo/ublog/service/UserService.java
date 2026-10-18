@@ -52,6 +52,7 @@ public class UserService {
             log.logWarning("User is not active: " + username);
             return Optional.empty();
         }
+        user.setUsername(username);
         userCache.put(username, user);
 
         log.logInfo("User loaded from files and cached: " + username);

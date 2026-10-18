@@ -8,6 +8,7 @@ import java.util.Map;
 import info.gabrielszabo.ublog.content.ContentProvider;
 import info.gabrielszabo.ublog.domain.Category;
 import info.gabrielszabo.ublog.domain.EntryDescriptor;
+import info.gabrielszabo.ublog.domain.User;
 import info.gabrielszabo.ublog.service.blog.BlogContext;
 
 public class MustacheBlogContext implements BlogContext{
@@ -23,6 +24,15 @@ public class MustacheBlogContext implements BlogContext{
     private static final String INITIAL_LOGIN = "INITIAL_LOGIN";
     private static final String LOGGING_OUT = "LOGGING_OUT";
     private static final String IS_INDEX = "IS_INDEX";
+    private static final String USER_DETAILS = "USER_DETAILS";
+    private static final String USER_USERNAME = "USER_USERNAME";
+    private static final String USER_NAME = "USER_NAME";
+    private static final String SUCCESS_MESSAGE = "SUCCESS_MESSAGE";
+    private static final String INFO_MESSAGE = "INFO_MESSAGE";
+    private static final String ERROR_MESSAGE = "ERROR_MESSAGE";
+    private static final String HAS_SUCCESS_MESSAGE = "HAS_SUCCESS_MESSAGE";
+    private static final String HAS_INFO_MESSAGE = "HAS_INFO_MESSAGE";
+    private static final String HAS_ERROR_MESSAGE = "HAS_ERROR_MESSAGE";
 
     private final Map<String, Object> context;
 
@@ -116,6 +126,19 @@ public class MustacheBlogContext implements BlogContext{
         context.put(TITLE, "Login");
     }
 
+    @Override 
+    public void setIsUserDetails() {
+        context.put(USER_DETAILS, Boolean.TRUE);
+        context.put(CONTENT, "");
+        context.put(TITLE, "User Details");
+    }
+
+    @Override 
+    public void setUserDetails(User user) {
+        context.put(USER_USERNAME, user.getUsername());
+        context.put(USER_NAME, user.getName());
+    }
+
     @Override
     public void setUsername(String username) {
         context.put(USERNAME, username);
@@ -164,5 +187,23 @@ public class MustacheBlogContext implements BlogContext{
     @Override
     public boolean isLoggingOut() {
         return context.containsKey(LOGGING_OUT) && (Boolean) context.get(LOGGING_OUT);
+    }
+
+    @Override
+    public void addSuccessMessage(String message) {
+        context.put(SUCCESS_MESSAGE, message);
+        context.put(HAS_SUCCESS_MESSAGE, Boolean.TRUE);
+    }
+    
+    @Override
+    public void addInfoMessage(String message) {
+        context.put(INFO_MESSAGE, message);
+        context.put(HAS_INFO_MESSAGE, Boolean.TRUE);
+    }
+
+    @Override
+    public void addErrorMessage(String message) {
+        context.put(ERROR_MESSAGE, message);
+        context.put(HAS_ERROR_MESSAGE, Boolean.TRUE);
     }
 }

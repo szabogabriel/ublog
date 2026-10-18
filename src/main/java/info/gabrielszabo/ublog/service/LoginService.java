@@ -55,15 +55,9 @@ public class LoginService {
         Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
         char[] passwordChars = password.toCharArray();
         try {
-            if (storedPassword.startsWith(ARGON2ID_PREFIX)) {
-                success = argon2.verify(storedPassword, passwordChars);
-            } else {
-                success = storedPassword.equals(password);
-                if (success) {
-                    String encodedPassword = argon2.hash(HASH_ITERATIONS, HASH_MEMORY_KIB,
-                            HASH_PARALLELISM, passwordChars);
-                    success = userService.updatePassword(username, encodedPassword);
-                }
+            success = verifyStoredPassword(argon2, storedPassword, password, passwordChars);
+            if (success && !storedPassword.startsWith(ARGON2ID_PREFIX)) {
+                success = userService.updatePassword(username, hashPassword(argon2, passwordChars));
             }
         } catch (IllegalArgumentException e) {
             success = false;
@@ -80,6 +74,53 @@ public class LoginService {
         }
 
         return success;
+    }
+
+    public PasswordChangeResult changePassword(String username, String currentPassword, String newPassword) {
+        if (username == null || username.isBlank() || currentPassword == null || currentPassword.isEmpty()
+                || newPassword == null || newPassword.isEmpty()) {
+            return PasswordChangeResult.INVALID_REQUEST;
+        }
+
+        Optional<User> userOpt = userService.getUser(username);
+        if (userOpt.isEmpty()) {
+            return PasswordChangeResult.USER_NOT_FOUND;
+        }
+
+        String storedPassword = userOpt.get().getPassword();
+        if (storedPassword == null || storedPassword.isBlank()) {
+            return PasswordChangeResult.INVALID_CURRENT_PASSWORD;
+        }
+
+        Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
+        char[] currentPasswordChars = currentPassword.toCharArray();
+        char[] newPasswordChars = newPassword.toCharArray();
+        try {
+            if (!verifyStoredPassword(argon2, storedPassword, currentPassword, currentPasswordChars)) {
+                return PasswordChangeResult.INVALID_CURRENT_PASSWORD;
+            }
+            if (!userService.updatePassword(username, hashPassword(argon2, newPasswordChars))) {
+                return PasswordChangeResult.UPDATE_FAILED;
+            }
+            return PasswordChangeResult.SUCCESS;
+        } catch (IllegalArgumentException e) {
+            return PasswordChangeResult.INVALID_CURRENT_PASSWORD;
+        } finally {
+            argon2.wipeArray(currentPasswordChars);
+            argon2.wipeArray(newPasswordChars);
+        }
+    }
+
+    private boolean verifyStoredPassword(Argon2 argon2, String storedPassword, String providedPassword,
+            char[] providedPasswordChars) {
+        if (storedPassword.startsWith(ARGON2ID_PREFIX)) {
+            return argon2.verify(storedPassword, providedPasswordChars);
+        }
+        return storedPassword.equals(providedPassword);
+    }
+
+    private String hashPassword(Argon2 argon2, char[] passwordChars) {
+        return argon2.hash(HASH_ITERATIONS, HASH_MEMORY_KIB, HASH_PARALLELISM, passwordChars);
     }
 
     private boolean isRateLimited(String username, long now) {
@@ -126,6 +167,14 @@ public class LoginService {
             this.windowStartedAt = windowStartedAt;
             this.failures = failures;
         }
+    }
+
+    public enum PasswordChangeResult {
+        SUCCESS,
+        INVALID_REQUEST,
+        USER_NOT_FOUND,
+        INVALID_CURRENT_PASSWORD,
+        UPDATE_FAILED
     }
     
 }

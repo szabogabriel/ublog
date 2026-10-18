@@ -43,10 +43,7 @@ public class ImageHandler extends AbstractRequestHandler {
         Path imagePath = resolveImage(imageName);
 
         if (imagePath == null || imagePath.toFile().length() > Integer.MAX_VALUE) {
-            response.setStatusCode(404);
-            response.setContentType("text/plain; charset=UTF-8");
-            response.setBody("Image not found or too large");
-            return response;
+            return createClientError(404, "Image not found or too large");
         }
 
         log.logTrace("Loading image " + imagePath);
@@ -58,10 +55,7 @@ public class ImageHandler extends AbstractRequestHandler {
         } catch (IOException e) {
             log.logError("Error loading image: " + imageName);
 
-            response.setStatusCode(404);
-            response.setContentType("text/plain; charset=UTF-8");
-            response.setBody("Error when loading image.");
-            return response;
+            return createClientError(404, "Error when loading image.");
         }
 
         String sessionId = getSessionId(request);

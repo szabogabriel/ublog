@@ -39,6 +39,9 @@
       {{#LOGIN}}
       {{>login.template}}
       {{/LOGIN}}
+      {{#USER_DETAILS}}
+      {{>user.template}}
+      {{/USER_DETAILS}}
     </section>
 
     <aside class="sidebar">

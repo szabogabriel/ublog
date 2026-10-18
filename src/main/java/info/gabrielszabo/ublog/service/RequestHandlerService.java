@@ -9,12 +9,14 @@ import info.gabrielszabo.ublog.server.http.HttpResponse;
 import info.gabrielszabo.ublog.service.blog.BlogContextFactory;
 import info.gabrielszabo.ublog.service.log.LogService;
 import info.gabrielszabo.ublog.service.requestHandlers.AbstractRequestHandler;
+import info.gabrielszabo.ublog.service.requestHandlers.UserHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.ContentHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.ImageHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.IndexHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.LoginActionHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.LoginHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.LogoutHandler;
+import info.gabrielszabo.ublog.service.requestHandlers.PasswordChangeHandler;
 import info.gabrielszabo.ublog.service.template.TemplateService;
 
 public class RequestHandlerService implements HttpRequestHandler {
@@ -28,9 +30,12 @@ public class RequestHandlerService implements HttpRequestHandler {
 
         requestHandlers.add(new IndexHandler(contextFactory, sessionService, templateService));
         requestHandlers.add(new ImageHandler(contextFactory, sessionService, templateService, log));
+        requestHandlers.add(new UserHandler(contextFactory, sessionService, templateService, userService));
         requestHandlers.add(new LoginHandler(contextFactory, sessionService, templateService));
         requestHandlers.add(new LoginActionHandler(contextFactory, sessionService, templateService,
                 userService, loginService, log));
+        requestHandlers.add(new PasswordChangeHandler(contextFactory, sessionService, templateService,
+            userService, loginService));
         requestHandlers.add(new LogoutHandler(contextFactory, sessionService, templateService));
         requestHandlers.add(new ContentHandler(contextFactory, sessionService, templateService));
     }

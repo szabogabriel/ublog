@@ -200,7 +200,8 @@ public class HttpRequest {
     }
 
     private boolean isAuthenticationPath(String requestPath) {
-        return requestPath.equals("/login") || requestPath.equals("/loginaction") || requestPath.equals("/logout");
+        return requestPath.equals("/login") || requestPath.equals("/loginaction")
+                || requestPath.equals("/logout") || requestPath.equals("/passwordchange");
     }
 
     public static class RequestException extends IOException {

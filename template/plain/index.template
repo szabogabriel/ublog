@@ -7,4 +7,7 @@
 {{#LOGIN}}
 {{>login.template}}
 {{/LOGIN}}
+{{#USER_DETAILS}}
+{{>user.template}}
+{{/USER_DETAILS}}
 {{>html_end.template}}
