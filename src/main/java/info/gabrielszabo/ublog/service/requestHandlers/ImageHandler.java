@@ -1,6 +1,5 @@
 package info.gabrielszabo.ublog.service.requestHandlers;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -45,22 +44,26 @@ public class ImageHandler extends AbstractRequestHandler {
         String imageName = getImageNameFromPath(request.getPath());
         Path imagePath = resolveImage(imageName);
 
-        if (imagePath == null) {
+        if (imagePath == null || imagePath.toFile().length() > Integer.MAX_VALUE) {
             response.setStatusCode(404);
             response.setContentType("text/plain; charset=UTF-8");
-            response.setBody("No request handler matched the request path");
+            response.setBody("Image not found or too large");
             return response;
         }
 
         log.logTrace("Loading image " + imagePath);
 
-        response.setStatusCode(200);
-        response.setContentType(MimeUtil.getMimeType(imageName));
         try {
-            response.setBody(new FileInputStream(imagePath.toFile()), (int) imagePath.toFile()  .length());
-        } catch (FileNotFoundException e) {
+            response.setStatusCode(200);
+            response.setContentType(MimeUtil.getMimeType(imageName));    
+            response.setBody(Files.newInputStream(imagePath, LinkOption.NOFOLLOW_LINKS), (int) imagePath.toFile()  .length());
+        } catch (IOException e) {
             log.logError("Error loading image: " + imageName);
-            e.printStackTrace();
+
+            response.setStatusCode(404);
+            response.setContentType("text/plain; charset=UTF-8");
+            response.setBody("Error when loading image.");
+            return response;
         }
 
         String sessionId = getSessionId(request);
@@ -74,6 +77,9 @@ public class ImageHandler extends AbstractRequestHandler {
     }
 
     private Path resolveImage(String imageName) {
+        if (imageName == null || imageName.isEmpty()) {
+            return null;
+        }
         try {
             Path root = Path.of(Config.IMAGE_FOLDER.value()).toRealPath();
 
