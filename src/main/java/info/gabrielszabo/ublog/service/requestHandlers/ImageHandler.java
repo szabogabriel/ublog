@@ -3,6 +3,10 @@ package info.gabrielszabo.ublog.service.requestHandlers;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
 
 import info.gabrielszabo.ublog.config.Config;
 import info.gabrielszabo.ublog.domain.SessionContext;
@@ -30,33 +34,77 @@ public class ImageHandler extends AbstractRequestHandler {
         return path.startsWith("/image/");
     }
 
+    /**
+     * (non-Javadoc)
+     * No need for BlogContext or SessionContext parameters in this handler. Hence
+     * overriding the whole handleRequest method.
+     */
     @Override
-    protected HttpResponse handleRequest(BlogContext context, SessionContext session, HttpRequest request) {
+    public HttpResponse handleRequest(HttpRequest request) {
         HttpResponse response = new HttpResponse();
         String imageName = getImageNameFromPath(request.getPath());
-        if (imageName == null) {
-            return response;
-        }
+        Path imagePath = resolveImage(imageName);
 
-        String mimeType = MimeUtil.getMimeType(imageName);
-        File imageFile = new File(Config.IMAGE_FOLDER.value() + "/" + imageName);
-        log.logTrace("Loading image " + imageFile);
-
-        if (!imageFile.exists()) {
-            log.logError("Image not found: " + imageName);
+        if (imagePath == null) {
             response.setStatusCode(404);
+            response.setContentType("text/plain; charset=UTF-8");
+            response.setBody("No request handler matched the request path");
             return response;
         }
+
+        log.logTrace("Loading image " + imagePath);
 
         response.setStatusCode(200);
-        response.setContentType(mimeType);
+        response.setContentType(MimeUtil.getMimeType(imageName));
         try {
-            response.setBody(new FileInputStream(imageFile), (int) imageFile.length());
+            response.setBody(new FileInputStream(imagePath.toFile()), (int) imagePath.toFile()  .length());
         } catch (FileNotFoundException e) {
             log.logError("Error loading image: " + imageName);
             e.printStackTrace();
         }
+
+        String sessionId = getSessionId(request);
+        String sessionUsername = sessionService.getUsernameForSession(sessionId);
+        boolean isLoggedIn = sessionUsername != null;
+        if (isLoggedIn) {
+            sessionService.refreshSession(sessionId);
+        }
+
         return response;
+    }
+
+    private Path resolveImage(String imageName) {
+        try {
+            Path root = Path.of(Config.IMAGE_FOLDER.value()).toRealPath();
+
+            Path candidate = root.resolve(imageName).normalize();
+
+            // Prevent ../ traversal
+            if (!candidate.startsWith(root)) {
+                throw new IOException("Invalid image path");
+            }
+
+            // Reject symbolic links in every path component
+            Path current = root;
+
+            for (Path part : root.relativize(candidate)) {
+                current = current.resolve(part);
+
+                if (Files.isSymbolicLink(current)) {
+                    throw new IOException("Symbolic links are not allowed");
+                }
+            }
+
+            if (!Files.isRegularFile(candidate, LinkOption.NOFOLLOW_LINKS)) {
+                throw new IOException("Image not found");
+            }
+
+            return candidate;
+        } catch (IOException e) {
+            log.logError("Error resolving image path: " + imageName);
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private String getImageNameFromPath(String requestPath) {
@@ -64,5 +112,10 @@ public class ImageHandler extends AbstractRequestHandler {
             return requestPath.substring("/image/".length());
         }
         return null;
+    }
+
+    @Override
+    protected HttpResponse handleRequest(BlogContext context, SessionContext session, HttpRequest request) {
+        throw new UnsupportedOperationException("Unimplemented method 'handleRequest'");
     }
 }

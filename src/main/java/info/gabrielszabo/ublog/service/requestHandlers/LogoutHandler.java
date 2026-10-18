@@ -35,14 +35,11 @@ public class LogoutHandler extends AbstractRequestHandler {
         session.setLoggedIn(false);
         context.setLoggingOut();
         context.setLoggedIn(false);
-        context.setUsername(getSessionUsername(request));
         context.addIndexToContext();
 
         HttpResponse response = createHttpResponseFromContext(context, session);
 
-        if (session.isLoggingOut()) {
-            response.addCookie(createSessionInvalidationCookie());
-        } 
+        response.addCookie(createSessionInvalidationCookie());
 
         return response;
     }
