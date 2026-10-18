@@ -11,7 +11,7 @@ import info.gabrielszabo.ublog.domain.EntryDescriptor;
 import info.gabrielszabo.ublog.service.blog.BlogContext;
 
 public class MustacheBlogContext implements BlogContext{
-        private static final String CONTENT = "DATA";
+    private static final String CONTENT = "DATA";
     private static final String LOGIN = "LOGIN";
     private static final String TITLE = "PAGE_TITLE";
     private static final String BLOG_ENTRIES = "ENTRIES";
