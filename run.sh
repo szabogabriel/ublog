@@ -1,8 +1,8 @@
 #!/bin/bash
 
 export MUSTACHE_TEMPLATES_CACHING_ENABLED=true
-export MUSTACHE_TEMPLATES_FOLDER=./template/personal
-#export MUSTACHE_TEMPLATES_FOLDER=./template/plain
+#export MUSTACHE_TEMPLATES_FOLDER=./template/personal
+export MUSTACHE_TEMPLATES_FOLDER=./template/plain
 export MUSTACHE_TEMPLATE_UPDATE=false
 
 export SERVER_PORT=8080

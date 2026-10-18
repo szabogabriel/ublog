@@ -3,6 +3,7 @@ package info.gabrielszabo.ublog.server.http;
 public enum HttpStatus {
     OK(200, "OK"),
     BAD_REQUEST(400, "Bad Request"),
+    FORBIDDEN(403, "Forbidden"),
     METHOD_NOT_ALLOWED(405, "Method Not Allowed"),
     REQUEST_TIMEOUT(408, "Request Timeout"),
     PAYLOAD_TOO_LARGE(413, "Payload Too Large"),

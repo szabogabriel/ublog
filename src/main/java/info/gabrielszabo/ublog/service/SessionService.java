@@ -21,9 +21,10 @@ public class SessionService {
     public String createSession(String username) {
         maybeCleanupExpiredSessions(System.currentTimeMillis());
         String sessionId;
+        long now = System.currentTimeMillis();
         do {
             sessionId = generateSessionId();
-        } while (sessions.putIfAbsent(sessionId, new Session(username, System.currentTimeMillis())) != null);
+        } while (sessions.putIfAbsent(sessionId, new Session(username, now, generateCsrfToken())) != null);
         return sessionId;
     }
 
@@ -45,12 +46,25 @@ public class SessionService {
         long now = System.currentTimeMillis();
         maybeCleanupExpiredSessions(now);
         sessions.computeIfPresent(sessionId, (id, session) -> session.isValidAt(now, sessionTimeout)
-                ? new Session(session.username, now) : null);
+                ? new Session(session.username, now, session.csrfToken) : null);
     }
 
     public String getUsernameForSession(String sessionId) {
         Session session = getValidSession(sessionId);
         return session == null ? null : session.username;
+    }
+
+    public String getCsrfToken(String sessionId) {
+        Session session = getValidSession(sessionId);
+        return session == null ? null : session.csrfToken;
+    }
+
+    public boolean isCsrfTokenValid(String sessionId, String csrfToken) {
+        if (csrfToken == null || csrfToken.isBlank()) {
+            return false;
+        }
+        Session session = getValidSession(sessionId);
+        return session != null && session.csrfToken.equals(csrfToken);
     }
 
     private Session getValidSession(String sessionId) {
@@ -83,13 +97,21 @@ public class SessionService {
         return ret;
     }
 
+    private String generateCsrfToken() {
+        byte[] randomBytes = new byte[32];
+        RANDOM.nextBytes(randomBytes);
+        return HexFormat.of().formatHex(randomBytes);
+    }
+
     private static final class Session {
         private final String username;
         private final long lastAccessTime;
+        private final String csrfToken;
 
-        private Session(String username, long lastAccessTime) {
+        private Session(String username, long lastAccessTime, String csrfToken) {
             this.username = username;
             this.lastAccessTime = lastAccessTime;
+            this.csrfToken = csrfToken;
         }
 
         private boolean isValidAt(long now, long timeout) {

@@ -27,6 +27,7 @@ public class MustacheBlogContext implements BlogContext{
     private static final String USER_DETAILS = "USER_DETAILS";
     private static final String USER_USERNAME = "USER_USERNAME";
     private static final String USER_NAME = "USER_NAME";
+    private static final String CSRF_TOKEN = "CSRF_TOKEN";
     private static final String SUCCESS_MESSAGE = "SUCCESS_MESSAGE";
     private static final String INFO_MESSAGE = "INFO_MESSAGE";
     private static final String ERROR_MESSAGE = "ERROR_MESSAGE";
@@ -137,6 +138,11 @@ public class MustacheBlogContext implements BlogContext{
     public void setUserDetails(User user) {
         context.put(USER_USERNAME, user.getUsername());
         context.put(USER_NAME, user.getName());
+    }
+
+    @Override
+    public void setCsrfToken(String csrfToken) {
+        context.put(CSRF_TOKEN, csrfToken);
     }
 
     @Override

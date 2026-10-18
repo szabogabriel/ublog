@@ -58,6 +58,10 @@ public class PasswordChangeHandler extends AbstractRequestHandler {
                     PasswordChangeMessage.error("Please complete all password fields and make sure the new passwords match."));
         }
 
+        if (!sessionService.isCsrfTokenValid(session.getSessionId(), passwordChangeForm.csrfToken())) {
+            return createClientError(403, "Invalid CSRF token");
+        }
+
         PasswordChangeResult result = loginService.changePassword(context.getUsername(),
                 passwordChangeForm.currentPassword(), passwordChangeForm.newPassword());
         if (result == PasswordChangeResult.INVALID_REQUEST) {
@@ -88,6 +92,7 @@ public class PasswordChangeHandler extends AbstractRequestHandler {
         }
 
         context.setIsUserDetails();
+    context.setCsrfToken(sessionService.getCsrfToken(session.getSessionId()));
         context.setUserDetails(userOpt.get());
 
         if (message.type() == MessageType.SUCCESS) {
@@ -130,6 +135,7 @@ public class PasswordChangeHandler extends AbstractRequestHandler {
         String currentPassword = fields.get("currentPassword");
         String newPassword = fields.get("newPassword");
         String newPasswordRepeat = fields.get("newPasswordRepeat");
+        String csrfToken = fields.get("csrfToken");
         if (currentPassword == null || currentPassword.isEmpty() || newPassword == null || newPassword.isEmpty()
                 || newPasswordRepeat == null || newPasswordRepeat.isEmpty()) {
             throw new IllegalArgumentException("Missing password change field");
@@ -138,10 +144,10 @@ public class PasswordChangeHandler extends AbstractRequestHandler {
             throw new IllegalArgumentException("Mismatched password confirmation");
         }
 
-        return new PasswordChangeForm(currentPassword, newPassword);
+        return new PasswordChangeForm(currentPassword, newPassword, csrfToken);
     }
 
-    private record PasswordChangeForm(String currentPassword, String newPassword) {
+    private record PasswordChangeForm(String currentPassword, String newPassword, String csrfToken) {
     }
 
     private record PasswordChangeMessage(MessageType type, String value) {

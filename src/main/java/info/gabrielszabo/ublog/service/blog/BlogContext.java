@@ -14,6 +14,7 @@ public interface BlogContext {
     void setIsLogin();
     void setIsUserDetails();
 
+    void setCsrfToken(String csrfToken);
     void setUserDetails(User user);
     void setUsername(String username);
     void setName(String name);

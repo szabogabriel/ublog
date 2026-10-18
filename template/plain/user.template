@@ -28,6 +28,7 @@
 
 			<h2 style="font-size: 20px; margin-top: 0; margin-bottom: 18px;">Change password</h2>
 			<form action="/passwordchange" method="post" novalidate>
+				<input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
 				<div class="form-group">
 					<label for="current-password" class="control-label">Current password</label>
 					<input type="password" class="form-control" id="current-password" name="currentPassword" autocomplete="current-password" required>

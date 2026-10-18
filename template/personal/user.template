@@ -19,6 +19,7 @@
 	</div>
 
 	<form action="/passwordchange" method="post">
+		<input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
 		<h3 style="margin: 28px 0 18px; font: 500 21px/1.2 var(--serif);">Change password</h3>
 		<div class="login-field">
 			<label for="current-password">CURRENT PASSWORD</label>
