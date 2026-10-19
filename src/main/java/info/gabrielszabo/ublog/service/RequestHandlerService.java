@@ -11,6 +11,7 @@ import info.gabrielszabo.ublog.service.log.LogService;
 import info.gabrielszabo.ublog.service.requestHandlers.AbstractRequestHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.UserHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.ContentHandler;
+import info.gabrielszabo.ublog.service.requestHandlers.CreateTopicHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.ImageHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.IndexHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.LoginActionHandler;
@@ -25,7 +26,7 @@ public class RequestHandlerService implements HttpRequestHandler {
     private final List<AbstractRequestHandler> requestHandlers = new ArrayList<>();
 
     public RequestHandlerService(BlogContextFactory contextFactory, TemplateService templateService,
-            UserService userService, LoginService loginService, SessionService sessionService, LogService log) {
+            UserService userService, LoginService loginService, SessionService sessionService, LogService log, ContentService contentService) {
         this.log = log;
 
         requestHandlers.add(new IndexHandler(contextFactory, sessionService, templateService));
@@ -37,6 +38,7 @@ public class RequestHandlerService implements HttpRequestHandler {
         requestHandlers.add(new PasswordChangeHandler(contextFactory, sessionService, templateService,
             userService, loginService));
         requestHandlers.add(new LogoutHandler(contextFactory, sessionService, templateService));
+        requestHandlers.add(new CreateTopicHandler(contextFactory, sessionService, templateService, contentService));
         requestHandlers.add(new ContentHandler(contextFactory, sessionService, templateService));
     }
 

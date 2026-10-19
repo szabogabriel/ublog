@@ -42,6 +42,9 @@
       {{#USER_DETAILS}}
       {{>user.template}}
       {{/USER_DETAILS}}
+      {{#IS_CREATE_TOPIC}}
+      {{>createtopic.template}}
+      {{/IS_CREATE_TOPIC}}
     </section>
 
     <aside class="sidebar">
@@ -49,6 +52,7 @@
         <p class="eyebrow">BROWSE BY TOPIC</p>
         <ul class="topic-list">
           {{#TOPICS}}<li><a href="/{{name}}">{{name}}<span aria-hidden="true">&nearr;</span></a></li>{{/TOPICS}}
+          {{#LOGGED_IN}}<li><a href="/createtopic">New</a></li>{{/LOGGED_IN}}
         </ul>
       </section>
       <section class="sidebar-section">

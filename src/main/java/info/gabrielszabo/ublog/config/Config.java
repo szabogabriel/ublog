@@ -15,6 +15,7 @@ import info.gabrielszabo.ublog.server.Server;
 import info.gabrielszabo.ublog.server.http.HttpRequestHandler;
 import info.gabrielszabo.ublog.server.socket.PooledSocketHandler;
 import info.gabrielszabo.ublog.server.socket.SocketHandler;
+import info.gabrielszabo.ublog.service.ContentService;
 import info.gabrielszabo.ublog.service.LoginService;
 import info.gabrielszabo.ublog.service.RequestHandlerService;
 import info.gabrielszabo.ublog.service.UserService;
@@ -45,6 +46,7 @@ public enum Config {
 
     SERVICE_BLOG_CONTEXT_FACTORY(ServiceFactory.PREFIX_IMPL + BlogContextFactory.class.getName(), MustacheBlogContextFactory.class.getName()),
     SERVICE_CONTENT_HANDLER(ServiceFactory.PREFIX_IMPL + ContentProvider.class.getName(), MarkdownContentProvider.class.getName()),
+    SERVICE_CONTENT_SERVICE(ServiceFactory.PREFIX_IMPL + ContentService.class.getName(), ContentService.class.getName()),
     SERVICE_HTTP_SERVER(ServiceFactory.PREFIX_IMPL + Server.class.getName(), Server.class.getName()),
     SERVICE_LOG(ServiceFactory.PREFIX_IMPL + LogService.class.getName(), ConsoleLogService.class.getName()),
     SERVICE_LOGIN(ServiceFactory.PREFIX_IMPL + LoginService.class.getName(), LoginService.class.getName()),

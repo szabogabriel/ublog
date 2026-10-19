@@ -24,6 +24,7 @@ public class MustacheBlogContext implements BlogContext{
     private static final String INITIAL_LOGIN = "INITIAL_LOGIN";
     private static final String LOGGING_OUT = "LOGGING_OUT";
     private static final String IS_INDEX = "IS_INDEX";
+    private static final String IS_CREATE_TOPIC = "IS_CREATE_TOPIC";
     private static final String USER_DETAILS = "USER_DETAILS";
     private static final String USER_USERNAME = "USER_USERNAME";
     private static final String USER_NAME = "USER_NAME";
@@ -211,5 +212,17 @@ public class MustacheBlogContext implements BlogContext{
     public void addErrorMessage(String message) {
         context.put(ERROR_MESSAGE, message);
         context.put(HAS_ERROR_MESSAGE, Boolean.TRUE);
+    }
+
+    @Override
+    public void setIsCreateTopic() {
+        context.put(IS_CREATE_TOPIC, Boolean.TRUE);
+        context.put(CONTENT, "");
+        context.put(TITLE, "Create topic");
+    }
+
+    @Override
+    public boolean isCreateTopic() {
+        return context.containsKey(IS_CREATE_TOPIC) && (Boolean) context.get(IS_CREATE_TOPIC);
     }
 }

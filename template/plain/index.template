@@ -10,4 +10,7 @@
 {{#USER_DETAILS}}
 {{>user.template}}
 {{/USER_DETAILS}}
+{{#IS_CREATE_TOPIC}}
+{{>createtopic.template}}
+{{/IS_CREATE_TOPIC}}
 {{>html_end.template}}

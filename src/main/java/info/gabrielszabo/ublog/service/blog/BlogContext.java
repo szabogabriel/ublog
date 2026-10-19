@@ -13,6 +13,7 @@ public interface BlogContext {
 
     void setIsLogin();
     void setIsUserDetails();
+    void setIsCreateTopic();
 
     void setCsrfToken(String csrfToken);
     void setUserDetails(User user);
@@ -25,6 +26,7 @@ public interface BlogContext {
     boolean isLoggedIn();
     boolean isLoggingOut();
     boolean isInitialLogin();
+    boolean isCreateTopic();
 
     String getUsername();
     String getName();

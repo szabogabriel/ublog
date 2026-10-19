@@ -1,0 +1,22 @@
+<section class="login-panel" aria-labelledby="create-topic-title">
+	<h2 id="create-topic-title">Create topic</h2>
+	<p style="margin: 0 0 18px; color: #5d625e; font: 15px/1.7 var(--sans);">Choose the template name to use for the new topic request.</p>
+	{{#HAS_SUCCESS_MESSAGE}}
+	<div style="margin-bottom: 18px; padding: 12px 14px; color: #174538; background: #dfeee4; border-left: 3px solid #286452; font: 13px/1.5 var(--sans);" role="status">{{SUCCESS_MESSAGE}}</div>
+	{{/HAS_SUCCESS_MESSAGE}}
+	{{#HAS_INFO_MESSAGE}}
+	<div style="margin-bottom: 18px; padding: 12px 14px; color: #23546b; background: #e3eef3; border-left: 3px solid #5f8ea1; font: 13px/1.5 var(--sans);" role="status">{{INFO_MESSAGE}}</div>
+	{{/HAS_INFO_MESSAGE}}
+	{{#HAS_ERROR_MESSAGE}}
+	<div style="margin-bottom: 18px; padding: 12px 14px; color: #7a2f24; background: #f7e6e0; border-left: 3px solid #e45e3a; font: 13px/1.5 var(--sans);" role="alert">{{ERROR_MESSAGE}}</div>
+	{{/HAS_ERROR_MESSAGE}}
+
+	<form action="/createtopic" method="post">
+		<input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
+		<div class="login-field">
+			<label for="template-name">TEMPLATE NAME</label>
+			<input type="text" id="template-name" name="templateName" placeholder="example-template" required>
+		</div>
+		<button class="login-submit" type="submit">Submit</button>
+	</form>
+</section>
