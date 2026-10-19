@@ -35,8 +35,13 @@ public class MustacheBlogContext implements BlogContext{
     private static final String HAS_INFO_MESSAGE = "HAS_INFO_MESSAGE";
     private static final String HAS_ERROR_MESSAGE = "HAS_ERROR_MESSAGE";
 
+    private static final String ENTRY_TOPIC = "ENTRY_TOPIC";
+    private static final String ENTRY_NAME = "ENTRY_NAME";
+    private static final String ENTRY_CONTENT = "ENTRY_CONTENT";
+
     private static final String IS_INDEX = "IS_INDEX";
     private static final String IS_CREATE_TOPIC = "IS_CREATE_TOPIC";
+    private static final String IS_CREATE_ENTRY = "IS_CREATE_ENTRY";
     private static final String IS_TOPIC_LISTING = "IS_TOPIC_LISTING";
     private static final String IS_QUICK_LINK = "IS_QUICK_LINK";
     private static final String INITIAL_LOGIN = "INITIAL_LOGIN";
@@ -233,5 +238,28 @@ public class MustacheBlogContext implements BlogContext{
     @Override
     public boolean isCreateTopic() {
         return context.containsKey(IS_CREATE_TOPIC) && (Boolean) context.get(IS_CREATE_TOPIC);
+    }
+
+    @Override
+    public void setIsCreateEntry() {
+        context.put(IS_CREATE_ENTRY, Boolean.TRUE);
+        context.put(CONTENT, "");
+        context.put(TITLE, "Create entry");
+    }
+
+    @Override
+    public void setEntryTopic(String topic) {
+        context.put(ENTRY_TOPIC, topic);
+    }
+
+    @Override
+    public void setEntryDraft(String name, String content) {
+        context.put(ENTRY_NAME, name);
+        context.put(ENTRY_CONTENT, content);
+    }
+
+    @Override
+    public boolean isCreateEntry() {
+        return context.containsKey(IS_CREATE_ENTRY) && (Boolean) context.get(IS_CREATE_ENTRY);
     }
 }

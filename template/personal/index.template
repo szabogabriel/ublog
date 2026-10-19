@@ -58,6 +58,10 @@
       {{#IS_CREATE_TOPIC}}
         {{>createtopic.template}}
       {{/IS_CREATE_TOPIC}}
+
+      {{#IS_CREATE_ENTRY}}
+        {{>createentry.template}}
+      {{/IS_CREATE_ENTRY}}
     </section>
 
     <aside class="sidebar">

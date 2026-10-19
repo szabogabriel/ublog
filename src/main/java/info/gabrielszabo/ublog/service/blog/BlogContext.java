@@ -14,6 +14,9 @@ public interface BlogContext {
     void setIsLogin();
     void setIsUserDetails();
     void setIsCreateTopic();
+    void setIsCreateEntry();
+    void setEntryTopic(String topic);
+    void setEntryDraft(String name, String content);
 
     void setCsrfToken(String csrfToken);
     void setUserDetails(User user);
@@ -27,6 +30,7 @@ public interface BlogContext {
     boolean isLoggingOut();
     boolean isInitialLogin();
     boolean isCreateTopic();
+    boolean isCreateEntry();
 
     String getUsername();
     String getName();

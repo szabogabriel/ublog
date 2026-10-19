@@ -17,7 +17,7 @@ import info.gabrielszabo.ublog.service.template.TemplateService;
 
 public class CreateTopicHandler extends AbstractRequestHandler {
 
-    private ContentService contentService;
+    private final ContentService contentService;
 
     public CreateTopicHandler(BlogContextFactory contextFactory, SessionService sessionService,
             TemplateService templateService,

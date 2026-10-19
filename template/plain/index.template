@@ -24,4 +24,8 @@
     {{>createtopic.template}}
 {{/IS_CREATE_TOPIC}}
 
+{{#IS_CREATE_ENTRY}}
+    {{>createentry.template}}
+{{/IS_CREATE_ENTRY}}
+
 {{>html_end.template}}

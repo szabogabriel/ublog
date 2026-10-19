@@ -44,10 +44,18 @@ public class PooledSocketHandler implements SocketHandler {
                     try {
                         httpRequest = HttpRequest.readFrom(inStream);
                     } catch (HttpRequest.RequestException e) {
-                        writeErrorResponse(outStream, e.getStatusCode(), e.getMessage());
+                        try {
+                            writeErrorResponse(outStream, e.getStatusCode(), e.getMessage());
+                        } catch (IOException ignored) {
+                            // The client may have closed the connection before sending a full request.
+                        }
                         return;
                     } catch (SocketTimeoutException e) {
-                        writeErrorResponse(outStream, 408, "Request timed out");
+                        try {
+                            writeErrorResponse(outStream, 408, "Request timed out");
+                        } catch (IOException ignored) {
+                            // Browsers drop idle pre-opened connections, so the peer is often already gone.
+                        }
                         return;
                     }
 

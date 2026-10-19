@@ -359,6 +359,10 @@
   .login-submit { min-height: 42px; padding: 9px 18px; color: white; background: var(--green); border: 0; border-radius: 2px; font: 600 13px var(--sans); cursor: pointer; }
   .login-submit:hover { background: var(--ink); }
 
+  .entry-editor { max-width: none; }
+  .entry-editor .CodeMirror, .entry-editor .CodeMirror-scroll { min-height: 520px; }
+  .content-grid:has(.entry-editor) { grid-template-columns: minmax(0, 1fr); }
+  .content-grid:has(.entry-editor) .sidebar { display: none; }
   .site-footer { border-top: 1px solid var(--line); }
   .site-footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 76px; }
   .footer-note { margin: 0; color: var(--muted); font: 10px/1.5 var(--mono); }
