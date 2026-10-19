@@ -38,8 +38,11 @@ public class ContentService {
     }
 
     public boolean topicExists(String topic) {
-        return topic != null && topicNamePattern.matcher(topic).matches()
-                && new File(blogFolder, topic).isDirectory();
+        if (topic == null || !topicNamePattern.matcher(topic).matches()) {
+            return false;
+        }
+        Path topicPath = new File(blogFolder, topic).toPath();
+        return !Files.isSymbolicLink(topicPath) && Files.isDirectory(topicPath);
     }
 
     public boolean createEntry(String topic, String entry, String content, File[] images) {
