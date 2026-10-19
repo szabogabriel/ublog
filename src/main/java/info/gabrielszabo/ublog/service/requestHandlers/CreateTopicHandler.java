@@ -65,7 +65,11 @@ public class CreateTopicHandler extends AbstractRequestHandler {
         }
 
         boolean created = contentService.createTopic(createTopicForm.topicName());
-        context.addInfoMessage(". Topic creation with name " + createTopicForm.topicName() + (created ? " succeeded." : " failed."));
+        if (!created) {
+            context.addErrorMessage("Failed to create topic with name " + createTopicForm.topicName());
+        } else {
+            context.addInfoMessage("Successfully created topic with name " + createTopicForm.topicName());
+        }
         return createHttpResponseFromContext(context, session);
     }
 
