@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.regex.Pattern;
 
@@ -74,14 +75,28 @@ public class ContentService {
         if (entryFile == null || content == null) {
             return false;
         }
-        if (!deleteEntry(entryFile)) {
-            return false;
-        }
+        Path temporaryFile = null;
+        boolean originalRemoved = false;
         try {
-            Files.writeString(entryFile.toPath(), content, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
+            Path entryPath = entryFile.toPath();
+            temporaryFile = Files.createTempFile(entryPath.getParent(), "." + entryFile.getName() + ".", ".tmp");
+            Files.writeString(temporaryFile, content, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING);
+            if (!deleteEntry(entryFile)) {
+                return false;
+            }
+            originalRemoved = true;
+            Files.move(temporaryFile, entryPath);
             return true;
         } catch (IOException e) {
             return false;
+        } finally {
+            if (temporaryFile != null && !originalRemoved) {
+                try {
+                    Files.deleteIfExists(temporaryFile);
+                } catch (IOException ignored) {
+                    // Best effort cleanup before the original is removed.
+                }
+            }
         }
     }
 
