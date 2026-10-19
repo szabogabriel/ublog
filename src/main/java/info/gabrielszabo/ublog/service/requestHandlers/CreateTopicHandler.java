@@ -56,7 +56,7 @@ public class CreateTopicHandler extends AbstractRequestHandler {
         try {
             createTopicForm = parseCreateTopicForm(request.getBody());
         } catch (IllegalArgumentException e) {
-            context.addErrorMessage("Please provide a template name.");
+            context.addErrorMessage("Please provide a topic name.");
             return createHttpResponseFromContext(context, session);
         }
 
@@ -64,8 +64,8 @@ public class CreateTopicHandler extends AbstractRequestHandler {
             return createClientError(403, "Invalid CSRF token");
         }
 
-        boolean created = contentService.createTopic(createTopicForm.templateName());
-        context.addInfoMessage(". Topic creation with name " + createTopicForm.templateName() + (created ? " succeeded." : " failed."));
+        boolean created = contentService.createTopic(createTopicForm.topicName());
+        context.addInfoMessage(". Topic creation with name " + createTopicForm.topicName() + (created ? " succeeded." : " failed."));
         return createHttpResponseFromContext(context, session);
     }
 
@@ -96,15 +96,15 @@ public class CreateTopicHandler extends AbstractRequestHandler {
             }
         }
 
-        String templateName = fields.get("templateName");
+        String topicName = fields.get("topicName");
         String csrfToken = fields.get("csrfToken");
-        if (templateName == null || templateName.isBlank()) {
-            throw new IllegalArgumentException("Missing template name");
+        if (topicName == null || topicName.isBlank()) {
+            throw new IllegalArgumentException("Missing topic name");
         }
 
-        return new CreateTopicForm(templateName.trim(), csrfToken);
+        return new CreateTopicForm(topicName.trim(), csrfToken);
     }
 
-    private record CreateTopicForm(String templateName, String csrfToken) {
+    private record CreateTopicForm(String topicName, String csrfToken) {
     }
 }

@@ -39,7 +39,7 @@ checkArgs() {
         echo "Usage: $0 [options]"
         echo "Options:"
         echo "  -c, --compile           Compile the project"
-        echo "  -ui, --ui-version       Set the UI version (default: personal)"
+        echo "  -ui, --ui-version       Set the UI version: personal or plain (default: personal)"
         echo "  -h, --help              Display this help message"
         echo "  -m, --memory            Set the memory size (default: 8m)"
         exit 0
