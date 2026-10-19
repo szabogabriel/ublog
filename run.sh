@@ -74,10 +74,10 @@ main() {
     checkArgs
     setEnv
     if [[ "$FLAG_COMPILE" == true ]]; then
-        mvn clean install
+        mvn clean install || exit 1
     fi
 
     java -Xms${MEM_SIZE} -Xmx${MEM_SIZE} -cp target/ublog*-fat.jar info.gabrielszabo.ublog.App
 }
 
-main $@
+main "$@"
