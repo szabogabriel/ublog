@@ -1,47 +1,82 @@
 # uBlog
 
-This application is yet again a blog implementation from me. It's a simple application that is able to render markdown entries into HTML with a simple URL logic.
+uBlog is a small Java application that serves a folder of Markdown files as a blog. It uses a simple URL scheme, renders pages to HTML, and keeps content, templates, user properties, and images in filesystem folders.
 
 ## Philosophy
 
-This application has only a minimal amount of dependencies. A dependency injection framework, mustache template rendering, markdown template rendering and an H2 DB library. I wanted to try a really minimalistic application with some really low footprint. Hence I'm using Java Sockets to handle HTTP communication instead of a Web- or Application Server. The markdown and the H2 DB libraries are not mine, I didn't have the time to make one (yet). The other two I trust regarding memory usage and performance.
+The project favors a small footprint and few dependencies over a conventional web stack. HTTP is handled directly with Java sockets rather than a web or application server. Markdown rendering and Mustache templates provide the presentation layer; the remaining application code is intentionally straightforward. Configuration has explicit defaults, and there is no database in the current runtime path.
 
-At the moment the app is running with an 8MB heap space setting and rendering markdown pages in about 1ms on my local machine, and about 70-100ms on my small cloud server. I'm satisfied.
+The container starts the JVM with an 8 MB initial and maximum heap. That is a deliberately small starting point, not a performance guarantee: actual memory needs depend on the content, traffic, and runtime environment.
 
-## Features
+## Current State
 
-There is not much going on (yet). You can list a folder with other folders and Markdown files. There is only one level of categorization possible. Settings work either via environment variables or via a property file. When nothing is set, there is a fallback to a default value. There is no magic going on. The only pages, which are not explicictly listed are the `Index.md` and `Error.md`. The Markdown files in the root folder are listed to the right side in the menu and the folders (categories) are listed to the left side.
+The application reads Markdown files from a root folder and its immediate category folders. Root-level entries appear in the menu, categories appear separately, and `Index.md` and `Error.md` are used for their special pages. The personal and plain Mustache template sets live under `template/`.
 
-Templates are in a separate folder and standard Mustache is supported. 
+Users are loaded from property files in the user folder. Authenticated editing can create categories and entries and update existing entries, so the content folder must be writable for those operations. Password updates can also write to the user folder. Images are served from a separate folder and only need read access.
 
-Database currently is not used.
+The Maven build produces a regular JAR and a shaded `fat` JAR. The `Containerfile` builds and runs the shaded JAR. The database-related environment variables documented previously are not used by the current application configuration.
 
-An example of the configuration is present in the `run.sh` script. The `pom.xml` builds both a library JAR file and a fat JAR (containing every library as well). 
+## Configuration
 
-### Database settings (via environment variables)
+Environment variables take precedence over values in `app.properties` for settings handled by the application configuration. The corresponding property keys use lowercase dotted names (for example, `SERVER_PORT` maps to `server.port`). `SESSION_TIMEOUT` is read directly from the environment and is not read from `app.properties`. Paths are relative to the process working directory unless absolute paths are used.
 
-`DB_USERNAME` sets the DB user.
+The following are the runtime environment variables used by the application. Defaults below are the values set by the `Containerfile` (the application may use the alternate code default when run outside the container).
 
-`DB_PASSWORD` sets the DB password.
+| Variable | Container default | Purpose |
+| --- | --- | --- |
+| `SERVER_PORT` | `8080` | TCP port the HTTP server listens on inside the container. |
+| `TARGET_FOLDER` | `/app/blogFolder` | Markdown content root. The app may create categories and entries here. |
+| `USER_FOLDER` | `/app/userFolder` | User `.properties` files. Password updates write to this folder. |
+| `IMAGE_FOLDER` | `/app/imageFolder` | Folder for files served under `/image/`. |
+| `MUSTACHE_TEMPLATES_FOLDER` | `/app/template/personal` | Mustache templates and optional `strings.properties`. |
+| `MUSTACHE_TEMPLATES_CACHING_ENABLED` | `true` | Cache compiled templates after first use. |
+| `MUSTACHE_TEMPLATE_UPDATE` | `false` | Pass template-update mode to the Mustache template loader. |
+| `SESSION_TIMEOUT` | `60` | Session idle timeout in minutes. |
+| `SESSION_COOKIE_SECURE` | `false` | Set the session cookie's `Secure` attribute. Enable when HTTPS is provided by a reverse proxy. |
+| `SOCKET_HANDLER_THREAD_POOL_SIZE` | `10` | Number of request-handler threads. |
+| `SOCKET_HANDLER_QUEUE_CAPACITY` | `100` | Maximum queued connections; excess connections receive HTTP 503. |
 
-`DB_FILE_PATH` path to the DB file. It can be a relative path. We are using H2 in single file mode here.
+For a local run, `./run.sh` sets the template and data folders to the repository's `template/` and `testContent/` directories. Use `./run.sh --help` to see its options.
 
-`H2_WEB_PORT` port for the H2 web console. Not activated by default.
+User management is done via property files placed in the `USER_FOLDER`. The name of the file is the username. Content is straight forward:
 
-### Templating configuration
+```properties
+password=mypassword
+name=John Doe
+status=active
+```
 
-`MUSTACHE_TEMPLATES_CACHING_ENABLED` this feature when enabled, compiles the templates once and then uses them over and over, thus making the rendering faster.
+The password can be entered plain (as in the example). Upon first login the password is encrypted. `status=active` is used to check if the user is allowed to log in. 
 
-`export MUSTACHE_TEMPLATES_FOLDER` the folder of where the templates are to be found.
+## Container
 
-### Technical settings
+Build the image from the repository root:
 
-`SERVER_PORT` the port the server is listening to.
+```sh
+docker build -f Containerfile -t ublog:local .
+```
 
-`SOCKET_HANDLER_THREAD_POOL_SIZE` the size of the thread pool for the request handlers. By default is set to 10 threads.
+The image includes default templates and sample blog and user files. Run it with the HTTP port published:
 
-`SOCKET_HANDLER_QUEUE_CAPACITY` the maximum number of queued connections waiting for a request handler. Excess connections receive HTTP 503. Defaults to 100.
+```sh
+docker run --rm --name ublog -p 8080:8080 ublog:local
+```
 
-`SESSION_COOKIE_SECURE` enables the `Secure` attribute on session cookies. Set to `true` when serving over HTTPS; defaults to `false` for the plain-HTTP local server.
+To use host-managed folders instead, create the folders and seed the content and user files as needed. The content and user mounts below are writable because editing and password updates can modify them; the image mount is read-only because images are only served:
 
-`TARGET_FOLDER` the folder where the markdown files are hosted. For example `/var/www/markdown`.
+```sh
+mkdir -p content users images
+cp -a testContent/blogFolder/. content/
+cp -a testContent/userFolder/. users/
+
+docker run --rm --name ublog -p 8080:8080 \
+	-e TARGET_FOLDER=/data/content \
+	-e USER_FOLDER=/data/users \
+	-e IMAGE_FOLDER=/data/images \
+	-v "$PWD/content:/data/content:rw" \
+	-v "$PWD/users:/data/users:rw" \
+	-v "$PWD/images:/data/images:ro" \
+	ublog:local
+```
+
+Open `http://localhost:8080`. Put Markdown files and category directories in `content/`, user property files in `users/`, and image files in `images/`. If serving through an HTTPS reverse proxy, set `SESSION_COOKIE_SECURE=true`; the proxy should forward requests to the container's HTTP port. For a non-default server port, set `SERVER_PORT` and publish that same container port.
