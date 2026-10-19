@@ -21,20 +21,26 @@ public class MustacheBlogContext implements BlogContext{
     private static final String USERNAME = "USERNAME";
     private static final String NAME = "NAME";
     private static final String LOGGED_IN = "LOGGED_IN";
-    private static final String INITIAL_LOGIN = "INITIAL_LOGIN";
-    private static final String LOGGING_OUT = "LOGGING_OUT";
-    private static final String IS_INDEX = "IS_INDEX";
-    private static final String IS_CREATE_TOPIC = "IS_CREATE_TOPIC";
+
     private static final String USER_DETAILS = "USER_DETAILS";
     private static final String USER_USERNAME = "USER_USERNAME";
     private static final String USER_NAME = "USER_NAME";
+
     private static final String CSRF_TOKEN = "CSRF_TOKEN";
+    
     private static final String SUCCESS_MESSAGE = "SUCCESS_MESSAGE";
     private static final String INFO_MESSAGE = "INFO_MESSAGE";
     private static final String ERROR_MESSAGE = "ERROR_MESSAGE";
     private static final String HAS_SUCCESS_MESSAGE = "HAS_SUCCESS_MESSAGE";
     private static final String HAS_INFO_MESSAGE = "HAS_INFO_MESSAGE";
     private static final String HAS_ERROR_MESSAGE = "HAS_ERROR_MESSAGE";
+
+    private static final String IS_INDEX = "IS_INDEX";
+    private static final String IS_CREATE_TOPIC = "IS_CREATE_TOPIC";
+    private static final String IS_TOPIC_LISTING = "IS_TOPIC_LISTING";
+    private static final String IS_QUICK_LINK = "IS_QUICK_LINK";
+    private static final String INITIAL_LOGIN = "INITIAL_LOGIN";
+    private static final String LOGGING_OUT = "LOGGING_OUT";
 
     private final Map<String, Object> context;
 
@@ -75,10 +81,13 @@ public class MustacheBlogContext implements BlogContext{
             EntryDescriptor requestedEntry = new EntryDescriptor(entryName, null);
             context.put(CONTENT, contentProvider.getEntryContentAsHttp(requestedEntry));
             context.put(TITLE, requestedEntry.getName());
+            context.put(IS_QUICK_LINK, Boolean.TRUE);
         } else if (contentProvider.isBlogCategory(entryName)) {
             Category requestedCategory = new Category(entryName);
             context.put(BLOG_ENTRIES, getBlogEntries(requestedCategory));
             context.put(TITLE, requestedCategory.getName());
+            context.put(IS_TOPIC_LISTING, Boolean.TRUE);
+            context.put("category", entryName);
             context.remove(CONTENT);
         }
     }

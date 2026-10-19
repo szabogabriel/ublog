@@ -1,16 +1,27 @@
 {{>html_start.template}}
 {{>navbar.template}}
+
 {{{DATA}}}
-{{#ENTRIES}}
-<h2><a href="/{{category}}/{{name}}">{{name}}</a><br/></h2>
-{{/ENTRIES}}
+
+{{#IS_TOPIC_LISTING}}
+    {{#LOGGED_IN}}
+        <h2><a href="/createentry/{{category}}">New</a></h2>
+    {{/LOGGED_IN}}
+    {{#ENTRIES}}
+        <h2><a href="/{{category}}/{{name}}">{{name}}</a><br/></h2>
+    {{/ENTRIES}}
+{{/IS_TOPIC_LISTING}}
+
 {{#LOGIN}}
-{{>login.template}}
+    {{>login.template}}
 {{/LOGIN}}
+
 {{#USER_DETAILS}}
-{{>user.template}}
+    {{>user.template}}
 {{/USER_DETAILS}}
+
 {{#IS_CREATE_TOPIC}}
-{{>createtopic.template}}
+    {{>createtopic.template}}
 {{/IS_CREATE_TOPIC}}
+
 {{>html_end.template}}

@@ -28,22 +28,35 @@
         <span class="section-rule"></span>
       </div>
       <article class="prose">{{{DATA}}}</article>
-      {{#ENTRIES}}
-      <a class="entry-row" href="/{{category}}/{{name}}">
-        <span class="entry-label">FIELD NOTE</span>
-        <span class="entry-title">{{name}}</span>
-        <span class="entry-category">{{category}}</span>
-        <span class="entry-arrow" aria-hidden="true">&rarr;</span>
-      </a>
-      {{/ENTRIES}}
+      {{#IS_TOPIC_LISTING}}
+        {{#LOGGED_IN}}
+          <a class="entry-row" href="/createentry/{{category}}">
+            <span class="entry-label">FIELD NOTE</span>
+            <span class="entry-title">New</span>
+            <span class="entry-category">{{category}}</span>
+            <span class="entry-arrow" aria-hidden="true">&rarr;</span>
+          </a>
+        {{/LOGGED_IN}}
+        {{#ENTRIES}}
+          <a class="entry-row" href="/{{category}}/{{name}}">
+            <span class="entry-label">FIELD NOTE</span>
+            <span class="entry-title">{{name}}</span>
+            <span class="entry-category">{{category}}</span>
+            <span class="entry-arrow" aria-hidden="true">&rarr;</span>
+          </a>
+        {{/ENTRIES}}
+      {{/IS_TOPIC_LISTING}}
+      
       {{#LOGIN}}
-      {{>login.template}}
+        {{>login.template}}
       {{/LOGIN}}
+      
       {{#USER_DETAILS}}
-      {{>user.template}}
+        {{>user.template}}
       {{/USER_DETAILS}}
+      
       {{#IS_CREATE_TOPIC}}
-      {{>createtopic.template}}
+        {{>createtopic.template}}
       {{/IS_CREATE_TOPIC}}
     </section>
 
