@@ -24,6 +24,7 @@
 				<textarea id="entry-content" name="content">{{ENTRY_CONTENT}}</textarea>
 			</div>
 			<button type="submit" class="btn btn-primary">Submit</button>
+			<a class="btn btn-default" href="/{{ENTRY_TOPIC}}">Cancel</a>
 		</form>
 	</div>
 </div>

@@ -15,6 +15,7 @@ public interface BlogContext {
     void setIsUserDetails();
     void setIsCreateTopic();
     void setIsCreateEntry();
+    void setIsEditEntry();
     void setEntryTopic(String topic);
     void setEntryDraft(String name, String content);
 

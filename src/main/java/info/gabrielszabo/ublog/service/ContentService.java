@@ -55,5 +55,52 @@ public class ContentService {
             return false;
         }
     }
-    
+
+    /** Returns the raw markdown of an existing entry, or null if it does not exist. */
+    public String getEntryContent(String topic, String entry) {
+        File entryFile = existingEntryFile(topic, entry);
+        if (entryFile == null) {
+            return null;
+        }
+        try {
+            return Files.readString(entryFile.toPath(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    public boolean updateEntry(String topic, String entry, String content) {
+        File entryFile = existingEntryFile(topic, entry);
+        if (entryFile == null || content == null) {
+            return false;
+        }
+        if (!deleteEntry(entryFile)) {
+            return false;
+        }
+        try {
+            Files.writeString(entryFile.toPath(), content, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    // Single place to change when a different deletion strategy (e.g. archiving) is needed.
+    protected boolean deleteEntry(File entryFile) {
+        try {
+            Files.delete(entryFile.toPath());
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    private File existingEntryFile(String topic, String entry) {
+        if (!topicExists(topic) || entry == null || !entryNamePattern.matcher(entry).matches()) {
+            return null;
+        }
+        File entryFile = new File(new File(blogFolder, topic), entry + ".md");
+        return entryFile.isFile() && !Files.isSymbolicLink(entryFile.toPath()) ? entryFile : null;
+    }
+
 }

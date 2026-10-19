@@ -22,6 +22,7 @@
 			<textarea id="entry-content" name="content">{{ENTRY_CONTENT}}</textarea>
 		</div>
 		<button class="login-submit" type="submit">Submit</button>
+		<a class="login-cancel" href="/{{ENTRY_TOPIC}}">Cancel</a>
 	</form>
 </section>
 <script src="https://unpkg.com/easymde@2.18.0/dist/easymde.min.js"></script>

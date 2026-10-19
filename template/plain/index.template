@@ -3,6 +3,12 @@
 
 {{{DATA}}}
 
+{{#IS_ENTRY_VIEW}}
+    {{#LOGGED_IN}}
+        <p><a href="/editentry/{{ENTRY_TOPIC}}/{{ENTRY_NAME}}">Edit</a></p>
+    {{/LOGGED_IN}}
+{{/IS_ENTRY_VIEW}}
+
 {{#IS_TOPIC_LISTING}}
     {{#LOGGED_IN}}
         <h2><a href="/createentry/{{category}}">New</a></h2>
@@ -27,5 +33,9 @@
 {{#IS_CREATE_ENTRY}}
     {{>createentry.template}}
 {{/IS_CREATE_ENTRY}}
+
+{{#IS_EDIT_ENTRY}}
+    {{>editentry.template}}
+{{/IS_EDIT_ENTRY}}
 
 {{>html_end.template}}

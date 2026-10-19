@@ -358,6 +358,8 @@
   .login-field input:focus { outline: 2px solid var(--green); outline-offset: 2px; }
   .login-submit { min-height: 42px; padding: 9px 18px; color: white; background: var(--green); border: 0; border-radius: 2px; font: 600 13px var(--sans); cursor: pointer; }
   .login-submit:hover { background: var(--ink); }
+  .login-cancel { display: inline-block; margin-left: 10px; padding: 11px 18px; color: var(--ink); border: 1px solid #c6d0c7; border-radius: 2px; font: 600 13px var(--sans); text-decoration: none; }
+  .login-cancel:hover { background: var(--paper); }
 
   .entry-editor { max-width: none; }
   .entry-editor .CodeMirror, .entry-editor .CodeMirror-scroll { min-height: 520px; }

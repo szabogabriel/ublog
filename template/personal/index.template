@@ -28,6 +28,11 @@
         <span class="section-rule"></span>
       </div>
       <article class="prose">{{{DATA}}}</article>
+      {{#IS_ENTRY_VIEW}}
+        {{#LOGGED_IN}}
+          <p><a class="text-link" href="/editentry/{{ENTRY_TOPIC}}/{{ENTRY_NAME}}">Edit</a></p>
+        {{/LOGGED_IN}}
+      {{/IS_ENTRY_VIEW}}
       {{#IS_TOPIC_LISTING}}
         {{#LOGGED_IN}}
           <a class="entry-row" href="/createentry/{{category}}">
@@ -62,6 +67,10 @@
       {{#IS_CREATE_ENTRY}}
         {{>createentry.template}}
       {{/IS_CREATE_ENTRY}}
+
+      {{#IS_EDIT_ENTRY}}
+        {{>editentry.template}}
+      {{/IS_EDIT_ENTRY}}
     </section>
 
     <aside class="sidebar">

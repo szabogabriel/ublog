@@ -12,6 +12,7 @@ import info.gabrielszabo.ublog.service.requestHandlers.AbstractRequestHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.ContentHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.CreateEntryHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.CreateTopicHandler;
+import info.gabrielszabo.ublog.service.requestHandlers.EditEntryHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.ImageHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.IndexHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.LoginActionHandler;
@@ -41,6 +42,7 @@ public class RequestHandlerService implements HttpRequestHandler {
         requestHandlers.add(new LogoutHandler(contextFactory, sessionService, templateService));
         requestHandlers.add(new CreateTopicHandler(contextFactory, sessionService, templateService, contentService));
         requestHandlers.add(new CreateEntryHandler(contextFactory, sessionService, templateService, contentService));
+        requestHandlers.add(new EditEntryHandler(contextFactory, sessionService, templateService, contentService));
         requestHandlers.add(new ContentHandler(contextFactory, sessionService, templateService));
     }
 

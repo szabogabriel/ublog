@@ -39,6 +39,8 @@ public class MustacheBlogContext implements BlogContext{
     private static final String ENTRY_NAME = "ENTRY_NAME";
     private static final String ENTRY_CONTENT = "ENTRY_CONTENT";
 
+    private static final String IS_EDIT_ENTRY = "IS_EDIT_ENTRY";
+    private static final String IS_ENTRY_VIEW = "IS_ENTRY_VIEW";
     private static final String IS_INDEX = "IS_INDEX";
     private static final String IS_CREATE_TOPIC = "IS_CREATE_TOPIC";
     private static final String IS_CREATE_ENTRY = "IS_CREATE_ENTRY";
@@ -70,6 +72,14 @@ public class MustacheBlogContext implements BlogContext{
         EntryDescriptor requestedEntry = new EntryDescriptor(entryName, requestedCategory);
         context.put(CONTENT, contentProvider.getEntryContentAsHttp(requestedEntry));
         context.put(TITLE, requestedEntry.getName());
+        for (EntryDescriptor existing : contentProvider.getEntries(requestedCategory)) {
+            if (existing.getName().equals(entryName)) {
+                context.put(IS_ENTRY_VIEW, Boolean.TRUE);
+                context.put(ENTRY_TOPIC, categoryName);
+                context.put(ENTRY_NAME, entryName);
+                break;
+            }
+        }
     }
 
     @Override
@@ -245,6 +255,13 @@ public class MustacheBlogContext implements BlogContext{
         context.put(IS_CREATE_ENTRY, Boolean.TRUE);
         context.put(CONTENT, "");
         context.put(TITLE, "Create entry");
+    }
+
+    @Override
+    public void setIsEditEntry() {
+        context.put(IS_EDIT_ENTRY, Boolean.TRUE);
+        context.put(CONTENT, "");
+        context.put(TITLE, "Edit entry");
     }
 
     @Override

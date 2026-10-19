@@ -1,0 +1,34 @@
+<link rel="stylesheet" href="https://unpkg.com/easymde@2.18.0/dist/easymde.min.css">
+<section class="login-panel entry-editor" aria-labelledby="edit-entry-title">
+	<h2 id="edit-entry-title">Edit {{ENTRY_NAME}} in {{ENTRY_TOPIC}}</h2>
+	{{#HAS_SUCCESS_MESSAGE}}
+	<div style="margin-bottom: 18px; padding: 12px 14px; color: #174538; background: #dfeee4; border-left: 3px solid #286452; font: 13px/1.5 var(--sans);" role="status">{{SUCCESS_MESSAGE}}</div>
+	{{/HAS_SUCCESS_MESSAGE}}
+	{{#HAS_INFO_MESSAGE}}
+	<div style="margin-bottom: 18px; padding: 12px 14px; color: #23546b; background: #e3eef3; border-left: 3px solid #5f8ea1; font: 13px/1.5 var(--sans);" role="status">{{INFO_MESSAGE}}</div>
+	{{/HAS_INFO_MESSAGE}}
+	{{#HAS_ERROR_MESSAGE}}
+	<div style="margin-bottom: 18px; padding: 12px 14px; color: #7a2f24; background: #f7e6e0; border-left: 3px solid #e45e3a; font: 13px/1.5 var(--sans);" role="alert">{{ERROR_MESSAGE}}</div>
+	{{/HAS_ERROR_MESSAGE}}
+
+	<form id="edit-entry-form" action="/editentry/{{ENTRY_TOPIC}}/{{ENTRY_NAME}}" method="post" enctype="multipart/form-data">
+		<input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
+		<div class="login-field">
+			<label for="entry-content">CONTENT (MARKDOWN)</label>
+			<textarea id="entry-content" name="content">{{ENTRY_CONTENT}}</textarea>
+		</div>
+		<button class="login-submit" type="submit">Save</button>
+		<a class="login-cancel" href="/{{ENTRY_TOPIC}}/{{ENTRY_NAME}}">Cancel</a>
+	</form>
+</section>
+<script src="https://unpkg.com/easymde@2.18.0/dist/easymde.min.js"></script>
+<script>
+	new EasyMDE({ element: document.getElementById('entry-content'), spellChecker: false, forceSync: true });
+	// Without JavaScript the form falls back to a plain POST.
+	document.getElementById('edit-entry-form').addEventListener('submit', function (event) {
+		event.preventDefault();
+		fetch(this.action, { method: 'PUT', body: new FormData(this) })
+			.then(function (response) { return response.text(); })
+			.then(function (html) { document.open(); document.write(html); document.close(); });
+	});
+</script>
