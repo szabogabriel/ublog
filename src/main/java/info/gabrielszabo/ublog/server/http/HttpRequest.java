@@ -1,5 +1,6 @@
 package info.gabrielszabo.ublog.server.http;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +18,7 @@ public class HttpRequest {
 
     private static final int MAX_HEADER_BYTES = 16 * 1024;
     private static final int MAX_REQUEST_BYTES = 1024 * 1024;
-    private static final int MAX_IMAGE_UPLOAD_REQUEST_BYTES = 2 * 1024 * 1024;
+    private static final int MAX_IMAGE_UPLOAD_BYTES = 100 * 1024 * 1024;
     private static final String IMAGE_UPLOAD_PATH_PREFIX = "/imagemanage/";
     private static final int MAX_AUTH_REQUEST_BODY_BYTES = 8 * 1024;
     private static final byte[] HEADER_TERMINATOR = { '\r', '\n', '\r', '\n' };
@@ -36,6 +37,7 @@ public class HttpRequest {
 
     private String body;
     private byte[] bodyBytes;
+    private InputStream bodyStream;
     private Charset bodyCharset = StandardCharsets.UTF_8;
 
     public HttpRequest() {
@@ -106,7 +108,14 @@ public class HttpRequest {
         HttpRequest request = new HttpRequest();
         String headerSection = new String(header, StandardCharsets.ISO_8859_1);
         int contentLength = request.parseHeaders(headerSection);
-        if (contentLength > request.maxRequestBytes() - header.length) {
+        if (request.isStreamedUpload()) {
+            if (contentLength > MAX_IMAGE_UPLOAD_BYTES) {
+                throw new RequestException(HttpStatus.PAYLOAD_TOO_LARGE, "Request too large");
+            }
+            request.bodyStream = new LimitedInputStream(input, contentLength);
+            return request;
+        }
+        if (contentLength > MAX_REQUEST_BYTES - header.length) {
             throw new RequestException(HttpStatus.PAYLOAD_TOO_LARGE, "Request too large");
         }
 
@@ -124,10 +133,44 @@ public class HttpRequest {
         return request;
     }
 
-    private int maxRequestBytes() {
-        return path != null && path.startsWith(IMAGE_UPLOAD_PATH_PREFIX)
-                ? MAX_IMAGE_UPLOAD_REQUEST_BYTES
-                : MAX_REQUEST_BYTES;
+    // Uploads can be large, so their body is left on the socket for the handler to consume.
+    private boolean isStreamedUpload() {
+        return method == HttpMethods.POST && path != null
+                && path.toLowerCase(Locale.ROOT).startsWith(IMAGE_UPLOAD_PATH_PREFIX);
+    }
+
+    private static final class LimitedInputStream extends InputStream {
+        private final InputStream source;
+        private int remaining;
+
+        LimitedInputStream(InputStream source, int limit) {
+            this.source = source;
+            this.remaining = limit;
+        }
+
+        @Override
+        public int read() throws IOException {
+            if (remaining <= 0) {
+                return -1;
+            }
+            int value = source.read();
+            if (value >= 0) {
+                remaining--;
+            }
+            return value;
+        }
+
+        @Override
+        public int read(byte[] buffer, int offset, int length) throws IOException {
+            if (remaining <= 0) {
+                return -1;
+            }
+            int count = source.read(buffer, offset, Math.min(length, remaining));
+            if (count > 0) {
+                remaining -= count;
+            }
+            return count;
+        }
     }
 
     private Charset getBodyCharset() throws RequestException {
@@ -292,5 +335,13 @@ public class HttpRequest {
             bodyBytes = body.getBytes(StandardCharsets.UTF_8);
         }
         return bodyBytes;
+    }
+
+    public InputStream getBodyStream() {
+        if (bodyStream != null) {
+            return bodyStream;
+        }
+        byte[] bytes = getBodyBytes();
+        return new ByteArrayInputStream(bytes == null ? new byte[0] : bytes);
     }
 }

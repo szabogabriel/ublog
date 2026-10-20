@@ -1,9 +1,11 @@
 package info.gabrielszabo.ublog.service;
 
 import java.io.IOException;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -12,7 +14,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import info.gabrielszabo.ublog.config.Config;
-import info.gabrielszabo.ublog.server.http.MultipartForm.UploadedFile;
 
 /** Manages the images stored under [IMAGE_FOLDER]/[TOPIC]/[ENTRY]. */
 public class ImageService {
@@ -49,28 +50,53 @@ public class ImageService {
         return names;
     }
 
-    /** Returns an error message, or null on success. */
-    public String save(String topic, String entry, UploadedFile file) {
+    /**
+     * Creates an empty temp file next to the final location for an incoming upload.
+     * Throws IllegalArgumentException with a user-facing message if the target is not acceptable.
+     */
+    public Path createUploadFile(String topic, String entry, String fileName) throws IOException {
         Path folder = entryFolder(topic, entry);
         if (folder == null) {
-            return "Unknown topic or invalid entry name.";
+            throw new IllegalArgumentException("Unknown topic or invalid entry name.");
         }
-        if (file == null || file.fileName().isEmpty() || file.content().length == 0) {
-            return "Please choose an image file.";
+        if (fileName == null || fileName.isEmpty()) {
+            throw new IllegalArgumentException("Please choose an image file.");
         }
-        if (!isValidFileName(file.fileName())) {
-            return "Invalid file name. Use letters, digits, '.', '-' or '_' and a supported image extension.";
+        if (!isValidFileName(fileName)) {
+            throw new IllegalArgumentException(
+                    "Invalid file name. Use letters, digits, '.', '-' or '_' and a supported image extension.");
         }
+        Files.createDirectories(folder);
+        return Files.createTempFile(folder, ".upload-", ".tmp");
+    }
+
+    /** Moves a completed upload into place, replacing an image of the same name. Returns an error message, or null. */
+    public String commitUpload(String topic, String entry, String fileName, Path uploadFile) {
+        Path folder = entryFolder(topic, entry);
         try {
-            Files.createDirectories(folder);
-            Path target = folder.resolve(file.fileName());
+            if (folder == null || Files.size(uploadFile) == 0) {
+                return "Please choose an image file.";
+            }
+            Path target = folder.resolve(fileName);
             if (Files.isSymbolicLink(target)) {
                 return "Failed to store the image.";
             }
-            Files.write(target, file.content());
+            try {
+                Files.move(uploadFile, target, StandardCopyOption.ATOMIC_MOVE);
+            } catch (AtomicMoveNotSupportedException e) {
+                Files.move(uploadFile, target, StandardCopyOption.REPLACE_EXISTING);
+            }
             return null;
         } catch (IOException e) {
             return "Failed to store the image.";
+        }
+    }
+
+    public void discardUpload(Path uploadFile) {
+        try {
+            Files.deleteIfExists(uploadFile);
+        } catch (IOException ignored) {
+            // Best effort; a stray hidden temp file is not listed or served.
         }
     }
 

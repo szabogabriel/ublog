@@ -70,7 +70,8 @@
 			form.append('csrfToken', panel.dataset.csrf);
 			Object.keys(fields).forEach(function (key) { form.append(key, fields[key]); });
 			if (file) { form.append('file', file); }
-			fetch(endpoint(), { method: 'POST', body: form }).then(handle);
+			fetch(endpoint(), { method: 'POST', body: form }).then(handle)
+				.catch(function () { status.textContent = 'Request failed.'; });
 		}
 
 		document.getElementById('entry-image-upload').addEventListener('click', function () {

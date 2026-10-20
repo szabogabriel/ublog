@@ -1,13 +1,19 @@
 package info.gabrielszabo.ublog.service.requestHandlers;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import info.gabrielszabo.ublog.domain.SessionContext;
 import info.gabrielszabo.ublog.server.http.HttpMethods;
 import info.gabrielszabo.ublog.server.http.HttpRequest;
 import info.gabrielszabo.ublog.server.http.HttpResponse;
 import info.gabrielszabo.ublog.server.http.HttpStatus;
-import info.gabrielszabo.ublog.server.http.MultipartForm;
+import info.gabrielszabo.ublog.server.http.MultipartStreamReader;
 import info.gabrielszabo.ublog.service.ImageService;
 import info.gabrielszabo.ublog.service.SessionService;
 import info.gabrielszabo.ublog.service.blog.BlogContext;
@@ -54,29 +60,91 @@ public class ImageManageHandler extends AbstractRequestHandler {
             response.addHeader("Allow", "GET, POST");
             return response;
         }
-        if (!MultipartForm.isMultipart(request.getContentType())) {
+        if (!MultipartStreamReader.isMultipart(request.getContentType())) {
             return json(HttpStatus.UNSUPPORTED_MEDIA_TYPE, null, null, "Expected multipart/form-data");
         }
 
-        MultipartForm form;
+        UploadSink sink = new UploadSink(session.getSessionId(), topic, entry);
         try {
-            form = MultipartForm.parse(request.getContentType(), request.getBodyBytes());
+            MultipartStreamReader.parse(request.getContentType(), request.getBodyStream(), sink);
+            if (!sessionService.isCsrfTokenValid(session.getSessionId(), sink.fields.get("csrfToken"))) {
+                return json(HttpStatus.FORBIDDEN, null, null, "Invalid CSRF token");
+            }
+
+            String action = sink.fields.get("action");
+            String error;
+            if ("delete".equals(action)) {
+                error = imageService.delete(topic, entry, sink.fields.get("fileName"));
+            } else if ("upload".equals(action)) {
+                error = sink.uploadFile == null ? "Please choose an image file."
+                        : imageService.commitUpload(topic, entry, sink.uploadName, sink.uploadFile);
+            } else {
+                return json(HttpStatus.BAD_REQUEST, null, null, "Unknown action");
+            }
+            return json(error == null ? HttpStatus.OK : HttpStatus.BAD_REQUEST, topic, entry, error);
+        } catch (Rejected e) {
+            return json(e.status, null, null, e.getMessage());
         } catch (IllegalArgumentException e) {
             return json(HttpStatus.BAD_REQUEST, null, null, "Malformed multipart request");
+        } catch (IOException e) {
+            return json(HttpStatus.BAD_REQUEST, null, null, "Upload failed");
+        } finally {
+            if (sink.uploadFile != null) {
+                imageService.discardUpload(sink.uploadFile);
+            }
         }
-        if (!sessionService.isCsrfTokenValid(session.getSessionId(), form.get("csrfToken"))) {
-            return json(HttpStatus.FORBIDDEN, null, null, "Invalid CSRF token");
+    }
+
+    private static final class Rejected extends RuntimeException {
+        private final HttpStatus status;
+
+        Rejected(HttpStatus status, String message) {
+            super(message);
+            this.status = status;
+        }
+    }
+
+    // The CSRF token and action must precede the file part so a bad request is refused before any bytes are stored.
+    private final class UploadSink implements MultipartStreamReader.Sink {
+        private final String sessionId;
+        private final String topic;
+        private final String entry;
+        private final Map<String, String> fields = new HashMap<>();
+        private Path uploadFile;
+        private String uploadName;
+
+        UploadSink(String sessionId, String topic, String entry) {
+            this.sessionId = sessionId;
+            this.topic = topic;
+            this.entry = entry;
         }
 
-        String error;
-        if ("delete".equals(form.get("action"))) {
-            error = imageService.delete(topic, entry, form.get("fileName"));
-        } else if ("upload".equals(form.get("action"))) {
-            error = imageService.save(topic, entry, form.getFile("file"));
-        } else {
-            return json(HttpStatus.BAD_REQUEST, null, null, "Unknown action");
+        @Override
+        public void field(String name, String value) {
+            if (fields.putIfAbsent(name, value) != null) {
+                throw new IllegalArgumentException("Duplicate form field");
+            }
         }
-        return json(error == null ? HttpStatus.OK : HttpStatus.BAD_REQUEST, topic, entry, error);
+
+        @Override
+        public OutputStream file(String fieldName, String fileName) throws IOException {
+            if (!"file".equals(fieldName) || uploadFile != null) {
+                throw new IllegalArgumentException("Unexpected file part");
+            }
+            if (!sessionService.isCsrfTokenValid(sessionId, fields.get("csrfToken"))) {
+                throw new Rejected(HttpStatus.FORBIDDEN, "Invalid CSRF token");
+            }
+            if (!"upload".equals(fields.get("action"))) {
+                throw new Rejected(HttpStatus.BAD_REQUEST, "Unknown action");
+            }
+            try {
+                uploadFile = imageService.createUploadFile(topic, entry, fileName);
+            } catch (IllegalArgumentException e) {
+                throw new Rejected(HttpStatus.BAD_REQUEST, e.getMessage());
+            }
+            uploadName = fileName;
+            return Files.newOutputStream(uploadFile);
+        }
     }
 
     private HttpResponse json(HttpStatus status, String topic, String entry, String error) {
