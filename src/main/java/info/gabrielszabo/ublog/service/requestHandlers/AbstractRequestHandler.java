@@ -69,8 +69,16 @@ public abstract class AbstractRequestHandler {
     protected HttpResponse createClientError(int statusCode, String message) {
         HttpResponse response = new HttpResponse();
         response.setStatusCode(statusCode);
-        response.setContentType("text/plain; charset=UTF-8");
-        response.setBody(message);
+        try {
+            // A fresh context defaults to the Error page content
+            BlogContext errorContext = contextFactory.createContext();
+            errorContext.addErrorMessage(message);
+            response.setContentType("text/html");
+            response.setBody(templateService.render(PAGE_TEMPLATE, errorContext));
+        } catch (RuntimeException e) {
+            response.setContentType("text/plain; charset=UTF-8");
+            response.setBody(message);
+        }
         return response;
     }
 
