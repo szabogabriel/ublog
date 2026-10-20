@@ -23,7 +23,7 @@
 </section>
 <script src="https://unpkg.com/easymde@2.18.0/dist/easymde.min.js"></script>
 <script>
-	new EasyMDE({ element: document.getElementById('entry-content'), spellChecker: false, forceSync: true });
+	window.entryEditor = new EasyMDE({ element: document.getElementById('entry-content'), spellChecker: false, forceSync: true });
 	// Without JavaScript the form falls back to a plain POST.
 	document.getElementById('edit-entry-form').addEventListener('submit', function (event) {
 		event.preventDefault();
@@ -32,3 +32,4 @@
 			.then(function (html) { document.open(); document.write(html); document.close(); });
 	});
 </script>
+{{>imagemanager.template}}

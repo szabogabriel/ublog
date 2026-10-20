@@ -27,5 +27,6 @@
 </section>
 <script src="https://unpkg.com/easymde@2.18.0/dist/easymde.min.js"></script>
 <script>
-	new EasyMDE({ element: document.getElementById('entry-content'), spellChecker: false, forceSync: true });
+	window.entryEditor = new EasyMDE({ element: document.getElementById('entry-content'), spellChecker: false, forceSync: true });
 </script>
+{{>imagemanager.template}}

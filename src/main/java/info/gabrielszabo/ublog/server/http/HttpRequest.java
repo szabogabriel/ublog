@@ -17,6 +17,8 @@ public class HttpRequest {
 
     private static final int MAX_HEADER_BYTES = 16 * 1024;
     private static final int MAX_REQUEST_BYTES = 1024 * 1024;
+    private static final int MAX_IMAGE_UPLOAD_REQUEST_BYTES = 2 * 1024 * 1024;
+    private static final String IMAGE_UPLOAD_PATH_PREFIX = "/imagemanage/";
     private static final int MAX_AUTH_REQUEST_BODY_BYTES = 8 * 1024;
     private static final byte[] HEADER_TERMINATOR = { '\r', '\n', '\r', '\n' };
 
@@ -33,6 +35,8 @@ public class HttpRequest {
     private Map<String, String> headers;
 
     private String body;
+    private byte[] bodyBytes;
+    private Charset bodyCharset = StandardCharsets.UTF_8;
 
     public HttpRequest() {
         headers = new LinkedHashMap<>();
@@ -102,7 +106,7 @@ public class HttpRequest {
         HttpRequest request = new HttpRequest();
         String headerSection = new String(header, StandardCharsets.ISO_8859_1);
         int contentLength = request.parseHeaders(headerSection);
-        if (contentLength > MAX_REQUEST_BYTES - header.length) {
+        if (contentLength > request.maxRequestBytes() - header.length) {
             throw new RequestException(HttpStatus.PAYLOAD_TOO_LARGE, "Request too large");
         }
 
@@ -115,8 +119,15 @@ public class HttpRequest {
             }
             bodyOffset += bytesRead;
         }
-        request.body = new String(bodyBytes, request.getBodyCharset());
+        request.bodyCharset = request.getBodyCharset();
+        request.bodyBytes = bodyBytes;
         return request;
+    }
+
+    private int maxRequestBytes() {
+        return path != null && path.startsWith(IMAGE_UPLOAD_PATH_PREFIX)
+                ? MAX_IMAGE_UPLOAD_REQUEST_BYTES
+                : MAX_REQUEST_BYTES;
     }
 
     private Charset getBodyCharset() throws RequestException {
@@ -270,6 +281,16 @@ public class HttpRequest {
     }
 
     public String getBody() {
+        if (body == null && bodyBytes != null) {
+            body = new String(bodyBytes, bodyCharset);
+        }
         return body;
+    }
+
+    public byte[] getBodyBytes() {
+        if (bodyBytes == null && body != null) {
+            bodyBytes = body.getBytes(StandardCharsets.UTF_8);
+        }
+        return bodyBytes;
     }
 }

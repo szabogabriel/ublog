@@ -67,7 +67,7 @@ public class EditEntryHandler extends AbstractRequestHandler {
 
         MultipartForm form;
         try {
-            form = MultipartForm.parse(request.getContentType(), request.getBody());
+            form = MultipartForm.parse(request.getContentType(), request.getBodyBytes());
         } catch (IllegalArgumentException e) {
             return createClientError(HttpStatus.BAD_REQUEST, "Malformed multipart request");
         }

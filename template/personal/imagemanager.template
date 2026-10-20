@@ -1,0 +1,80 @@
+<section class="login-panel entry-images" id="entry-images" data-topic="{{ENTRY_TOPIC}}" data-entry="{{ENTRY_NAME}}" data-csrf="{{CSRF_TOKEN}}" aria-labelledby="entry-images-title">
+	<h3 id="entry-images-title">Images</h3>
+	<p id="entry-images-status" style="font: 13px/1.5 var(--sans);" role="status"></p>
+	<div class="login-field">
+		<label for="entry-image-file">UPLOAD IMAGE</label>
+		<input type="file" id="entry-image-file" accept=".jpg,.jpeg,.png,.gif,.bmp,.webp">
+	</div>
+	<button class="login-submit" type="button" id="entry-image-upload">Upload</button>
+	<ul id="entry-image-list" style="list-style: none; padding: 0; margin-top: 18px; font: 13px/1.8 var(--sans);"></ul>
+</section>
+<script>
+	(function () {
+		var panel = document.getElementById('entry-images');
+		var list = document.getElementById('entry-image-list');
+		var status = document.getElementById('entry-images-status');
+		var fileInput = document.getElementById('entry-image-file');
+		var nameInput = document.getElementById('entry-name');
+
+		function entryName() {
+			var name = nameInput ? nameInput.value : panel.dataset.entry;
+			return name.trim().replace(/ +/g, '_');
+		}
+		function endpoint() {
+			return '/imagemanage/' + encodeURIComponent(panel.dataset.topic) + '/' + encodeURIComponent(entryName());
+		}
+		function render(data) {
+			list.textContent = '';
+			(data.images || []).forEach(function (image) {
+				var item = document.createElement('li');
+				var link = document.createElement('a');
+				link.href = image.url;
+				link.target = '_blank';
+				link.textContent = image.name;
+				var snippet = '![' + image.name + '](' + image.url + ')';
+				var insert = document.createElement('button');
+				insert.type = 'button';
+				insert.textContent = 'Insert';
+				insert.addEventListener('click', function () {
+					if (window.entryEditor) { window.entryEditor.codemirror.replaceSelection(snippet); }
+				});
+				var remove = document.createElement('button');
+				remove.type = 'button';
+				remove.textContent = 'Delete';
+				remove.addEventListener('click', function () {
+					if (confirm('Delete image ' + image.name + '?')) { send({ action: 'delete', fileName: image.name }); }
+				});
+				var code = document.createElement('code');
+				code.textContent = snippet;
+				[link, document.createTextNode(' '), code, document.createTextNode(' '), insert, document.createTextNode(' '), remove]
+					.forEach(function (node) { item.appendChild(node); });
+				list.appendChild(item);
+			});
+			status.textContent = data.error || '';
+		}
+		function handle(response) {
+			return response.json().catch(function () { return { error: 'Request failed (HTTP ' + response.status + ').' }; })
+				.then(render);
+		}
+		function refresh() {
+			if (!entryName()) { render({ error: 'Enter an entry name to manage images.' }); return; }
+			fetch(endpoint()).then(handle);
+		}
+		function send(fields, file) {
+			if (!entryName()) { render({ error: 'Enter an entry name first.' }); return; }
+			var form = new FormData();
+			form.append('csrfToken', panel.dataset.csrf);
+			Object.keys(fields).forEach(function (key) { form.append(key, fields[key]); });
+			if (file) { form.append('file', file); }
+			fetch(endpoint(), { method: 'POST', body: form }).then(handle);
+		}
+
+		document.getElementById('entry-image-upload').addEventListener('click', function () {
+			if (!fileInput.files.length) { status.textContent = 'Please choose an image file.'; return; }
+			send({ action: 'upload' }, fileInput.files[0]);
+			fileInput.value = '';
+		});
+		if (nameInput) { nameInput.addEventListener('change', refresh); }
+		refresh();
+	})();
+</script>
