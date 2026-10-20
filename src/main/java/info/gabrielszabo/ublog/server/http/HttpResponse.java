@@ -32,10 +32,6 @@ public class HttpResponse {
         this.status = status;
     }
 
-    public void setStatusCode(int statusCode) {
-        this.status = HttpStatus.fromCode(statusCode);
-    }
-
     public void setBody(String body) {
         bodyStream = null;
         this.body = (body == null) ? "" : body;

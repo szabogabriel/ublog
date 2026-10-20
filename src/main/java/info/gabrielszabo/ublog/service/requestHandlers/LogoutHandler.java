@@ -5,6 +5,7 @@ import info.gabrielszabo.ublog.server.http.Cookie;
 import info.gabrielszabo.ublog.server.http.HttpMethods;
 import info.gabrielszabo.ublog.server.http.HttpRequest;
 import info.gabrielszabo.ublog.server.http.HttpResponse;
+import info.gabrielszabo.ublog.server.http.HttpStatus;
 import info.gabrielszabo.ublog.service.SessionService;
 import info.gabrielszabo.ublog.service.blog.BlogContext;
 import info.gabrielszabo.ublog.service.blog.BlogContextFactory;
@@ -25,7 +26,7 @@ public class LogoutHandler extends AbstractRequestHandler {
     @Override
     protected HttpResponse handleRequest(BlogContext context, SessionContext session, HttpRequest request) {
         if (request.getMethod() != HttpMethods.POST) {
-            HttpResponse response = createClientError(405, "Logout requires POST");
+            HttpResponse response = createClientError(HttpStatus.METHOD_NOT_ALLOWED, "Logout requires POST");
             response.addHeader("Allow", "POST");
             return response;
         }

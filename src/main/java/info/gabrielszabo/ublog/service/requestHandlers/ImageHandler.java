@@ -9,6 +9,7 @@ import info.gabrielszabo.ublog.config.Config;
 import info.gabrielszabo.ublog.domain.SessionContext;
 import info.gabrielszabo.ublog.server.http.HttpRequest;
 import info.gabrielszabo.ublog.server.http.HttpResponse;
+import info.gabrielszabo.ublog.server.http.HttpStatus;
 import info.gabrielszabo.ublog.service.SessionService;
 import info.gabrielszabo.ublog.service.blog.BlogContext;
 import info.gabrielszabo.ublog.service.blog.BlogContextFactory;
@@ -43,19 +44,19 @@ public class ImageHandler extends AbstractRequestHandler {
         Path imagePath = resolveImage(imageName);
 
         if (imagePath == null || imagePath.toFile().length() > Integer.MAX_VALUE) {
-            return createClientError(404, "Image not found or too large");
+            return createClientError(HttpStatus.NOT_FOUND, "Image not found or too large");
         }
 
         log.logTrace("Loading image " + imagePath);
 
         try {
-            response.setStatusCode(200);
+            response.setStatus(HttpStatus.OK);
             response.setContentType(MimeUtil.getMimeType(imageName));    
             response.setBody(Files.newInputStream(imagePath, LinkOption.NOFOLLOW_LINKS), (int) imagePath.toFile()  .length());
         } catch (IOException e) {
             log.logError("Error loading image: " + imageName);
 
-            return createClientError(404, "Error when loading image.");
+            return createClientError(HttpStatus.NOT_FOUND, "Error when loading image.");
         }
 
         String sessionId = getSessionId(request);

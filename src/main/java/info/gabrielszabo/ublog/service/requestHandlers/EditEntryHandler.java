@@ -4,6 +4,7 @@ import info.gabrielszabo.ublog.domain.SessionContext;
 import info.gabrielszabo.ublog.server.http.HttpMethods;
 import info.gabrielszabo.ublog.server.http.HttpRequest;
 import info.gabrielszabo.ublog.server.http.HttpResponse;
+import info.gabrielszabo.ublog.server.http.HttpStatus;
 import info.gabrielszabo.ublog.server.http.MultipartForm;
 import info.gabrielszabo.ublog.service.ContentService;
 import info.gabrielszabo.ublog.service.SessionService;
@@ -31,18 +32,18 @@ public class EditEntryHandler extends AbstractRequestHandler {
     @Override
     protected HttpResponse handleRequest(BlogContext context, SessionContext session, HttpRequest request) {
         if (!session.isLoggedIn()) {
-            return createClientError(403, "User not logged in");
+            return createClientError(HttpStatus.FORBIDDEN, "User not logged in");
         }
 
         String[] parts = request.getPath().substring(PATH_PREFIX.length()).split("/", -1);
         if (parts.length != 2) {
-            return createClientError(404, "Unknown entry");
+            return createClientError(HttpStatus.NOT_FOUND, "Unknown entry");
         }
         String topic = parts[0];
         String entry = parts[1];
         String currentContent = contentService.getEntryContent(topic, entry);
         if (currentContent == null) {
-            return createClientError(404, "Unknown entry");
+            return createClientError(HttpStatus.NOT_FOUND, "Unknown entry");
         }
 
         context.setIsEditEntry();
@@ -56,23 +57,23 @@ public class EditEntryHandler extends AbstractRequestHandler {
         }
         // POST is accepted because plain HTML forms cannot send PUT.
         if (method != HttpMethods.PUT && method != HttpMethods.POST) {
-            HttpResponse response = createClientError(405, "Edit entry requires GET or PUT");
+            HttpResponse response = createClientError(HttpStatus.METHOD_NOT_ALLOWED, "Edit entry requires GET or PUT");
             response.addHeader("Allow", "GET, PUT, POST");
             return response;
         }
         if (!MultipartForm.isMultipart(request.getContentType())) {
-            return createClientError(415, "Expected multipart/form-data");
+            return createClientError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Expected multipart/form-data");
         }
 
         MultipartForm form;
         try {
             form = MultipartForm.parse(request.getContentType(), request.getBody());
         } catch (IllegalArgumentException e) {
-            return createClientError(400, "Malformed multipart request");
+            return createClientError(HttpStatus.BAD_REQUEST, "Malformed multipart request");
         }
 
         if (!sessionService.isCsrfTokenValid(session.getSessionId(), form.get("csrfToken"))) {
-            return createClientError(403, "Invalid CSRF token");
+            return createClientError(HttpStatus.FORBIDDEN, "Invalid CSRF token");
         }
 
         String content = form.get("content") == null ? "" : form.get("content");

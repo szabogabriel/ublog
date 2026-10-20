@@ -11,6 +11,7 @@ import info.gabrielszabo.ublog.domain.User;
 import info.gabrielszabo.ublog.server.http.HttpMethods;
 import info.gabrielszabo.ublog.server.http.HttpRequest;
 import info.gabrielszabo.ublog.server.http.HttpResponse;
+import info.gabrielszabo.ublog.server.http.HttpStatus;
 import info.gabrielszabo.ublog.service.LoginService;
 import info.gabrielszabo.ublog.service.LoginService.PasswordChangeResult;
 import info.gabrielszabo.ublog.service.SessionService;
@@ -39,15 +40,15 @@ public class PasswordChangeHandler extends AbstractRequestHandler {
     @Override
     protected HttpResponse handleRequest(BlogContext context, SessionContext session, HttpRequest request) {
         if (!session.isLoggedIn()) {
-            return createClientError(403, "User not logged in");
+            return createClientError(HttpStatus.FORBIDDEN, "User not logged in");
         }
         if (request.getMethod() != HttpMethods.POST) {
-            HttpResponse response = createClientError(405, "Password change requires POST");
+            HttpResponse response = createClientError(HttpStatus.METHOD_NOT_ALLOWED, "Password change requires POST");
             response.addHeader("Allow", "POST");
             return response;
         }
         if (!isFormContentType(request.getContentType())) {
-            return createClientError(415, "Expected application/x-www-form-urlencoded");
+            return createClientError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Expected application/x-www-form-urlencoded");
         }
 
         PasswordChangeForm passwordChangeForm;
@@ -59,7 +60,7 @@ public class PasswordChangeHandler extends AbstractRequestHandler {
         }
 
         if (!sessionService.isCsrfTokenValid(session.getSessionId(), passwordChangeForm.csrfToken())) {
-            return createClientError(403, "Invalid CSRF token");
+            return createClientError(HttpStatus.FORBIDDEN, "Invalid CSRF token");
         }
 
         PasswordChangeResult result = loginService.changePassword(context.getUsername(),
@@ -73,7 +74,7 @@ public class PasswordChangeHandler extends AbstractRequestHandler {
                     PasswordChangeMessage.error("The current password you entered is not correct."));
         }
         if (result == PasswordChangeResult.USER_NOT_FOUND) {
-            return createClientError(404, "User not found");
+            return createClientError(HttpStatus.NOT_FOUND, "User not found");
         }
         if (result == PasswordChangeResult.UPDATE_FAILED) {
             return createUserDetailsResponse(context, session,
@@ -88,7 +89,7 @@ public class PasswordChangeHandler extends AbstractRequestHandler {
             PasswordChangeMessage message) {
         Optional<User> userOpt = userService.getUser(context.getUsername());
         if (userOpt.isEmpty()) {
-            return createClientError(404, "User not found");
+            return createClientError(HttpStatus.NOT_FOUND, "User not found");
         }
 
         context.setIsUserDetails();

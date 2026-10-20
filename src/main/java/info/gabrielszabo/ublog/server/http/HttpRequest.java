@@ -80,7 +80,7 @@ public class HttpRequest {
         while ((current = input.read()) != -1) {
             headerBytes.write(current);
             if (headerBytes.size() > MAX_HEADER_BYTES) {
-                throw new RequestException(431, "Request headers too large");
+                throw new RequestException(HttpStatus.REQUEST_HEADER_FIELDS_TOO_LARGE, "Request headers too large");
             }
             if (current == HEADER_TERMINATOR[matchedTerminatorBytes]) {
                 matchedTerminatorBytes++;
@@ -92,18 +92,18 @@ public class HttpRequest {
             }
         }
         if (matchedTerminatorBytes != HEADER_TERMINATOR.length) {
-            throw new RequestException(400, "Incomplete HTTP headers");
+            throw new RequestException(HttpStatus.BAD_REQUEST, "Incomplete HTTP headers");
         }
 
         byte[] header = headerBytes.toByteArray();
         if (header.length > MAX_REQUEST_BYTES) {
-            throw new RequestException(413, "Request too large");
+            throw new RequestException(HttpStatus.PAYLOAD_TOO_LARGE, "Request too large");
         }
         HttpRequest request = new HttpRequest();
         String headerSection = new String(header, StandardCharsets.ISO_8859_1);
         int contentLength = request.parseHeaders(headerSection);
         if (contentLength > MAX_REQUEST_BYTES - header.length) {
-            throw new RequestException(413, "Request too large");
+            throw new RequestException(HttpStatus.PAYLOAD_TOO_LARGE, "Request too large");
         }
 
         byte[] bodyBytes = new byte[contentLength];
@@ -111,7 +111,7 @@ public class HttpRequest {
         while (bodyOffset < bodyBytes.length) {
             int bytesRead = input.read(bodyBytes, bodyOffset, bodyBytes.length - bodyOffset);
             if (bytesRead == -1) {
-                throw new RequestException(400, "Incomplete HTTP request body");
+                throw new RequestException(HttpStatus.BAD_REQUEST, "Incomplete HTTP request body");
             }
             bodyOffset += bytesRead;
         }
@@ -129,7 +129,7 @@ public class HttpRequest {
                     try {
                         return Charset.forName(charsetName);
                     } catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
-                        throw new RequestException(400, "Unsupported request charset");
+                        throw new RequestException(HttpStatus.BAD_REQUEST, "Unsupported request charset");
                     }
                 }
             }
@@ -140,12 +140,12 @@ public class HttpRequest {
     private int parseHeaders(String headerSection) throws RequestException {
         String[] lines = headerSection.substring(0, headerSection.length() - 4).split("\\r\\n");
         if (lines.length == 0 || lines[0].isBlank()) {
-            throw new RequestException(400, "Missing request line");
+            throw new RequestException(HttpStatus.BAD_REQUEST, "Missing request line");
         }
         String[] requestLine = lines[0].split(" +");
         if (requestLine.length != 3 || HttpMethods.fromString(requestLine[0]) == null
                 || !requestLine[2].startsWith("HTTP/")) {
-            throw new RequestException(400, "Malformed request line");
+            throw new RequestException(HttpStatus.BAD_REQUEST, "Malformed request line");
         }
         method = HttpMethods.fromString(requestLine[0]);
         httpVersion = requestLine[2];
@@ -160,7 +160,7 @@ public class HttpRequest {
             String line = lines[i];
             int colon = line.indexOf(':');
             if (colon <= 0) {
-                throw new RequestException(400, "Malformed request header");
+                throw new RequestException(HttpStatus.BAD_REQUEST, "Malformed request header");
             }
             String name = line.substring(0, colon).trim();
             String value = line.substring(colon + 1).trim();
@@ -174,7 +174,7 @@ public class HttpRequest {
                 parseCookies(value);
             }
             if (name.equalsIgnoreCase("Transfer-Encoding")) {
-                throw new RequestException(501, "Transfer-Encoding is not supported");
+                throw new RequestException(HttpStatus.NOT_IMPLEMENTED, "Transfer-Encoding is not supported");
             }
             if (name.equalsIgnoreCase("Content-Length")) {
                 try {
@@ -187,14 +187,14 @@ public class HttpRequest {
                     }
                     contentLength = parsedLength;
                 } catch (NumberFormatException e) {
-                    throw new RequestException(400, "Invalid Content-Length");
+                    throw new RequestException(HttpStatus.BAD_REQUEST, "Invalid Content-Length");
                 }
             }
             headers.put(name, value);
         }
         this.contentLength = contentLength == null ? 0 : contentLength;
         if (isAuthenticationPath(path) && this.contentLength > MAX_AUTH_REQUEST_BODY_BYTES) {
-            throw new RequestException(413, "Authentication request body too large");
+            throw new RequestException(HttpStatus.PAYLOAD_TOO_LARGE, "Authentication request body too large");
         }
         return this.contentLength;
     }
@@ -205,15 +205,15 @@ public class HttpRequest {
     }
 
     public static class RequestException extends IOException {
-        private final int statusCode;
+        private final HttpStatus status;
 
-        public RequestException(int statusCode, String message) {
+        public RequestException(HttpStatus status, String message) {
             super(message);
-            this.statusCode = statusCode;
+            this.status = status;
         }
 
-        public int getStatusCode() {
-            return statusCode;
+        public HttpStatus getStatus() {
+            return status;
         }
     }
 

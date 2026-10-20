@@ -6,6 +6,7 @@ import java.util.List;
 import info.gabrielszabo.ublog.server.http.HttpRequest;
 import info.gabrielszabo.ublog.server.http.HttpRequestHandler;
 import info.gabrielszabo.ublog.server.http.HttpResponse;
+import info.gabrielszabo.ublog.server.http.HttpStatus;
 import info.gabrielszabo.ublog.service.blog.BlogContextFactory;
 import info.gabrielszabo.ublog.service.log.LogService;
 import info.gabrielszabo.ublog.service.requestHandlers.AbstractRequestHandler;
@@ -56,7 +57,7 @@ public class RequestHandlerService implements HttpRequestHandler {
         }
 
         HttpResponse response = new HttpResponse();
-        response.setStatusCode(404);
+        response.setStatus(HttpStatus.NOT_FOUND);
         response.setContentType("text/plain; charset=UTF-8");
         response.setBody("No request handler matched the request path");
         return response;

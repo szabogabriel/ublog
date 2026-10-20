@@ -34,12 +34,4 @@ public enum HttpStatus {
         return code + " " + reasonPhrase;
     }
 
-    public static HttpStatus fromCode(int code) {
-        for (HttpStatus status : HttpStatus.values()) {
-            if (status.getCode() == code) {
-                return status;
-            }
-        }
-        throw new IllegalArgumentException("Unknown HTTP status code: " + code);
-    }
 }

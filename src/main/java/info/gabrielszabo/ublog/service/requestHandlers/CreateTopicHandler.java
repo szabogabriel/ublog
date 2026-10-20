@@ -9,6 +9,7 @@ import info.gabrielszabo.ublog.domain.SessionContext;
 import info.gabrielszabo.ublog.server.http.HttpMethods;
 import info.gabrielszabo.ublog.server.http.HttpRequest;
 import info.gabrielszabo.ublog.server.http.HttpResponse;
+import info.gabrielszabo.ublog.server.http.HttpStatus;
 import info.gabrielszabo.ublog.service.ContentService;
 import info.gabrielszabo.ublog.service.SessionService;
 import info.gabrielszabo.ublog.service.blog.BlogContext;
@@ -34,7 +35,7 @@ public class CreateTopicHandler extends AbstractRequestHandler {
     @Override
     protected HttpResponse handleRequest(BlogContext context, SessionContext session, HttpRequest request) {
         if (!session.isLoggedIn()) {
-            return createClientError(403, "User not logged in");
+            return createClientError(HttpStatus.FORBIDDEN, "User not logged in");
         }
 
         context.setIsCreateTopic();
@@ -44,12 +45,12 @@ public class CreateTopicHandler extends AbstractRequestHandler {
             return createHttpResponseFromContext(context, session);
         }
         if (request.getMethod() != HttpMethods.POST) {
-            HttpResponse response = createClientError(405, "Create topic requires GET or POST");
+            HttpResponse response = createClientError(HttpStatus.METHOD_NOT_ALLOWED, "Create topic requires GET or POST");
             response.addHeader("Allow", "GET, POST");
             return response;
         }
         if (!isFormContentType(request.getContentType())) {
-            return createClientError(415, "Expected application/x-www-form-urlencoded");
+            return createClientError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Expected application/x-www-form-urlencoded");
         }
 
         CreateTopicForm createTopicForm;
@@ -61,7 +62,7 @@ public class CreateTopicHandler extends AbstractRequestHandler {
         }
 
         if (!sessionService.isCsrfTokenValid(session.getSessionId(), createTopicForm.csrfToken())) {
-            return createClientError(403, "Invalid CSRF token");
+            return createClientError(HttpStatus.FORBIDDEN, "Invalid CSRF token");
         }
 
         boolean created = contentService.createTopic(createTopicForm.topicName());

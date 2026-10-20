@@ -14,6 +14,7 @@ import info.gabrielszabo.ublog.config.Config;
 import info.gabrielszabo.ublog.server.http.HttpRequest;
 import info.gabrielszabo.ublog.server.http.HttpRequestHandler;
 import info.gabrielszabo.ublog.server.http.HttpResponse;
+import info.gabrielszabo.ublog.server.http.HttpStatus;
 
 public class PooledSocketHandler implements SocketHandler {
 
@@ -45,14 +46,14 @@ public class PooledSocketHandler implements SocketHandler {
                         httpRequest = HttpRequest.readFrom(inStream);
                     } catch (HttpRequest.RequestException e) {
                         try {
-                            writeErrorResponse(outStream, e.getStatusCode(), e.getMessage());
+                            writeErrorResponse(outStream, e.getStatus(), e.getMessage());
                         } catch (IOException ignored) {
                             // The client may have closed the connection before sending a full request.
                         }
                         return;
                     } catch (SocketTimeoutException e) {
                         try {
-                            writeErrorResponse(outStream, 408, "Request timed out");
+                            writeErrorResponse(outStream, HttpStatus.REQUEST_TIMEOUT, "Request timed out");
                         } catch (IOException ignored) {
                             // Browsers drop idle pre-opened connections, so the peer is often already gone.
                         }
@@ -64,7 +65,7 @@ public class PooledSocketHandler implements SocketHandler {
                         httpResponse.writeResponse(outStream);
                     } catch (RuntimeException e) {
                         e.printStackTrace();
-                        writeErrorResponse(outStream, 500, "Internal server error");
+                        writeErrorResponse(outStream, HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error");
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -72,16 +73,16 @@ public class PooledSocketHandler implements SocketHandler {
             });
         } catch (RejectedExecutionException e) {
             try (Socket rejected = socket) {
-                writeErrorResponse(rejected.getOutputStream(), 503, "Server is busy");
+                writeErrorResponse(rejected.getOutputStream(), HttpStatus.SERVICE_UNAVAILABLE, "Server is busy");
             } catch (IOException ignored) {
                 // The connection may close before the overload response is written.
             }
         }
     }
 
-    private void writeErrorResponse(OutputStream outStream, int statusCode, String message) throws IOException {
+    private void writeErrorResponse(OutputStream outStream, HttpStatus status, String message) throws IOException {
         HttpResponse response = new HttpResponse();
-        response.setStatusCode(statusCode);
+        response.setStatus(status);
         response.setContentType("text/plain; charset=UTF-8");
         response.setBody(message);
         response.writeResponse(outStream);

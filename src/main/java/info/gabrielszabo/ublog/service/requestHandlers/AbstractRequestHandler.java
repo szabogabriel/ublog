@@ -7,6 +7,7 @@ import info.gabrielszabo.ublog.domain.SessionContext;
 import info.gabrielszabo.ublog.server.http.Cookie;
 import info.gabrielszabo.ublog.server.http.HttpRequest;
 import info.gabrielszabo.ublog.server.http.HttpResponse;
+import info.gabrielszabo.ublog.server.http.HttpStatus;
 import info.gabrielszabo.ublog.service.SessionService;
 import info.gabrielszabo.ublog.service.blog.BlogContext;
 import info.gabrielszabo.ublog.service.blog.BlogContextFactory;
@@ -59,16 +60,16 @@ public abstract class AbstractRequestHandler {
     protected HttpResponse createHttpResponseFromContext(BlogContext context, SessionContext session) {
         HttpResponse response = new HttpResponse();
 
-        response.setStatusCode(200);
+        response.setStatus(HttpStatus.OK);
         response.setContentType("text/html");
         response.setBody(templateService.render(PAGE_TEMPLATE, context));
 
         return response;
     }
 
-    protected HttpResponse createClientError(int statusCode, String message) {
+    protected HttpResponse createClientError(HttpStatus status, String message) {
         HttpResponse response = new HttpResponse();
-        response.setStatusCode(statusCode);
+        response.setStatus(status);
         try {
             // A fresh context defaults to the Error page content
             BlogContext errorContext = contextFactory.createContext();
