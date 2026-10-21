@@ -31,6 +31,10 @@
       {{#IS_ENTRY_VIEW}}
         {{#LOGGED_IN}}
           <p><a class="text-link" href="/editentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}">Edit</a></p>
+          <form action="/deleteentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}" method="post" onsubmit="return confirm('Delete this entry?');">
+            <input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
+            <button type="submit" class="text-link">Delete</button>
+          </form>
         {{/LOGGED_IN}}
       {{/IS_ENTRY_VIEW}}
       {{#IS_TOPIC_LISTING}}

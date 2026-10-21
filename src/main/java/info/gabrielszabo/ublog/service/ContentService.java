@@ -130,6 +130,11 @@ public class ContentService {
         }
     }
 
+    public boolean deleteEntry(String topic, String entry) {
+        File entryFile = existingEntryFile(topic, entry);
+        return entryFile != null && deleteEntry(entryFile);
+    }
+
     private File existingEntryFile(String topic, String entry) {
         if (!isEntryLocation(topic) || entry == null || !entryNamePattern.matcher(entry).matches()) {
             return null;

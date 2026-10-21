@@ -23,6 +23,9 @@ public class ContentHandler extends AbstractRequestHandler {
     @Override
     protected HttpResponse handleRequest(BlogContext context, SessionContext session, HttpRequest request) {
         String[] pathParts = request.getPath().split("/");
+        if (session.isLoggedIn()) {
+            context.setCsrfToken(sessionService.getCsrfToken(session.getSessionId()));
+        }
         if (pathParts.length == 2) {
             context.setRequestedSingleEntry(pathParts[1]);
         } else if (pathParts.length == 3) {
