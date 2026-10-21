@@ -1,6 +1,6 @@
 <link rel="stylesheet" href="https://unpkg.com/easymde@2.18.0/dist/easymde.min.css">
 <section class="login-panel entry-editor" aria-labelledby="create-entry-title">
-	<h2 id="create-entry-title">Create entry in {{ENTRY_TOPIC}}</h2>
+	<h2 id="create-entry-title">Create entry{{^IS_ROOT_ENTRY}} in {{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}</h2>
 	{{#HAS_SUCCESS_MESSAGE}}
 	<div style="margin-bottom: 18px; padding: 12px 14px; color: #174538; background: #dfeee4; border-left: 3px solid #286452; font: 13px/1.5 var(--sans);" role="status">{{SUCCESS_MESSAGE}}</div>
 	{{/HAS_SUCCESS_MESSAGE}}
@@ -11,7 +11,7 @@
 	<div style="margin-bottom: 18px; padding: 12px 14px; color: #7a2f24; background: #f7e6e0; border-left: 3px solid #e45e3a; font: 13px/1.5 var(--sans);" role="alert">{{ERROR_MESSAGE}}</div>
 	{{/HAS_ERROR_MESSAGE}}
 
-	<form action="/createentry/{{ENTRY_TOPIC}}" method="post" enctype="multipart/form-data">
+	<form action="/createentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
 		<div class="login-field">
 			<label for="entry-name">ENTRY NAME</label>
@@ -29,4 +29,6 @@
 <script>
 	window.entryEditor = new EasyMDE({ element: document.getElementById('entry-content'), spellChecker: false, forceSync: true });
 </script>
+{{^IS_ROOT_ENTRY}}
 {{>imagemanager.template}}
+{{/IS_ROOT_ENTRY}}

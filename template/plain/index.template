@@ -5,7 +5,7 @@
 
 {{#IS_ENTRY_VIEW}}
     {{#LOGGED_IN}}
-        <p><a href="/editentry/{{ENTRY_TOPIC}}/{{ENTRY_NAME}}">Edit</a></p>
+        <p><a href="/editentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}">Edit</a></p>
     {{/LOGGED_IN}}
 {{/IS_ENTRY_VIEW}}
 

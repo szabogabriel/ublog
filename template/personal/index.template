@@ -30,7 +30,7 @@
       <article class="prose">{{{DATA}}}</article>
       {{#IS_ENTRY_VIEW}}
         {{#LOGGED_IN}}
-          <p><a class="text-link" href="/editentry/{{ENTRY_TOPIC}}/{{ENTRY_NAME}}">Edit</a></p>
+          <p><a class="text-link" href="/editentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}">Edit</a></p>
         {{/LOGGED_IN}}
       {{/IS_ENTRY_VIEW}}
       {{#IS_TOPIC_LISTING}}

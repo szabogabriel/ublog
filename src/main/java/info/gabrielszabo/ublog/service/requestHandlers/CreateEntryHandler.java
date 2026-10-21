@@ -26,7 +26,8 @@ public class CreateEntryHandler extends AbstractRequestHandler {
 
     @Override
     public boolean matches(String path) {
-        return path.toLowerCase().startsWith(PATH_PREFIX);
+        String lower = path.toLowerCase();
+        return lower.startsWith(PATH_PREFIX) || lower.equals("/createentry");
     }
 
     @Override
@@ -35,8 +36,9 @@ public class CreateEntryHandler extends AbstractRequestHandler {
             return createClientError(HttpStatus.FORBIDDEN, "User not logged in");
         }
 
-        String topic = request.getPath().substring(PATH_PREFIX.length());
-        if (!contentService.topicExists(topic)) {
+        String topic = request.getPath().length() > PATH_PREFIX.length()
+                ? request.getPath().substring(PATH_PREFIX.length()) : "";
+        if (!ContentService.isRoot(topic) && !contentService.topicExists(topic)) {
             return createClientError(HttpStatus.NOT_FOUND, "Unknown topic");
         }
 

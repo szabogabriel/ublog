@@ -2,7 +2,7 @@
         <div class="container-fluid">
           <div class="navbar-header"><a class="navbar-brand" href="index">Blog</a></div>
           <ul class="nav navbar-nav">
-          {{#TOPICS}}<li><a href="/{{name}}">{{name}}</a></li>{{/TOPICS}}{{#LOGGED_IN}}<li><a href="/createtopic">New</a></li>{{/LOGGED_IN}}
+          {{#TOPICS}}<li><a href="/{{name}}">{{name}}</a></li>{{/TOPICS}}{{#LOGGED_IN}}<li><a href="/createtopic">New</a></li><li><a href="/createentry">New page</a></li>{{/LOGGED_IN}}
           </ul>
           <ul class="nav navbar-nav navbar-right">
           {{#QUICK_LINKS}}<li><a href="/{{name}}">{{name}}</a></li>{{/QUICK_LINKS}}

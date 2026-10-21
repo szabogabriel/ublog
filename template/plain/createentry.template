@@ -1,7 +1,7 @@
 <link rel="stylesheet" href="https://unpkg.com/easymde@2.18.0/dist/easymde.min.css">
 <div class="panel panel-default">
 	<div class="panel-body" style="padding: 30px;">
-		<h1 style="font-size: 24px; margin-top: 0; margin-bottom: 24px;">Create entry in {{ENTRY_TOPIC}}</h1>
+		<h1 style="font-size: 24px; margin-top: 0; margin-bottom: 24px;">Create entry{{^IS_ROOT_ENTRY}} in {{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}</h1>
 
 		{{#HAS_SUCCESS_MESSAGE}}
 		<div class="alert alert-success" role="alert">{{SUCCESS_MESSAGE}}</div>
@@ -13,7 +13,7 @@
 		<div class="alert alert-danger" role="alert">{{ERROR_MESSAGE}}</div>
 		{{/HAS_ERROR_MESSAGE}}
 
-		<form action="/createentry/{{ENTRY_TOPIC}}" method="post" enctype="multipart/form-data">
+		<form action="/createentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}" method="post" enctype="multipart/form-data">
 			<input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
 			<div class="form-group">
 				<label for="entry-name" class="control-label">Entry name</label>
@@ -32,4 +32,6 @@
 <script>
 	window.entryEditor = new EasyMDE({ element: document.getElementById('entry-content'), spellChecker: false, forceSync: true });
 </script>
+{{^IS_ROOT_ENTRY}}
 {{>imagemanager.template}}
+{{/IS_ROOT_ENTRY}}

@@ -1,7 +1,7 @@
 <link rel="stylesheet" href="https://unpkg.com/easymde@2.18.0/dist/easymde.min.css">
 <div class="panel panel-default">
 	<div class="panel-body" style="padding: 30px;">
-		<h1 style="font-size: 24px; margin-top: 0; margin-bottom: 24px;">Edit {{ENTRY_NAME}} in {{ENTRY_TOPIC}}</h1>
+		<h1 style="font-size: 24px; margin-top: 0; margin-bottom: 24px;">Edit {{ENTRY_NAME}}{{^IS_ROOT_ENTRY}} in {{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}</h1>
 
 		{{#HAS_SUCCESS_MESSAGE}}
 		<div class="alert alert-success" role="alert">{{SUCCESS_MESSAGE}}</div>
@@ -13,14 +13,14 @@
 		<div class="alert alert-danger" role="alert">{{ERROR_MESSAGE}}</div>
 		{{/HAS_ERROR_MESSAGE}}
 
-		<form id="edit-entry-form" action="/editentry/{{ENTRY_TOPIC}}/{{ENTRY_NAME}}" method="post" enctype="multipart/form-data">
+		<form id="edit-entry-form" action="/editentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}" method="post" enctype="multipart/form-data">
 			<input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
 			<div class="form-group" style="margin-bottom: 24px;">
 				<label for="entry-content" class="control-label">Content (Markdown)</label>
 				<textarea id="entry-content" name="content">{{ENTRY_CONTENT}}</textarea>
 			</div>
 			<button type="submit" class="btn btn-primary">Save</button>
-			<a class="btn btn-default" href="/{{ENTRY_TOPIC}}/{{ENTRY_NAME}}">Cancel</a>
+			<a class="btn btn-default" href="{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}">Cancel</a>
 		</form>
 	</div>
 </div>
@@ -35,4 +35,6 @@
 			.then(function (html) { document.open(); document.write(html); document.close(); });
 	});
 </script>
+{{^IS_ROOT_ENTRY}}
 {{>imagemanager.template}}
+{{/IS_ROOT_ENTRY}}

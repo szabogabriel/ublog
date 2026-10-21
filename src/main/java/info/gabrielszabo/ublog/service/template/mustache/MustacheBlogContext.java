@@ -41,6 +41,7 @@ public class MustacheBlogContext implements BlogContext{
 
     private static final String IS_EDIT_ENTRY = "IS_EDIT_ENTRY";
     private static final String IS_ENTRY_VIEW = "IS_ENTRY_VIEW";
+    private static final String IS_ROOT_ENTRY = "IS_ROOT_ENTRY";
     private static final String IS_INDEX = "IS_INDEX";
     private static final String IS_CREATE_TOPIC = "IS_CREATE_TOPIC";
     private static final String IS_CREATE_ENTRY = "IS_CREATE_ENTRY";
@@ -62,6 +63,7 @@ public class MustacheBlogContext implements BlogContext{
         context.put(TITLE, requestedEntry.getName());
         context.put(BLOG_CATEGORIES, getBlogCategories());
         context.put(QUICK_LINKS, getQuickLinks());
+        context.put(IS_ROOT_ENTRY, Boolean.FALSE);
     }
 
     @Override 
@@ -97,6 +99,9 @@ public class MustacheBlogContext implements BlogContext{
             context.put(CONTENT, contentProvider.getEntryContentAsHttp(requestedEntry));
             context.put(TITLE, requestedEntry.getName());
             context.put(IS_QUICK_LINK, Boolean.TRUE);
+            context.put(IS_ENTRY_VIEW, Boolean.TRUE);
+            context.put(IS_ROOT_ENTRY, Boolean.TRUE);
+            context.put(ENTRY_NAME, entryName);
         } else if (contentProvider.isBlogCategory(entryName)) {
             Category requestedCategory = new Category(entryName);
             context.put(BLOG_ENTRIES, getBlogEntries(requestedCategory));
@@ -266,7 +271,13 @@ public class MustacheBlogContext implements BlogContext{
 
     @Override
     public void setEntryTopic(String topic) {
-        context.put(ENTRY_TOPIC, topic);
+        if (topic == null || topic.isEmpty()) {
+            context.remove(ENTRY_TOPIC);
+            context.put(IS_ROOT_ENTRY, Boolean.TRUE);
+        } else {
+            context.put(ENTRY_TOPIC, topic);
+            context.put(IS_ROOT_ENTRY, Boolean.FALSE);
+        }
     }
 
     @Override

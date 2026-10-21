@@ -36,11 +36,12 @@ public class EditEntryHandler extends AbstractRequestHandler {
         }
 
         String[] parts = request.getPath().substring(PATH_PREFIX.length()).split("/", -1);
-        if (parts.length != 2) {
+        if (parts.length != 1 && parts.length != 2) {
             return createClientError(HttpStatus.NOT_FOUND, "Unknown entry");
         }
-        String topic = parts[0];
-        String entry = parts[1];
+        // A single segment is an entry in the blog root.
+        String topic = parts.length == 2 ? parts[0] : "";
+        String entry = parts[parts.length - 1];
         String currentContent = contentService.getEntryContent(topic, entry);
         if (currentContent == null) {
             return createClientError(HttpStatus.NOT_FOUND, "Unknown entry");

@@ -45,13 +45,30 @@ public class ContentService {
         return !Files.isSymbolicLink(topicPath) && Files.isDirectory(topicPath);
     }
 
+    /** An empty topic denotes the blog root. */
+    public static boolean isRoot(String topic) {
+        return topic != null && topic.isEmpty();
+    }
+
+    private boolean isEntryLocation(String topic) {
+        return isRoot(topic) || topicExists(topic);
+    }
+
+    private File entryFolder(String topic) {
+        return isRoot(topic) ? blogFolder : new File(blogFolder, topic);
+    }
+
     public boolean createEntry(String topic, String entry, String content, File[] images) {
-        if (!topicExists(topic) || entry == null || !entryNamePattern.matcher(entry.trim()).matches()
+        if (!isEntryLocation(topic) || entry == null || !entryNamePattern.matcher(entry.trim()).matches()
                 || content == null) {
             return false;
         }
         entry = entry.trim().replaceAll(" +", "_");
-        File entryFile = new File(new File(blogFolder, topic), entry + ".md");
+        // A root entry sharing a topic's name would be unreachable.
+        if (isRoot(topic) && new File(blogFolder, entry).exists()) {
+            return false;
+        }
+        File entryFile = new File(entryFolder(topic), entry + ".md");
         try {
             Files.writeString(entryFile.toPath(), content, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
             return true;
@@ -114,10 +131,10 @@ public class ContentService {
     }
 
     private File existingEntryFile(String topic, String entry) {
-        if (!topicExists(topic) || entry == null || !entryNamePattern.matcher(entry).matches()) {
+        if (!isEntryLocation(topic) || entry == null || !entryNamePattern.matcher(entry).matches()) {
             return null;
         }
-        File entryFile = new File(new File(blogFolder, topic), entry + ".md");
+        File entryFile = new File(entryFolder(topic), entry + ".md");
         return entryFile.isFile() && !Files.isSymbolicLink(entryFile.toPath()) ? entryFile : null;
     }
 

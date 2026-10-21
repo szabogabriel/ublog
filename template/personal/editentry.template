@@ -1,6 +1,6 @@
 <link rel="stylesheet" href="https://unpkg.com/easymde@2.18.0/dist/easymde.min.css">
 <section class="login-panel entry-editor" aria-labelledby="edit-entry-title">
-	<h2 id="edit-entry-title">Edit {{ENTRY_NAME}} in {{ENTRY_TOPIC}}</h2>
+	<h2 id="edit-entry-title">Edit {{ENTRY_NAME}}{{^IS_ROOT_ENTRY}} in {{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}</h2>
 	{{#HAS_SUCCESS_MESSAGE}}
 	<div style="margin-bottom: 18px; padding: 12px 14px; color: #174538; background: #dfeee4; border-left: 3px solid #286452; font: 13px/1.5 var(--sans);" role="status">{{SUCCESS_MESSAGE}}</div>
 	{{/HAS_SUCCESS_MESSAGE}}
@@ -11,14 +11,14 @@
 	<div style="margin-bottom: 18px; padding: 12px 14px; color: #7a2f24; background: #f7e6e0; border-left: 3px solid #e45e3a; font: 13px/1.5 var(--sans);" role="alert">{{ERROR_MESSAGE}}</div>
 	{{/HAS_ERROR_MESSAGE}}
 
-	<form id="edit-entry-form" action="/editentry/{{ENTRY_TOPIC}}/{{ENTRY_NAME}}" method="post" enctype="multipart/form-data">
+	<form id="edit-entry-form" action="/editentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
 		<div class="login-field">
 			<label for="entry-content">CONTENT (MARKDOWN)</label>
 			<textarea id="entry-content" name="content">{{ENTRY_CONTENT}}</textarea>
 		</div>
 		<button class="login-submit" type="submit">Save</button>
-		<a class="login-cancel" href="/{{ENTRY_TOPIC}}/{{ENTRY_NAME}}">Cancel</a>
+		<a class="login-cancel" href="{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}">Cancel</a>
 	</form>
 </section>
 <script src="https://unpkg.com/easymde@2.18.0/dist/easymde.min.js"></script>
@@ -32,4 +32,6 @@
 			.then(function (html) { document.open(); document.write(html); document.close(); });
 	});
 </script>
+{{^IS_ROOT_ENTRY}}
 {{>imagemanager.template}}
+{{/IS_ROOT_ENTRY}}
