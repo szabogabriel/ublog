@@ -28,6 +28,11 @@
         <span class="section-rule"></span>
       </div>
       <article class="prose">{{{DATA}}}</article>
+      {{#IS_INDEX}}
+        {{#LOGGED_IN}}
+          <p><a class="text-link" href="/editentry/{{PAGE_TITLE}}">Edit</a></p>
+        {{/LOGGED_IN}}
+      {{/IS_INDEX}}
       {{#IS_ENTRY_VIEW}}
         {{#LOGGED_IN}}
           <p><a class="text-link" href="/editentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}">Edit</a></p>
