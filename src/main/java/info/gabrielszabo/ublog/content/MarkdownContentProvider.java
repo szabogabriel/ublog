@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.LinkOption;
+import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
@@ -35,7 +35,7 @@ public class MarkdownContentProvider implements ContentProvider {
     private final AtomicBoolean running = new AtomicBoolean(true);
 
     public MarkdownContentProvider(MarkdownRenderingService markdownRenderingService) {
-        this.rootFolder = new File(Config.TARGET_FOLDER.value());
+        this.rootFolder = new File(Config.BLOG_FOLDER.value());
         this.contentRoot = resolveContentRoot(rootFolder.toPath());
         this.markdownRenderingService = markdownRenderingService;
         

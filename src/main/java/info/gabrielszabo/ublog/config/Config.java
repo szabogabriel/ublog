@@ -40,8 +40,8 @@ public enum Config {
     SOCKET_HANDLER_THREAD_POOL_SIZE("socket.handler.thread.pool.size", "10"),
     SOCKET_HANDLER_QUEUE_CAPACITY("socket.handler.queue.capacity", "100"),
 
+    BLOG_FOLDER("blog.folder", "./blogFolder"),
     IMAGE_FOLDER("image.folder", "./imageFolder"),
-    TARGET_FOLDER("target.folder", "./blogFolder"),
     USER_FOLDER("user.folder", "./userFolder"),
 
     SERVICE_BLOG_CONTEXT_FACTORY(ServiceFactory.PREFIX_IMPL + BlogContextFactory.class.getName(), MustacheBlogContextFactory.class.getName()),

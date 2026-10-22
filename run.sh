@@ -64,7 +64,7 @@ setEnv() {
     export SOCKET_HANDLER_THREAD_POOL_SIZE=10
     export SOCKET_HANDLER_QUEUE_CAPACITY=100
 
-    export TARGET_FOLDER=./testContent/blogFolder
+    export BLOG_FOLDER=./testContent/blogFolder
     export USER_FOLDER=./testContent/userFolder
     export IMAGE_FOLDER=./testContent/imageFolder
 }

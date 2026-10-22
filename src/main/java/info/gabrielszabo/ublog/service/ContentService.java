@@ -17,7 +17,7 @@ public class ContentService {
     private final Pattern entryNamePattern;
 
     public ContentService() {
-        blogFolder = new File(Config.TARGET_FOLDER.value());
+        blogFolder = new File(Config.BLOG_FOLDER.value());
         topicNamePattern = Pattern.compile("^[a-zA-Z0-9_ -]+$");
         entryNamePattern = Pattern.compile("^[a-zA-Z0-9_ -]+$");
     }

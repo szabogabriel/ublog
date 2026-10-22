@@ -10,9 +10,9 @@ The container starts the JVM with an 8 MB initial and maximum heap. That is a de
 
 ## Current State
 
-The application reads Markdown files from a root folder and its immediate category folders. Root-level entries appear in the menu, categories appear separately, and `Index.md` and `Error.md` are used for their special pages. The personal and plain Mustache template sets live under `template/`.
+The application reads Markdown files from a root folder and its immediate category folders. Root-level entries appear in the menu, categories appear separately, and `Index.md` and `Error.md` are used for their special pages. The Mustache templates used to render the UI live under `template/`. Currently the final template must be set. Templates can be customized by a `theme.properties` file. If present, the properties are editable for the publisher via the user settings.
 
-Users are loaded from property files in the user folder. Authenticated editing can create categories and entries and update existing entries, so the content folder must be writable for those operations. Password updates can also write to the user folder. Images are served from a separate folder and only need read access.
+Users are loaded from property files in the user folder. Authenticated editing can create categories and entries and update existing entries, so the content and image folders must be writable for those operations. Password updates can also write to the user folder. The name of the users property file is used as the login username. The password can be set as plaintext initially and is encrpyted upon first authentication by the user. The password can be changed by the authenticated user via the user settings.
 
 The Maven build produces a regular JAR and a shaded `fat` JAR. The `Containerfile` builds and runs the shaded JAR. The database-related environment variables documented previously are not used by the current application configuration.
 
@@ -25,7 +25,7 @@ The following are the runtime environment variables used by the application. Def
 | Variable | Container default | Purpose |
 | --- | --- | --- |
 | `SERVER_PORT` | `8080` | TCP port the HTTP server listens on inside the container. |
-| `TARGET_FOLDER` | `/app/blogFolder` | Markdown content root. The app may create categories and entries here. |
+| `BLOG_FOLDER` | `/app/blogFolder` | Markdown content root. The app may create categories and entries here. |
 | `USER_FOLDER` | `/app/userFolder` | User `.properties` files. Password updates write to this folder. |
 | `IMAGE_FOLDER` | `/app/imageFolder` | Folder for files served under `/image/`. |
 | `MUSTACHE_TEMPLATES_FOLDER` | `/app/template/personal` | Mustache templates and optional `strings.properties`. |
@@ -70,7 +70,7 @@ cp -a testContent/blogFolder/. content/
 cp -a testContent/userFolder/. users/
 
 docker run --rm --name ublog -p 8080:8080 \
-	-e TARGET_FOLDER=/data/content \
+	-e BLOG_FOLDER=/data/content \
 	-e USER_FOLDER=/data/users \
 	-e IMAGE_FOLDER=/data/images \
 	-v "$PWD/content:/data/content:rw" \
@@ -80,3 +80,7 @@ docker run --rm --name ublog -p 8080:8080 \
 ```
 
 Open `http://localhost:8080`. Put Markdown files and category directories in `content/`, user property files in `users/`, and image files in `images/`. If serving through an HTTPS reverse proxy, set `SESSION_COOKIE_SECURE=true`; the proxy should forward requests to the container's HTTP port. For a non-default server port, set `SERVER_PORT` and publish that same container port.
+
+## Template development
+
+Third party templates are supported. Mustache is used to render the given templates.
