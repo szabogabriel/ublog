@@ -1,6 +1,7 @@
 package info.gabrielszabo.ublog.service.requestHandlers;
 
 import java.util.List;
+import java.util.Properties;
 
 import info.gabrielszabo.ublog.config.Config;
 import info.gabrielszabo.ublog.domain.SessionContext;
@@ -106,6 +107,14 @@ public abstract class AbstractRequestHandler {
                 .setHttpOnly(true)
                 .setSecure(Boolean.parseBoolean(Config.SESSION_COOKIE_SECURE.value()))
                 .setSameSite("Lax");
+    }
+
+    protected Properties getTemplateProperties() {
+        return templateService.getTemplateProperties();
+    }
+
+    protected void saveTemplateProperties(Properties properties) {
+        templateService.saveTemplateProperties(properties);
     }
 
 }

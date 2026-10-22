@@ -43,6 +43,7 @@ public class UserHandler extends AbstractRequestHandler {
         context.setIsUserDetails();
         context.setCsrfToken(sessionService.getCsrfToken(session.getSessionId()));
         context.setUserDetails(userOpt.get());
+        context.setTemplateProperties(getTemplateProperties());
 
         return createHttpResponseFromContext(context, session);
     }

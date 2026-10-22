@@ -200,7 +200,7 @@
     min-height: 310px;
     overflow: hidden;
     background-color: #52695d;
-    background-image: linear-gradient(180deg, rgba(13, 32, 27, 0.02) 40%, rgba(13, 32, 27, 0.58) 100%), url("https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=85");
+    background-image: linear-gradient(180deg, rgba(13, 32, 27, 0.02) 40%, rgba(13, 32, 27, 0.58) 100%), url("{{IMAGE_PROFILE}}");
     background-position: center;
     background-size: cover;
   }

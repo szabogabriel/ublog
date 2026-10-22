@@ -35,4 +35,18 @@
 		</div>
 		<button class="login-submit" type="submit">Update password</button>
 	</form>
+
+	{{#HAS_TEMPLATE_PROPERTIES}}
+	<form action="/templateproperties" method="post">
+		<input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
+		<h3 style="margin: 28px 0 18px; font: 500 21px/1.2 var(--serif);">Template settings</h3>
+		{{#TEMPLATE_PROPERTIES}}
+		<div class="login-field">
+			<label for="prop-{{key}}">{{key}}</label>
+			<input type="text" id="prop-{{key}}" name="prop_{{key}}" value="{{value}}">
+		</div>
+		{{/TEMPLATE_PROPERTIES}}
+		<button class="login-submit" type="submit">Save settings</button>
+	</form>
+	{{/HAS_TEMPLATE_PROPERTIES}}
 </section>

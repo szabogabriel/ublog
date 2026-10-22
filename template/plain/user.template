@@ -45,6 +45,22 @@
 				</div>
 				<button type="submit" class="btn btn-primary btn-block">Update password</button>
 			</form>
+
+			{{#HAS_TEMPLATE_PROPERTIES}}
+			<hr style="margin: 30px 0 24px;">
+
+			<h2 style="font-size: 20px; margin-top: 0; margin-bottom: 18px;">Template settings</h2>
+			<form action="/templateproperties" method="post" novalidate>
+				<input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
+				{{#TEMPLATE_PROPERTIES}}
+				<div class="form-group">
+					<label for="prop-{{key}}" class="control-label">{{key}}</label>
+					<input type="text" class="form-control" id="prop-{{key}}" name="prop_{{key}}" value="{{value}}">
+				</div>
+				{{/TEMPLATE_PROPERTIES}}
+				<button type="submit" class="btn btn-primary btn-block">Save settings</button>
+			</form>
+			{{/HAS_TEMPLATE_PROPERTIES}}
 		</div>
 	</div>
 </div>

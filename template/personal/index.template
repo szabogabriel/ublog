@@ -6,7 +6,7 @@
     <div class="opening-copy">
       <p class="eyebrow"><span class="eyebrow-mark"></span> A PERSONAL JOURNAL <span class="eyebrow-divider">/</span> {{PAGE_TITLE}}</p>
       <h1 id="opening-title">{{INDEX_TITLE}}</h1>
-      <p class="opening-note">Stories, places, and small things worth keeping.</p>
+      <p class="opening-note">{{INDEX_SUBTITLE}}</p>
       <a class="text-link" href="#latest">Read the latest <span aria-hidden="true">&darr;</span></a>
     </div>
     <div class="opening-image" role="img" aria-label="A quiet mountain lake at the end of the day">

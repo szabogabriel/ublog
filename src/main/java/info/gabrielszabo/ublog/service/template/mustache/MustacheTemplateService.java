@@ -2,6 +2,7 @@ package info.gabrielszabo.ublog.service.template.mustache;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
@@ -16,6 +17,8 @@ import info.gabrielszabo.ublog.service.template.TemplateService;
 
 public class MustacheTemplateService implements TemplateService {
 
+    private static final String THEME_PROPERTIES_FILE = "theme.properties";
+
     private final ConcurrentMap<String, Template> templateCache = new ConcurrentHashMap<>();
 
     private final Boolean cachingEnabled = Boolean.valueOf(Config.MUSTACHE_TEMPLATES_CACHING_ENABLED.value());
@@ -26,7 +29,7 @@ public class MustacheTemplateService implements TemplateService {
 
     public MustacheTemplateService() {
         this.templateFolder = new File(Config.MUSTACHE_TEMPLATES_FOLDER.value());
-        File stringsFile = new File(Config.MUSTACHE_TEMPLATES_FOLDER.value(), "strings.properties");
+        File stringsFile = getThemesFile();
         if (stringsFile.exists() && stringsFile.isFile()) {
             try (FileInputStream fis = new FileInputStream(stringsFile)) {
                 Properties props = new Properties();
@@ -69,6 +72,39 @@ public class MustacheTemplateService implements TemplateService {
                     "Template folder does not exist or is not a directory: " + templateFolder.getAbsolutePath());
         }
         return new Template(templateFolder, templateName, Boolean.valueOf(Config.MUSTACHE_TEMPLATE_UPDATE.value()));
+    }
+
+    @Override
+    public Properties getTemplateProperties() {
+        File stringsFile = getThemesFile();
+        Properties props = new Properties();
+        if (stringsFile.exists() && stringsFile.isFile()) {
+            try (FileInputStream fis = new FileInputStream(stringsFile)) {
+                props.load(fis);
+            } catch (IOException e) {
+                throw new IllegalStateException("Failed to load template properties", e);
+            }
+        }
+        return props;
+    }
+
+    @Override
+    public void saveTemplateProperties(Properties properties) {
+        File stringsFile = getThemesFile();
+        try (FileOutputStream fos = new FileOutputStream(stringsFile)) {
+            properties.store(fos, null);
+            stringsMap.clear();
+            for (String key : properties.stringPropertyNames()) {
+                stringsMap.put(key, properties.getProperty(key));
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to save template properties", e);
+        }
+    }
+
+    private File getThemesFile() {
+        File stringsFile = new File(Config.MUSTACHE_TEMPLATES_FOLDER.value(), THEME_PROPERTIES_FILE);
+        return stringsFile;
     }
 
 }

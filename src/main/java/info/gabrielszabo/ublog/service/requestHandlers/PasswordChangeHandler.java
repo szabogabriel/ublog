@@ -95,6 +95,7 @@ public class PasswordChangeHandler extends AbstractRequestHandler {
         context.setIsUserDetails();
     context.setCsrfToken(sessionService.getCsrfToken(session.getSessionId()));
         context.setUserDetails(userOpt.get());
+        context.setTemplateProperties(getTemplateProperties());
 
         if (message.type() == MessageType.SUCCESS) {
             context.addSuccessMessage(message.value());

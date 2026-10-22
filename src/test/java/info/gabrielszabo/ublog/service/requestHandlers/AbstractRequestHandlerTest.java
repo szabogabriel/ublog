@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.nio.charset.StandardCharsets;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,21 @@ class AbstractRequestHandlerTest {
                 BlogContext.class.getClassLoader(), new Class<?>[] { BlogContext.class },
                 (proxy, method, args) -> null);
         TestRequestHandler handler = new TestRequestHandler(() -> context, new SessionService(),
-                (template, blogContext) -> "error page");
+                new TemplateService() {
+                    @Override
+                    public String render(String template, BlogContext blogContext) {
+                        return "error page";
+                    }
+
+                    @Override
+                    public Properties getTemplateProperties() {
+                        return new Properties();
+                    }
+
+                    @Override
+                    public void saveTemplateProperties(Properties properties) {
+                    }
+                });
 
         HttpResponse response = handler.clientError(HttpStatus.FORBIDDEN, "Forbidden");
         ByteArrayOutputStream output = new ByteArrayOutputStream();

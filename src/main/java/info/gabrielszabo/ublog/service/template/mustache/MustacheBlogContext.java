@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.TreeSet;
 
 import info.gabrielszabo.ublog.content.ContentProvider;
 import info.gabrielszabo.ublog.domain.Category;
@@ -27,6 +29,8 @@ public class MustacheBlogContext implements BlogContext{
     private static final String USER_NAME = "USER_NAME";
 
     private static final String CSRF_TOKEN = "CSRF_TOKEN";
+    private static final String TEMPLATE_PROPERTIES = "TEMPLATE_PROPERTIES";
+    private static final String HAS_TEMPLATE_PROPERTIES = "HAS_TEMPLATE_PROPERTIES";
     
     private static final String SUCCESS_MESSAGE = "SUCCESS_MESSAGE";
     private static final String INFO_MESSAGE = "INFO_MESSAGE";
@@ -168,6 +172,19 @@ public class MustacheBlogContext implements BlogContext{
     public void setUserDetails(User user) {
         context.put(USER_USERNAME, user.getUsername());
         context.put(USER_NAME, user.getName());
+    }
+
+    @Override
+    public void setTemplateProperties(Properties properties) {
+        List<Map<String, Object>> entries = new ArrayList<>();
+        for (String key : new TreeSet<>(properties.stringPropertyNames())) {
+            Map<String, Object> entry = new HashMap<>();
+            entry.put("key", key);
+            entry.put("value", properties.getProperty(key));
+            entries.add(entry);
+        }
+        context.put(TEMPLATE_PROPERTIES, entries);
+        context.put(HAS_TEMPLATE_PROPERTIES, !entries.isEmpty());
     }
 
     @Override
