@@ -52,6 +52,7 @@ checkArgs() {
 }
 
 setEnv() {
+    export LOG_LEVEL=ERROR
     export MUSTACHE_TEMPLATES_CACHING_ENABLED=true
     export MUSTACHE_TEMPLATES_FOLDER=./template/${UI_VERSION}
     export MUSTACHE_TEMPLATE_UPDATE=false
@@ -67,6 +68,7 @@ setEnv() {
     export BLOG_FOLDER=./testContent/blogFolder
     export USER_FOLDER=./testContent/userFolder
     export IMAGE_FOLDER=./testContent/imageFolder
+    export UNLISTED_FOLDER=./testContent/unlistedFolder
 }
 
 main() {

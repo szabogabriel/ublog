@@ -5,6 +5,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import info.gabrielszabo.ublog.config.Config;
+
 public class ConsoleLogService implements LogService {
 
     private static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
@@ -14,9 +16,17 @@ public class ConsoleLogService implements LogService {
     private final Thread loggerThread;
     private volatile boolean running;
 
+    private LogLevel targetLogLevel;
+
     public ConsoleLogService() {
         this.logQueue = new LinkedBlockingQueue<>();
         this.running = true;
+        String targetLogLevelName = Config.LOG_LEVEL.value();
+        this.targetLogLevel = LogLevel.INFO.fromName(targetLogLevelName);
+        if (this.targetLogLevel == null) {
+            this.targetLogLevel = LogLevel.INFO;
+            System.err.println("[ConsoleLogService]Invalid log level: " + targetLogLevelName + ", defaulting to INFO");
+        }
         this.loggerThread = new Thread(this::processLogQueue, "ConsoleLogger-Thread");
         this.loggerThread.setDaemon(true);
         this.loggerThread.start();
@@ -40,7 +50,7 @@ public class ConsoleLogService implements LogService {
 
     @Override
     public void logMessage(LogLevel level, String message) {
-        if (running) {
+        if (running && level.matchesTargetLogLevel(targetLogLevel)) {
             logQueue.offer(new LogEntry(level, message, LocalDateTime.now()));
         }
     }

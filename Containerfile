@@ -20,7 +20,10 @@ COPY --from=build /build/ublog/target/ublog-*-fat.jar /app/app.jar
 COPY template /app/template
 COPY testContent/blogFolder /app/blogFolder
 COPY testContent/userFolder /app/userFolder
+COPY testContent/unlistedFolder /app/unlistedFolder
 RUN mkdir -p /app/imageFolder && chmod -R 777 /app/blogFolder /app/userFolder /app/imageFolder
+
+ENV LOG_LEVEL=ERROR
 
 ENV MUSTACHE_TEMPLATES_CACHING_ENABLED=true
 ENV MUSTACHE_TEMPLATES_FOLDER=/app/template/personal
@@ -37,6 +40,7 @@ ENV SOCKET_HANDLER_QUEUE_CAPACITY=100
 ENV BLOG_FOLDER=/app/blogFolder
 ENV USER_FOLDER=/app/userFolder
 ENV IMAGE_FOLDER=/app/imageFolder
+ENV UNLISTED_FOLDER=/app/unlistedFolder
 
 EXPOSE 8080
 

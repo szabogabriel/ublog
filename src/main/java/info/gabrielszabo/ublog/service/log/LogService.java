@@ -3,11 +3,30 @@ package info.gabrielszabo.ublog.service.log;
 public interface LogService {
 
     public static enum LogLevel {
-        INFO,
-        ERROR,
-        DEBUG,
-        WARNING,
-        TRACE
+        ERROR(100),
+        WARNING(200),
+        INFO(300),
+        TRACE(400),
+        DEBUG(500);
+
+        private int level;
+
+        private LogLevel(int level) {
+            this.level = level;
+        }
+
+        public LogLevel fromName(String name) {
+            for (LogLevel level : LogLevel.values()) {
+                if (level.name().equalsIgnoreCase(name)) {
+                    return level;
+                }
+            }
+            return null; // or throw an IllegalArgumentException if preferred
+        }
+
+        public boolean matchesTargetLogLevel(LogLevel targetLevel) {
+            return this.level <= targetLevel.level;
+        }
     }
 
     void logMessage(LogLevel level, String message);
