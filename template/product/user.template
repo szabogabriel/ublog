@@ -1,0 +1,43 @@
+<section class="panel" aria-labelledby="user-details-title">
+  <h2 id="user-details-title">{{USER_TITLE}}</h2>
+  <div class="field">
+    <label for="user-name">{{USER_LABEL_NAME}}</label>
+    <input type="text" id="user-name" value="{{USER_NAME}}" readonly aria-readonly="true">
+  </div>
+  <div class="field">
+    <label for="user-username">{{USER_LABEL_USERNAME}}</label>
+    <input type="text" id="user-username" value="{{USER_USERNAME}}" readonly aria-readonly="true">
+  </div>
+
+  <form action="/passwordchange" method="post">
+    <input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
+    <h3>{{USER_PASSWORD_TITLE}}</h3>
+    <div class="field">
+      <label for="current-password">{{USER_LABEL_CURRENT_PASSWORD}}</label>
+      <input type="password" id="current-password" name="currentPassword" autocomplete="current-password" required>
+    </div>
+    <div class="field">
+      <label for="new-password">{{USER_LABEL_NEW_PASSWORD}}</label>
+      <input type="password" id="new-password" name="newPassword" autocomplete="new-password" required>
+    </div>
+    <div class="field">
+      <label for="new-password-repeat">{{USER_LABEL_REPEAT_PASSWORD}}</label>
+      <input type="password" id="new-password-repeat" name="newPasswordRepeat" autocomplete="new-password" required>
+    </div>
+    <button class="btn btn-primary" type="submit">{{USER_PASSWORD_BUTTON}}</button>
+  </form>
+
+  {{#HAS_TEMPLATE_PROPERTIES}}
+  <form action="/templateproperties" method="post">
+    <input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
+    <h3>{{USER_SETTINGS_TITLE}}</h3>
+    {{#TEMPLATE_PROPERTIES}}
+    <div class="field">
+      <label for="prop-{{key}}">{{key}}</label>
+      <input type="text" id="prop-{{key}}" name="prop_{{key}}" value="{{value}}">
+    </div>
+    {{/TEMPLATE_PROPERTIES}}
+    <button class="btn btn-primary" type="submit">{{USER_SETTINGS_BUTTON}}</button>
+  </form>
+  {{/HAS_TEMPLATE_PROPERTIES}}
+</section>

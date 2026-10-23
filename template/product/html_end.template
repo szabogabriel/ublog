@@ -1,0 +1,26 @@
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <a class="brand" href="/index"><span class="brand-mark" aria-hidden="true">{{LOGO_MARK}}</span><span class="brand-name">{{COMPANY_NAME}}</span></a>
+      <p>{{COMPANY_TAGLINE}}</p>
+    </div>
+    <div>
+      <h4>{{FOOTER_SITE_HEADING}}</h4>
+      <ul>
+        {{#TOPICS}}<li><a href="/{{name}}">{{name}}</a></li>{{/TOPICS}}
+        {{#QUICK_LINKS}}<li><a href="/{{name}}">{{name}}</a></li>{{/QUICK_LINKS}}
+        {{^LOGGED_IN}}<li><a href="/login">{{NAV_LOGIN}}</a></li>{{/LOGGED_IN}}
+      </ul>
+    </div>
+    <div>
+      <h4>{{FOOTER_CONTACT_HEADING}}</h4>
+      <ul>
+        <li><a href="mailto:{{COMPANY_EMAIL}}">{{COMPANY_EMAIL}}</a></li>
+        <li>{{COMPANY_ADDRESS}}</li>
+      </ul>
+    </div>
+  </div>
+  <div class="container footer-legal">&copy; {{COMPANY_LEGAL}} {{FOOTER_COPYRIGHT}}</div>
+</footer>
+</body>
+</html>

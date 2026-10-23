@@ -1,0 +1,24 @@
+<link rel="stylesheet" href="https://unpkg.com/easymde@2.18.0/dist/easymde.min.css">
+<section class="panel panel-wide" aria-labelledby="create-entry-title">
+  <h2 id="create-entry-title">{{EDITOR_CREATE_ENTRY_TITLE}}{{^IS_ROOT_ENTRY}} {{EDITOR_IN_TOPIC}} {{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}</h2>
+  <form action="/createentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
+    <div class="field">
+      <label for="entry-name">{{EDITOR_LABEL_ENTRY_NAME}}</label>
+      <input type="text" id="entry-name" name="entryName" value="{{ENTRY_NAME}}" placeholder="example-entry" required>
+    </div>
+    <div class="field">
+      <label for="entry-content">{{EDITOR_LABEL_CONTENT}}</label>
+      <textarea id="entry-content" name="content">{{ENTRY_CONTENT}}</textarea>
+    </div>
+    <button class="btn btn-primary" type="submit">{{EDITOR_SUBMIT}}</button>
+    <a class="btn btn-ghost" href="/{{ENTRY_TOPIC}}">{{EDITOR_CANCEL}}</a>
+  </form>
+</section>
+<script src="https://unpkg.com/easymde@2.18.0/dist/easymde.min.js"></script>
+<script>
+  window.entryEditor = new EasyMDE({ element: document.getElementById('entry-content'), spellChecker: false, forceSync: true });
+</script>
+{{^IS_ROOT_ENTRY}}
+{{>imagemanager.template}}
+{{/IS_ROOT_ENTRY}}

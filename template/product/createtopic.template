@@ -1,0 +1,12 @@
+<section class="panel" aria-labelledby="create-topic-title">
+  <h2 id="create-topic-title">{{EDITOR_CREATE_TOPIC_TITLE}}</h2>
+  <p class="panel-hint">{{EDITOR_CREATE_TOPIC_HINT}}</p>
+  <form action="/createtopic" method="post">
+    <input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
+    <div class="field">
+      <label for="topic-name">{{EDITOR_LABEL_TOPIC_NAME}}</label>
+      <input type="text" id="topic-name" name="topicName" placeholder="example-topic" required>
+    </div>
+    <button class="btn btn-primary" type="submit">{{EDITOR_SUBMIT}}</button>
+  </form>
+</section>

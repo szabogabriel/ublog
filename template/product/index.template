@@ -1,0 +1,196 @@
+{{>html_start.template}}
+{{>navbar.template}}
+<main>
+  {{#IS_INDEX}}
+  <div class="container messages">{{>messages.template}}</div>
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">{{HERO_EYEBROW}}</p>
+        <h1>{{HERO_TITLE}}</h1>
+        <p class="lead">{{HERO_SUBTITLE}}</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary btn-large" href="{{HERO_PRIMARY_URL}}">{{HERO_PRIMARY_CTA}}</a>
+          <a class="btn btn-secondary btn-large" href="{{HERO_SECONDARY_URL}}">{{HERO_SECONDARY_CTA}}</a>
+        </div>
+        <p class="hero-note">{{HERO_NOTE}}</p>
+      </div>
+      <div class="mockup" aria-hidden="true">
+        <div class="mockup-bar"><span></span><span></span><span></span></div>
+        <div class="mockup-body">
+          <p class="mockup-title">{{HERO_CARD_TITLE}}</p>
+          <p class="mockup-metric">{{HERO_CARD_METRIC}}</p>
+          <p class="mockup-label">{{HERO_CARD_METRIC_LABEL}}</p>
+          <div class="mockup-row"><span>{{HERO_CARD_ROW_1}}</span><i style="width: 86%"></i></div>
+          <div class="mockup-row"><span>{{HERO_CARD_ROW_2}}</span><i style="width: 64%"></i></div>
+          <div class="mockup-row"><span>{{HERO_CARD_ROW_3}}</span><i style="width: 38%"></i></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats" data-visible="{{SHOW_STATS}}">
+    <div class="container stats-grid">
+      <div><strong>{{STAT_1_VALUE}}</strong><span>{{STAT_1_LABEL}}</span></div>
+      <div><strong>{{STAT_2_VALUE}}</strong><span>{{STAT_2_LABEL}}</span></div>
+      <div><strong>{{STAT_3_VALUE}}</strong><span>{{STAT_3_LABEL}}</span></div>
+    </div>
+  </section>
+
+  <section class="section" id="features" data-visible="{{SHOW_FEATURES}}">
+    <div class="container">
+      <header class="section-head">
+        <p class="eyebrow">{{FEATURES_EYEBROW}}</p>
+        <h2>{{FEATURES_TITLE}}</h2>
+        <p class="lead">{{FEATURES_SUBTITLE}}</p>
+      </header>
+      <div class="grid grid-3">
+        <article class="card"><span class="card-icon">{{FEATURE_1_ICON}}</span><h3>{{FEATURE_1_TITLE}}</h3><p>{{FEATURE_1_TEXT}}</p></article>
+        <article class="card"><span class="card-icon">{{FEATURE_2_ICON}}</span><h3>{{FEATURE_2_TITLE}}</h3><p>{{FEATURE_2_TEXT}}</p></article>
+        <article class="card"><span class="card-icon">{{FEATURE_3_ICON}}</span><h3>{{FEATURE_3_TITLE}}</h3><p>{{FEATURE_3_TEXT}}</p></article>
+        <article class="card"><span class="card-icon">{{FEATURE_4_ICON}}</span><h3>{{FEATURE_4_TITLE}}</h3><p>{{FEATURE_4_TEXT}}</p></article>
+        <article class="card"><span class="card-icon">{{FEATURE_5_ICON}}</span><h3>{{FEATURE_5_TITLE}}</h3><p>{{FEATURE_5_TEXT}}</p></article>
+        <article class="card"><span class="card-icon">{{FEATURE_6_ICON}}</span><h3>{{FEATURE_6_TITLE}}</h3><p>{{FEATURE_6_TEXT}}</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="how" data-visible="{{SHOW_HOW}}">
+    <div class="container">
+      <header class="section-head">
+        <p class="eyebrow">{{HOW_EYEBROW}}</p>
+        <h2>{{HOW_TITLE}}</h2>
+        <p class="lead">{{HOW_SUBTITLE}}</p>
+      </header>
+      <ol class="steps">
+        <li><h3>{{STEP_1_TITLE}}</h3><p>{{STEP_1_TEXT}}</p></li>
+        <li><h3>{{STEP_2_TITLE}}</h3><p>{{STEP_2_TEXT}}</p></li>
+        <li><h3>{{STEP_3_TITLE}}</h3><p>{{STEP_3_TEXT}}</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" data-visible="{{SHOW_QUOTE}}">
+    <div class="container">
+      <figure class="quote">
+        <blockquote>{{QUOTE_TEXT}}</blockquote>
+        <figcaption><strong>{{QUOTE_AUTHOR}}</strong><span>{{QUOTE_ROLE}}</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="pricing" data-visible="{{SHOW_PRICING}}">
+    <div class="container">
+      <header class="section-head">
+        <p class="eyebrow">{{PRICING_EYEBROW}}</p>
+        <h2>{{PRICING_TITLE}}</h2>
+        <p class="lead">{{PRICING_SUBTITLE}}</p>
+      </header>
+      <div class="grid grid-3 pricing">
+        <article class="plan">
+          <h3>{{PLAN_1_NAME}}</h3>
+          <p class="plan-desc">{{PLAN_1_DESC}}</p>
+          <p class="plan-price"><strong>{{PLAN_1_PRICE}}</strong><span>{{PLAN_1_PERIOD}}</span></p>
+          <ul><li>{{PLAN_1_ITEM_1}}</li><li>{{PLAN_1_ITEM_2}}</li><li>{{PLAN_1_ITEM_3}}</li><li>{{PLAN_1_ITEM_4}}</li></ul>
+          <a class="btn btn-secondary btn-block" href="{{PLAN_1_URL}}">{{PLAN_1_CTA}}</a>
+        </article>
+        <article class="plan plan-featured">
+          <span class="plan-badge">{{PLAN_2_BADGE}}</span>
+          <h3>{{PLAN_2_NAME}}</h3>
+          <p class="plan-desc">{{PLAN_2_DESC}}</p>
+          <p class="plan-price"><strong>{{PLAN_2_PRICE}}</strong><span>{{PLAN_2_PERIOD}}</span></p>
+          <ul><li>{{PLAN_2_ITEM_1}}</li><li>{{PLAN_2_ITEM_2}}</li><li>{{PLAN_2_ITEM_3}}</li><li>{{PLAN_2_ITEM_4}}</li></ul>
+          <a class="btn btn-primary btn-block" href="{{PLAN_2_URL}}">{{PLAN_2_CTA}}</a>
+        </article>
+        <article class="plan">
+          <h3>{{PLAN_3_NAME}}</h3>
+          <p class="plan-desc">{{PLAN_3_DESC}}</p>
+          <p class="plan-price"><strong>{{PLAN_3_PRICE}}</strong><span>{{PLAN_3_PERIOD}}</span></p>
+          <ul><li>{{PLAN_3_ITEM_1}}</li><li>{{PLAN_3_ITEM_2}}</li><li>{{PLAN_3_ITEM_3}}</li><li>{{PLAN_3_ITEM_4}}</li></ul>
+          <a class="btn btn-secondary btn-block" href="{{PLAN_3_URL}}">{{PLAN_3_CTA}}</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="faq" data-visible="{{SHOW_FAQ}}">
+    <div class="container container-narrow">
+      <header class="section-head">
+        <p class="eyebrow">{{FAQ_EYEBROW}}</p>
+        <h2>{{FAQ_TITLE}}</h2>
+      </header>
+      <details class="faq"><summary>{{FAQ_1_Q}}</summary><p>{{FAQ_1_A}}</p></details>
+      <details class="faq"><summary>{{FAQ_2_Q}}</summary><p>{{FAQ_2_A}}</p></details>
+      <details class="faq"><summary>{{FAQ_3_Q}}</summary><p>{{FAQ_3_A}}</p></details>
+      <details class="faq"><summary>{{FAQ_4_Q}}</summary><p>{{FAQ_4_A}}</p></details>
+    </div>
+  </section>
+
+  <section class="section" data-visible="{{SHOW_INDEX_CONTENT}}">
+    <div class="container container-narrow">
+      <header class="section-head">
+        <p class="eyebrow">{{INDEX_CONTENT_EYEBROW}}</p>
+        <h2>{{INDEX_CONTENT_TITLE}}</h2>
+      </header>
+      <article class="prose">{{{DATA}}}</article>
+      {{#LOGGED_IN}}
+      <p><a class="btn btn-secondary" href="/editentry/{{PAGE_TITLE}}">{{ENTRY_EDIT}}</a></p>
+      {{/LOGGED_IN}}
+    </div>
+  </section>
+
+  <section class="cta" data-visible="{{SHOW_CTA}}">
+    <div class="container">
+      <h2>{{CTA_TITLE}}</h2>
+      <p>{{CTA_TEXT}}</p>
+      <a class="btn btn-light btn-large" href="{{CTA_URL}}">{{CTA_BUTTON}}</a>
+    </div>
+  </section>
+  {{/IS_INDEX}}
+
+  {{^IS_INDEX}}
+  <section class="page-head">
+    <div class="container container-narrow">
+      <p class="breadcrumb"><a href="/index">{{PAGE_BREADCRUMB_HOME}}</a>{{#IS_TOPIC_LISTING}} / {{category}}{{/IS_TOPIC_LISTING}}{{#IS_ENTRY_VIEW}}{{^IS_ROOT_ENTRY}} / <a href="/{{ENTRY_TOPIC}}">{{ENTRY_TOPIC}}</a>{{/IS_ROOT_ENTRY}}{{/IS_ENTRY_VIEW}}</p>
+      <h1>{{PAGE_TITLE}}</h1>
+    </div>
+  </section>
+
+  <section class="section page-body">
+    <div class="container container-narrow">
+      {{>messages.template}}
+      <article class="prose">{{{DATA}}}</article>
+
+      {{#IS_ENTRY_VIEW}}
+        {{#LOGGED_IN}}
+        <div class="admin-actions">
+          <a class="btn btn-secondary" href="/editentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}">{{ENTRY_EDIT}}</a>
+          <form action="/deleteentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}" method="post" onsubmit="return confirm(this.dataset.confirm);" data-confirm="{{ENTRY_DELETE_CONFIRM}}">
+            <input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
+            <button type="submit" class="btn btn-danger">{{ENTRY_DELETE}}</button>
+          </form>
+        </div>
+        {{/LOGGED_IN}}
+      {{/IS_ENTRY_VIEW}}
+
+      {{#IS_TOPIC_LISTING}}
+      <div class="entry-list">
+        {{#LOGGED_IN}}
+        <a class="entry-card entry-card-new" href="/createentry/{{category}}"><h3>{{TOPIC_NEW_ENTRY}}</h3><span aria-hidden="true">+</span></a>
+        {{/LOGGED_IN}}
+        {{#ENTRIES}}
+        <a class="entry-card" href="/{{category}}/{{name}}"><h3>{{name}}</h3><span>{{TOPIC_ENTRY_LABEL}} &rarr;</span></a>
+        {{/ENTRIES}}
+      </div>
+      {{/IS_TOPIC_LISTING}}
+
+      {{#LOGIN}}{{>login.template}}{{/LOGIN}}
+      {{#USER_DETAILS}}{{>user.template}}{{/USER_DETAILS}}
+      {{#IS_CREATE_TOPIC}}{{>createtopic.template}}{{/IS_CREATE_TOPIC}}
+      {{#IS_CREATE_ENTRY}}{{>createentry.template}}{{/IS_CREATE_ENTRY}}
+      {{#IS_EDIT_ENTRY}}{{>editentry.template}}{{/IS_EDIT_ENTRY}}
+    </div>
+  </section>
+  {{/IS_INDEX}}
+</main>
+{{>html_end.template}}

@@ -1,0 +1,87 @@
+<section class="panel panel-wide" id="entry-images" data-topic="{{ENTRY_TOPIC}}" data-entry="{{ENTRY_NAME}}" data-csrf="{{CSRF_TOKEN}}"
+  data-insert="{{IMAGES_INSERT}}" data-delete="{{IMAGES_DELETE}}" data-delete-confirm="{{IMAGES_DELETE_CONFIRM}}"
+  data-need-name="{{IMAGES_NEED_NAME}}" data-choose-file="{{IMAGES_CHOOSE_FILE}}" data-failed="{{IMAGES_FAILED}}"
+  aria-labelledby="entry-images-title">
+  <h3 id="entry-images-title">{{IMAGES_TITLE}}</h3>
+  <p id="entry-images-status" class="panel-hint" role="status"></p>
+  <div class="field">
+    <label for="entry-image-file">{{IMAGES_LABEL_UPLOAD}}</label>
+    <input type="file" id="entry-image-file" accept=".jpg,.jpeg,.png,.gif,.bmp,.webp">
+  </div>
+  <button class="btn btn-primary" type="button" id="entry-image-upload">{{IMAGES_UPLOAD}}</button>
+  <ul id="entry-image-list" class="image-list"></ul>
+</section>
+<script>
+  (function () {
+    var panel = document.getElementById('entry-images');
+    var text = panel.dataset;
+    var list = document.getElementById('entry-image-list');
+    var status = document.getElementById('entry-images-status');
+    var fileInput = document.getElementById('entry-image-file');
+    var nameInput = document.getElementById('entry-name');
+
+    function entryName() {
+      var name = nameInput ? nameInput.value : text.entry;
+      return name.trim().replace(/ +/g, '_');
+    }
+    function endpoint() {
+      return '/imagemanage/' + encodeURIComponent(text.topic) + '/' + encodeURIComponent(entryName());
+    }
+    function button(label, onClick) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'btn btn-ghost btn-small';
+      b.textContent = label;
+      b.addEventListener('click', onClick);
+      return b;
+    }
+    function render(data) {
+      list.textContent = '';
+      (data.images || []).forEach(function (image) {
+        var item = document.createElement('li');
+        var link = document.createElement('a');
+        link.href = image.url;
+        link.target = '_blank';
+        link.rel = 'noopener';
+        link.textContent = image.name;
+        var snippet = '![' + image.name + '](' + image.url + ')';
+        var code = document.createElement('code');
+        code.textContent = snippet;
+        item.appendChild(link);
+        item.appendChild(code);
+        item.appendChild(button(text.insert, function () {
+          if (window.entryEditor) { window.entryEditor.codemirror.replaceSelection(snippet); }
+        }));
+        item.appendChild(button(text.delete, function () {
+          if (confirm(text.deleteConfirm + ' ' + image.name + '?')) { send({ action: 'delete', fileName: image.name }); }
+        }));
+        list.appendChild(item);
+      });
+      status.textContent = data.error || '';
+    }
+    function handle(response) {
+      return response.json().catch(function () { return { error: text.failed + ' (HTTP ' + response.status + ')' }; }).then(render);
+    }
+    function refresh() {
+      if (!entryName()) { render({ error: text.needName }); return; }
+      fetch(endpoint()).then(handle);
+    }
+    function send(fields, file) {
+      if (!entryName()) { render({ error: text.needName }); return; }
+      var form = new FormData();
+      form.append('csrfToken', text.csrf);
+      Object.keys(fields).forEach(function (key) { form.append(key, fields[key]); });
+      if (file) { form.append('file', file); }
+      fetch(endpoint(), { method: 'POST', body: form }).then(handle)
+        .catch(function () { status.textContent = text.failed; });
+    }
+
+    document.getElementById('entry-image-upload').addEventListener('click', function () {
+      if (!fileInput.files.length) { status.textContent = text.chooseFile; return; }
+      send({ action: 'upload' }, fileInput.files[0]);
+      fileInput.value = '';
+    });
+    if (nameInput) { nameInput.addEventListener('change', refresh); }
+    refresh();
+  })();
+</script>
