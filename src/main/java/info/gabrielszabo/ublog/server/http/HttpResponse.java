@@ -78,7 +78,8 @@ public class HttpResponse {
         response.append(httpVersion.startsWith("HTTP/") ? httpVersion : "HTTP/" + httpVersion).append(" ")
                 .append(status.toStatusLine()).append("\r\n")
                 .append("Content-Type: ").append(contentType).append("\r\n")
-                .append("Content-Length: ").append(contentLength).append("\r\n");
+            .append("Content-Length: ").append(contentLength).append("\r\n")
+            .append("Connection: close\r\n");
         for (Map.Entry<String, String> header : headers.entrySet()) {
             response.append(header.getKey()).append(": ").append(header.getValue()).append("\r\n");
         }
