@@ -47,15 +47,18 @@
           <a class="entry-row" href="/createentry/{{category}}">
             <span class="entry-label">FIELD NOTE</span>
             <span class="entry-title">New</span>
-            <span class="entry-category">{{category}}</span>
+            <span class="entry-meta"><span class="entry-category">{{category}}</span></span>
             <span class="entry-arrow" aria-hidden="true">&rarr;</span>
           </a>
         {{/LOGGED_IN}}
         {{#ENTRIES}}
           <a class="entry-row" href="/{{category}}/{{name}}">
             <span class="entry-label">FIELD NOTE</span>
-            <span class="entry-title">{{name}}</span>
-            <span class="entry-category">{{category}}</span>
+            <span class="entry-title">{{name}}{{#UNLISTED}} <em>(unlisted)</em>{{/UNLISTED}}</span>
+            <span class="entry-meta">
+              <span class="entry-category">{{category}}</span>
+              {{#LOGGED_IN}}<button type="button" class="entry-copy" data-link="{{DIRECT_LINK}}" onclick="event.preventDefault(); event.stopPropagation(); navigator.clipboard.writeText(location.origin + this.dataset.link); this.textContent = 'COPIED';">COPY LINK</button>{{/LOGGED_IN}}
+            </span>
             <span class="entry-arrow" aria-hidden="true">&rarr;</span>
           </a>
         {{/ENTRIES}}

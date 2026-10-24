@@ -24,7 +24,7 @@
         <h2><a href="/createentry/{{category}}">New</a></h2>
     {{/LOGGED_IN}}
     {{#ENTRIES}}
-        <h2><a href="/{{category}}/{{name}}">{{name}}</a><br/></h2>
+        <h2><a href="/{{category}}/{{name}}">{{name}}</a>{{#UNLISTED}} <small class="text-muted">(unlisted)</small>{{/UNLISTED}}{{#LOGGED_IN}} <button type="button" class="btn btn-default btn-xs" data-link="{{DIRECT_LINK}}" onclick="navigator.clipboard.writeText(location.origin + this.dataset.link); this.textContent = 'Copied';">Copy link</button>{{/LOGGED_IN}}<br/></h2>
     {{/ENTRIES}}
 {{/IS_TOPIC_LISTING}}
 

@@ -42,7 +42,7 @@ public class EditEntryHandler extends AbstractRequestHandler {
         // A single segment is an entry in the blog root.
         String topic = parts.length == 2 ? parts[0] : "";
         String entry = parts[parts.length - 1];
-        String currentContent = contentService.getEntryContent(topic, entry);
+        String currentContent = contentService.getEntryContent(topic, entry, true);
         if (currentContent == null) {
             return createClientError(HttpStatus.NOT_FOUND, "Unknown entry");
         }
@@ -50,6 +50,7 @@ public class EditEntryHandler extends AbstractRequestHandler {
         context.setIsEditEntry();
         context.setEntryTopic(topic);
         context.setEntryDraft(entry, currentContent);
+        context.setEntryPublished(!contentService.isEntryUnlisted(topic, entry));
         context.setCsrfToken(sessionService.getCsrfToken(session.getSessionId()));
 
         HttpMethods method = request.getMethod();
@@ -78,10 +79,12 @@ public class EditEntryHandler extends AbstractRequestHandler {
         }
 
         String content = form.get("content") == null ? "" : form.get("content");
+        boolean published = form.get("published") != null;
         context.setEntryDraft(entry, content);
+        context.setEntryPublished(published);
         if (content.isBlank()) {
             context.addErrorMessage("The entry content must not be empty.");
-        } else if (contentService.updateEntry(topic, entry, content)) {
+        } else if (contentService.updateEntry(topic, entry, content, !published)) {
             context.addSuccessMessage("Successfully updated entry " + entry);
         } else {
             context.addErrorMessage("Failed to update entry " + entry);

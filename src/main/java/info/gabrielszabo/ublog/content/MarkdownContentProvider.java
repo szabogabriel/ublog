@@ -21,6 +21,9 @@ import info.gabrielszabo.ublog.markdown.MarkdownRenderingService;
 
 public class MarkdownContentProvider implements ContentProvider {
 
+    private static final java.util.regex.Pattern UNLISTED_FILE_NAME =
+            java.util.regex.Pattern.compile("^[0-9a-f]{32}$");
+
     private final File rootFolder;
     private final Path contentRoot;
     private final MarkdownRenderingService markdownRenderingService;
@@ -29,6 +32,7 @@ public class MarkdownContentProvider implements ContentProvider {
     private final Map<String, EntryDescriptor> quickLinksCache = new ConcurrentHashMap<>();
     private final Map<String, Category> categoriesCache = new ConcurrentHashMap<>();
     private final Map<String, Map<String, EntryDescriptor>> entriesCache = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, EntryDescriptor>> unlistedEntriesCache = new ConcurrentHashMap<>();
     
     // Watchdog thread
     private Thread watchdogThread;
@@ -54,7 +58,8 @@ public class MarkdownContentProvider implements ContentProvider {
         quickLinksCache.clear();
         categoriesCache.clear();
         entriesCache.clear();
-        
+        unlistedEntriesCache.clear();
+
         File[] rootFiles = rootFolder.listFiles();
         if (rootFiles == null) return;
         
@@ -70,18 +75,24 @@ public class MarkdownContentProvider implements ContentProvider {
                 
                 // Cache entries in this category
                 Map<String, EntryDescriptor> categoryEntries = new ConcurrentHashMap<>();
+                Map<String, EntryDescriptor> unlistedEntries = new ConcurrentHashMap<>();
                 File[] categoryFiles = file.listFiles();
                 if (categoryFiles != null) {
                     for (File entryFile : categoryFiles) {
-                        if (!Files.isSymbolicLink(entryFile.toPath()) && entryFile.isFile()
-                                && entryFile.getName().endsWith(".md")) {
-                            String entryName = stripExtension(entryFile.getName());
-                            categoryEntries.put(entryName, 
-                                new EntryDescriptor(entryName, new Category(categoryName)));
+                        if (!entryFile.getName().endsWith(".md") || !entryFile.isFile()) {
+                            continue;
+                        }
+                        String entryName = stripExtension(entryFile.getName());
+                        EntryDescriptor descriptor = new EntryDescriptor(entryName, new Category(categoryName));
+                        if (Files.isSymbolicLink(entryFile.toPath())) {
+                            unlistedEntries.put(entryName, descriptor);
+                        } else {
+                            categoryEntries.put(entryName, descriptor);
                         }
                     }
                 }
                 entriesCache.put(categoryName, categoryEntries);
+                unlistedEntriesCache.put(categoryName, unlistedEntries);
                 
             } else if (file.isFile() && file.getName().endsWith(".md")) {
                 String fileName = stripExtension(file.getName());
@@ -200,11 +211,23 @@ public class MarkdownContentProvider implements ContentProvider {
 
     @Override
     public EntryDescriptor[] getEntries(Category category) {
+        return getEntries(category, false);
+    }
+
+    @Override
+    public EntryDescriptor[] getEntries(Category category, boolean includeUnlisted) {
         Map<String, EntryDescriptor> entries = entriesCache.get(category.getName());
         if (entries == null) {
             return new EntryDescriptor[0];
         }
-        return entries.values().toArray(EntryDescriptor[]::new);
+        java.util.List<EntryDescriptor> result = new java.util.ArrayList<>(entries.values());
+        if (includeUnlisted) {
+            Map<String, EntryDescriptor> unlisted = unlistedEntriesCache.get(category.getName());
+            if (unlisted != null) {
+                result.addAll(unlisted.values());
+            }
+        }
+        return result.toArray(EntryDescriptor[]::new);
     }
 
     private String stripExtension(String fileName) {
@@ -216,10 +239,18 @@ public class MarkdownContentProvider implements ContentProvider {
     }
 
     @Override
-    @SuppressWarnings("CallToPrintStackTrace")
     public String getEntryContentAsHttp(EntryDescriptor entry) {
+        return getEntryContentAsHttp(entry, false);
+    }
+
+    @Override
+    @SuppressWarnings("CallToPrintStackTrace")
+    public String getEntryContentAsHttp(EntryDescriptor entry, boolean includeUnlisted) {
         String ret = "";
-        Path entryFile = resolveEntryPath(entry);
+        Path entryFile = resolveEntryPath(entry, includeUnlisted);
+        if (entryFile != null && Files.isSymbolicLink(entryFile)) {
+            entryFile = unlistedTarget(entryFile);
+        }
         if (entryFile != null && Files.isRegularFile(entryFile, LinkOption.NOFOLLOW_LINKS)) {
             try {
                 ret = Files.readString(entryFile);
@@ -237,7 +268,19 @@ public class MarkdownContentProvider implements ContentProvider {
         return markdownRenderingService.renderToHtml(ret);
     }
 
-    private Path resolveEntryPath(EntryDescriptor entry) {
+    private Path unlistedTarget(Path link) {
+        try {
+            Path linkTarget = Files.readSymbolicLink(link);
+            if (!UNLISTED_FILE_NAME.matcher(linkTarget.toString()).matches()) {
+                return null;
+            }
+            return link.resolveSibling(linkTarget);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    private Path resolveEntryPath(EntryDescriptor entry, boolean includeUnlisted) {
         if (entry == null || entry.getName() == null || entry.getName().isEmpty()
                 || entry.getName().contains("/") || entry.getName().contains("\\")) {
             return null;
@@ -259,11 +302,63 @@ public class MarkdownContentProvider implements ContentProvider {
         Path current = contentRoot;
         for (Path part : contentRoot.relativize(candidate)) {
             current = current.resolve(part);
-            if (Files.isSymbolicLink(current)) {
+            if (Files.isSymbolicLink(current) && !(includeUnlisted && current.equals(candidate))) {
                 return null;
             }
         }
         return candidate;
+    }
+
+    @Override
+    public String getUnlistedFileName(Category category, String entryName) {
+        if (category == null || category.getName() == null || entryName == null
+                || category.getName().contains("/") || category.getName().contains("\\")
+                || entryName.contains("/") || entryName.contains("\\")) {
+            return null;
+        }
+        Path link = contentRoot.resolve(category.getName()).resolve(entryName + ".md").normalize();
+        if (!link.startsWith(contentRoot) || !Files.isSymbolicLink(link)) {
+            return null;
+        }
+        Path target = unlistedTarget(link);
+        return target == null ? null : target.getFileName().toString();
+    }
+
+    @Override
+    @SuppressWarnings("CallToPrintStackTrace")
+    public String getUnlistedContentAsHttp(Category category, String fileName) {
+        if (fileName == null || !UNLISTED_FILE_NAME.matcher(fileName).matches()) {
+            return null;
+        }
+        Path candidate = contentRoot;
+        if (category != null) {
+            String categoryName = category.getName();
+            if (categoryName == null || categoryName.isEmpty() || categoryName.contains("/")
+                    || categoryName.contains("\\")) {
+                return null;
+            }
+            candidate = candidate.resolve(categoryName);
+        }
+        candidate = candidate.resolve(fileName).normalize();
+        if (!candidate.startsWith(contentRoot)) {
+            return null;
+        }
+        Path current = contentRoot;
+        for (Path part : contentRoot.relativize(candidate)) {
+            current = current.resolve(part);
+            if (Files.isSymbolicLink(current)) {
+                return null;
+            }
+        }
+        if (!Files.isRegularFile(candidate, LinkOption.NOFOLLOW_LINKS)) {
+            return null;
+        }
+        try {
+            return markdownRenderingService.renderToHtml(Files.readString(candidate));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private Path resolveContentRoot(Path configuredRoot) {

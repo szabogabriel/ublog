@@ -21,6 +21,9 @@
 			<label for="entry-content">CONTENT (MARKDOWN)</label>
 			<textarea id="entry-content" name="content">{{ENTRY_CONTENT}}</textarea>
 		</div>
+		<div class="login-field">
+			<label class="login-check"><input type="checkbox" name="published" value="true"{{#ENTRY_PUBLISHED}} checked{{/ENTRY_PUBLISHED}}> PUBLISHED</label>
+		</div>
 		<button class="login-submit" type="submit">Submit</button>
 		<a class="login-cancel" href="/{{ENTRY_TOPIC}}">Cancel</a>
 	</form>

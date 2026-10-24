@@ -44,6 +44,7 @@ public class CreateEntryHandler extends AbstractRequestHandler {
 
         context.setIsCreateEntry();
         context.setEntryTopic(topic);
+        context.setEntryPublished(true);
         context.setCsrfToken(sessionService.getCsrfToken(session.getSessionId()));
 
         if (request.getMethod() == HttpMethods.GET) {
@@ -69,6 +70,8 @@ public class CreateEntryHandler extends AbstractRequestHandler {
             return createClientError(HttpStatus.FORBIDDEN, "Invalid CSRF token");
         }
 
+        boolean published = form.get("published") != null;
+        context.setEntryPublished(published);
         String entryName = form.get("entryName") == null ? "" : form.get("entryName").trim();
         String content = form.get("content") == null ? "" : form.get("content");
         if (entryName.isEmpty() || content.isBlank()) {
@@ -77,7 +80,7 @@ public class CreateEntryHandler extends AbstractRequestHandler {
             return createHttpResponseFromContext(context, session);
         }
 
-        if (contentService.createEntry(topic, entryName, content, null)) {
+        if (contentService.createEntry(topic, entryName, content, null, !published)) {
             context.addSuccessMessage("Successfully created entry " + entryName);
         } else {
             context.setEntryDraft(entryName, content);

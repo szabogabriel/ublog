@@ -4,6 +4,7 @@ public interface BlogContext {
 
     void addBlogEntryContentToContext(String[] pathParts);
     void setRequestedSingleEntry(String entryName);
+    boolean addUnlistedEntryToContext(String topic, String fileName);
 
     void addSuccessMessage(String message);
     void addInfoMessage(String message);
@@ -18,6 +19,7 @@ public interface BlogContext {
     void setIsEditEntry();
     void setEntryTopic(String topic);
     void setEntryDraft(String name, String content);
+    void setEntryPublished(boolean published);
 
     void setCsrfToken(String csrfToken);
     void setUserDetails(User user);

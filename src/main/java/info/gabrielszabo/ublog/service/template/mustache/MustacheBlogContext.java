@@ -42,6 +42,7 @@ public class MustacheBlogContext implements BlogContext{
     private static final String ENTRY_TOPIC = "ENTRY_TOPIC";
     private static final String ENTRY_NAME = "ENTRY_NAME";
     private static final String ENTRY_CONTENT = "ENTRY_CONTENT";
+    private static final String ENTRY_PUBLISHED = "ENTRY_PUBLISHED";
 
     private static final String IS_EDIT_ENTRY = "IS_EDIT_ENTRY";
     private static final String IS_ENTRY_VIEW = "IS_ENTRY_VIEW";
@@ -76,9 +77,9 @@ public class MustacheBlogContext implements BlogContext{
         String entryName = pathParts[2];
         Category requestedCategory = new Category(categoryName);
         EntryDescriptor requestedEntry = new EntryDescriptor(entryName, requestedCategory);
-        context.put(CONTENT, contentProvider.getEntryContentAsHttp(requestedEntry));
+        context.put(CONTENT, contentProvider.getEntryContentAsHttp(requestedEntry, isLoggedIn()));
         context.put(TITLE, requestedEntry.getName());
-        for (EntryDescriptor existing : contentProvider.getEntries(requestedCategory)) {
+        for (EntryDescriptor existing : contentProvider.getEntries(requestedCategory, isLoggedIn())) {
             if (existing.getName().equals(entryName)) {
                 context.put(IS_ENTRY_VIEW, Boolean.TRUE);
                 context.put(ENTRY_TOPIC, categoryName);
@@ -86,6 +87,18 @@ public class MustacheBlogContext implements BlogContext{
                 break;
             }
         }
+    }
+
+    @Override
+    public boolean addUnlistedEntryToContext(String topic, String fileName) {
+        Category category = topic == null || topic.isEmpty() ? null : new Category(topic);
+        String html = contentProvider.getUnlistedContentAsHttp(category, fileName);
+        if (html == null) {
+            return false;
+        }
+        context.put(CONTENT, html);
+        context.put(TITLE, "Unlisted entry");
+        return true;
     }
 
     @Override
@@ -139,12 +152,23 @@ public class MustacheBlogContext implements BlogContext{
     }
 
     private List<Map<String, Object>> getBlogEntries(Category category) {
-        EntryDescriptor[] entries = contentProvider.getEntries(category);
+        EntryDescriptor[] entries = contentProvider.getEntries(category, isLoggedIn());
+        java.util.Set<String> listedNames = new java.util.HashSet<>();
+        for (EntryDescriptor listed : contentProvider.getEntries(category)) {
+            listedNames.add(listed.getName());
+        }
         List<Map<String, Object>> entryNames = new ArrayList<>();
         for (EntryDescriptor entry : entries) {
             Map<String, Object> entryMap = new HashMap<>();
             entryMap.put("category", category.getName());
             entryMap.put("name", entry.getName());
+            entryMap.put("UNLISTED", !listedNames.contains(entry.getName()));
+            String directLink = "/" + category.getName() + "/" + entry.getName();
+            if (!listedNames.contains(entry.getName())) {
+                String fileName = contentProvider.getUnlistedFileName(category, entry.getName());
+                directLink = fileName == null ? directLink : "/unlisted/" + category.getName() + "/" + fileName;
+            }
+            entryMap.put("DIRECT_LINK", directLink);
             entryNames.add(entryMap);
         }
         return entryNames;
@@ -301,6 +325,11 @@ public class MustacheBlogContext implements BlogContext{
     public void setEntryDraft(String name, String content) {
         context.put(ENTRY_NAME, name);
         context.put(ENTRY_CONTENT, content);
+    }
+
+    @Override
+    public void setEntryPublished(boolean published) {
+        context.put(ENTRY_PUBLISHED, published);
     }
 
     @Override

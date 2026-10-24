@@ -179,7 +179,7 @@
         <a class="entry-card entry-card-new" href="/createentry/{{category}}"><h3>{{TOPIC_NEW_ENTRY}}</h3><span aria-hidden="true">+</span></a>
         {{/LOGGED_IN}}
         {{#ENTRIES}}
-        <a class="entry-card" href="/{{category}}/{{name}}"><h3>{{name}}</h3><span>{{TOPIC_ENTRY_LABEL}} &rarr;</span></a>
+        <a class="entry-card" href="/{{category}}/{{name}}"><h3>{{name}}{{#UNLISTED}} <small>({{TOPIC_ENTRY_UNLISTED}})</small>{{/UNLISTED}}</h3><span>{{TOPIC_ENTRY_LABEL}} &rarr;</span>{{#LOGGED_IN}}<button type="button" class="btn" data-link="{{DIRECT_LINK}}" onclick="event.preventDefault(); event.stopPropagation(); navigator.clipboard.writeText(location.origin + this.dataset.link); this.textContent = '{{TOPIC_ENTRY_COPIED}}';">{{TOPIC_ENTRY_COPY_LINK}}</button>{{/LOGGED_IN}}</a>
         {{/ENTRIES}}
       </div>
       {{/IS_TOPIC_LISTING}}

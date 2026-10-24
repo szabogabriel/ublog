@@ -28,6 +28,8 @@ import info.gabrielszabo.ublog.service.template.mustache.MustacheTemplateService
 
 public enum Config {
 
+    LOG_LEVEL("log.level", "INFO"),
+
     MUSTACHE_TEMPLATES_CACHING_ENABLED("mustache.templates.caching.enabled", "true"),
     MUSTACHE_TEMPLATES_FOLDER("mustache.templates.folder", "./template"),
     MUSTACHE_TEMPLATE_UPDATE("mustache.template.update", "false"),

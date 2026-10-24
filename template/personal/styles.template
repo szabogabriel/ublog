@@ -293,6 +293,9 @@
   .entry-label,
   .entry-category { color: var(--muted); font: 9px/1.4 var(--mono); }
   .entry-title { font: 500 22px/1.2 var(--serif); }
+  .entry-meta { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+  .entry-copy { padding: 4px 8px; color: var(--muted); background: transparent; border: 1px solid #c6d0c7; border-radius: 2px; font: 9px/1.4 var(--mono); cursor: pointer; }
+  .entry-copy:hover { color: var(--green); border-color: var(--green); }
   .entry-arrow { color: var(--orange); font-size: 19px; text-align: right; }
 
   .sidebar { padding-top: 2px; }
@@ -356,6 +359,8 @@
   .login-field label { display: block; margin-bottom: 5px; color: var(--muted); font: 10px/1.5 var(--mono); }
   .login-field input { width: 100%; min-height: 42px; padding: 9px 11px; color: var(--ink); background: var(--paper); border: 1px solid #c6d0c7; border-radius: 2px; font: 14px var(--sans); }
   .login-field input:focus { outline: 2px solid var(--green); outline-offset: 2px; }
+  .login-field label.login-check { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .login-field label.login-check input { width: auto; min-height: 0; margin: 0; }
   .login-submit { min-height: 42px; padding: 9px 18px; color: white; background: var(--green); border: 0; border-radius: 2px; font: 600 13px var(--sans); cursor: pointer; }
   .login-submit:hover { background: var(--ink); }
   .login-cancel { display: inline-block; margin-left: 10px; padding: 11px 18px; color: var(--ink); border: 1px solid #c6d0c7; border-radius: 2px; font: 600 13px var(--sans); text-decoration: none; }
@@ -393,7 +398,7 @@
     .sidebar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px 22px; }
     .sidebar-section + .sidebar-section { margin-top: 0; }
     .sidebar-note { grid-column: 1 / -1; margin-top: 0; }
-    .entry-row { grid-template-columns: 66px minmax(0, 1fr) 18px; gap: 9px; min-height: 72px; }
+    .entry-row { grid-template-columns: 66px minmax(0, 1fr) auto 18px; gap: 9px; min-height: 72px; }
     .entry-category { display: none; }
     .entry-title { font-size: 20px; }
     .entry-label { font-size: 8px; }

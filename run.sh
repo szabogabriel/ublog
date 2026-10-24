@@ -69,7 +69,6 @@ setEnv() {
     export BLOG_FOLDER=./testContent/blogFolder
     export USER_FOLDER=./testContent/userFolder
     export IMAGE_FOLDER=./testContent/imageFolder
-    export UNLISTED_FOLDER=./testContent/unlistedFolder
 }
 
 main() {

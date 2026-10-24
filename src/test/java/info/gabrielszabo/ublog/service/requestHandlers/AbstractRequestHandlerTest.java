@@ -48,6 +48,7 @@ class AbstractRequestHandlerTest {
 
         String responseText = output.toString(StandardCharsets.UTF_8);
         assertTrue(responseText.startsWith("HTTP/1.1 403 Forbidden\r\n"));
+        assertTrue(responseText.contains("\r\nConnection: close\r\n"));
     }
 
     private static final class TestRequestHandler extends AbstractRequestHandler {
