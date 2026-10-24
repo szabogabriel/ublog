@@ -16,18 +16,18 @@
 		<form action="/createentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}" method="post" enctype="multipart/form-data">
 			<input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
 			<div class="form-group">
-				<label for="entry-name" class="control-label">Entry name</label>
+				<label for="entry-name" class="control-label">{{STRING_ENTRY_NAME}}</label>
 				<input type="text" class="form-control" id="entry-name" name="entryName" value="{{ENTRY_NAME}}" placeholder="example-entry" required>
 			</div>
 			<div class="form-group" style="margin-bottom: 24px;">
-				<label for="entry-content" class="control-label">Content (Markdown)</label>
+				<label for="entry-content" class="control-label">{{STRING_CONTENT_MARKDOWN}}</label>
 				<textarea id="entry-content" name="content">{{ENTRY_CONTENT}}</textarea>
 			</div>
 			<div class="checkbox" style="margin-bottom: 24px;">
-				<label><input type="checkbox" name="published" value="true"{{#ENTRY_PUBLISHED}} checked{{/ENTRY_PUBLISHED}}> Published</label>
+				<label><input type="checkbox" name="published" value="true"{{#ENTRY_PUBLISHED}} checked{{/ENTRY_PUBLISHED}}> {{STRING_PUBLISHED}}</label>
 			</div>
-			<button type="submit" class="btn btn-primary">Submit</button>
-			<a class="btn btn-default" href="/{{ENTRY_TOPIC}}">Cancel</a>
+			<button type="submit" class="btn btn-primary">{{STRING_SUBMIT}}</button>
+			<a class="btn btn-default" href="/{{ENTRY_TOPIC}}">{{STRING_CANCEL}}</a>
 		</form>
 	</div>
 </div>
