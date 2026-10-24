@@ -20,6 +20,7 @@ public class HttpRequest {
     private static final int MAX_REQUEST_BYTES = 1024 * 1024;
     private static final int MAX_IMAGE_UPLOAD_BYTES = 100 * 1024 * 1024;
     private static final String IMAGE_UPLOAD_PATH_PREFIX = "/imagemanage/";
+    private static final String FILE_UPLOAD_PATH_PREFIX = "/filemanage/";
     private static final int MAX_AUTH_REQUEST_BODY_BYTES = 8 * 1024;
     private static final byte[] HEADER_TERMINATOR = { '\r', '\n', '\r', '\n' };
 
@@ -136,7 +137,8 @@ public class HttpRequest {
     // Uploads can be large, so their body is left on the socket for the handler to consume.
     private boolean isStreamedUpload() {
         return method == HttpMethods.POST && path != null
-                && path.toLowerCase(Locale.ROOT).startsWith(IMAGE_UPLOAD_PATH_PREFIX);
+                && (path.toLowerCase(Locale.ROOT).startsWith(IMAGE_UPLOAD_PATH_PREFIX)
+                        || path.toLowerCase(Locale.ROOT).startsWith(FILE_UPLOAD_PATH_PREFIX));
     }
 
     private static final class LimitedInputStream extends InputStream {

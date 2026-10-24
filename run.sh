@@ -67,8 +67,9 @@ setEnv() {
     export SOCKET_HANDLER_QUEUE_CAPACITY=100
 
     export BLOG_FOLDER=./testContent/blogFolder
-    export USER_FOLDER=./testContent/userFolder
+    export FILE_FOLDER=./testContent/fileFolder
     export IMAGE_FOLDER=./testContent/imageFolder
+    export USER_FOLDER=./testContent/userFolder
 }
 
 main() {

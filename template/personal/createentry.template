@@ -34,4 +34,5 @@
 </script>
 {{^IS_ROOT_ENTRY}}
 {{>imagemanager.template}}
+{{>filemanager.template}}
 {{/IS_ROOT_ENTRY}}

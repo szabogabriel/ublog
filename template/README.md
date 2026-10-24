@@ -25,6 +25,7 @@ Template folder: `MUSTACHE_TEMPLATES_FOLDER` (`template/personal` or `template/p
 | `createentry.template` | `{{#IS_CREATE_ENTRY}}` | New entry form |
 | `editentry.template` | `{{#IS_EDIT_ENTRY}}` | Edit entry form |
 | `imagemanager.template` | `editentry.template` | Image upload and delete UI (uses `/imagemanage`) |
+| `filemanager.template` | `createentry.template`, `editentry.template` | File upload and delete UI (uses `/filemanage`) |
 | `theme.properties` (optional) | server | Template-defined variables, editable by the publisher on `/user` |
 
 Only `index.template` is requested by name. The other file names are conventions used by the bundled templates, so a new template may structure partials differently.
@@ -50,6 +51,8 @@ Only `index.template` is requested by name. The other file names are conventions
 | Delete entry | `POST /deleteentry[/{topic}]/{entry}` (urlencoded: `csrfToken`) | yes | none | `303` redirect to `/{topic}` or `/` |
 | Image manager API | `GET`/`POST /imagemanage/{topic}/{entry}` (multipart: `csrfToken`, `action=upload\|delete`, `file`, `fileName`) | yes | none | Returns JSON, not HTML |
 | Image | `GET /image/{topic}/{entry}/{file}` | no | none | Serves the file |
+| File manager API | `GET`/`POST /filemanage/{topic}/{entry}` (multipart: `csrfToken`, `action=upload\|delete`, `file`, `fileName`) | yes | none | Returns JSON, not HTML |
+| File download | `GET /file/{topic}/{entry}/{file}` | no | none | Served as attachment |
 
 Rules for every protected URL: not logged in returns `403` rendered as the error page. A wrong or missing `csrfToken` also returns `403`. A wrong method returns `405` with an `Allow` header. Every form that changes state **must** submit `csrfToken` from `{{CSRF_TOKEN}}`.
 

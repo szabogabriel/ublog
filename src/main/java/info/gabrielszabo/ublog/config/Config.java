@@ -43,6 +43,7 @@ public enum Config {
     SOCKET_HANDLER_QUEUE_CAPACITY("socket.handler.queue.capacity", "100"),
 
     BLOG_FOLDER("blog.folder", "./blogFolder"),
+    FILE_FOLDER("file.folder", "./fileFolder"),
     IMAGE_FOLDER("image.folder", "./imageFolder"),
     USER_FOLDER("user.folder", "./userFolder"),
 

@@ -15,6 +15,8 @@ import info.gabrielszabo.ublog.service.requestHandlers.CreateEntryHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.CreateTopicHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.DeleteEntryHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.EditEntryHandler;
+import info.gabrielszabo.ublog.service.requestHandlers.FileHandler;
+import info.gabrielszabo.ublog.service.requestHandlers.FileManageHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.ImageHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.ImageManageHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.IndexHandler;
@@ -53,6 +55,9 @@ public class RequestHandlerService implements HttpRequestHandler {
         requestHandlers.add(new DeleteEntryHandler(contextFactory, sessionService, templateService, contentService));
         requestHandlers.add(new ImageManageHandler(contextFactory, sessionService, templateService,
                 new ImageService(contentService)));
+        requestHandlers.add(new FileHandler(contextFactory, sessionService, templateService, log));
+        requestHandlers.add(new FileManageHandler(contextFactory, sessionService, templateService,
+                new FileService(contentService)));
         requestHandlers.add(new UnlistedHandler(contextFactory, sessionService, templateService));
         requestHandlers.add(new ContentHandler(contextFactory, sessionService, templateService));
     }
