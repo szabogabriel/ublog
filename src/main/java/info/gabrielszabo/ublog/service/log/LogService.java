@@ -9,16 +9,16 @@ public interface LogService {
         TRACE(400),
         DEBUG(500);
 
-        private int level;
+        private final int level;
 
         private LogLevel(int level) {
             this.level = level;
         }
 
-        public LogLevel fromName(String name) {
-            for (LogLevel level : LogLevel.values()) {
-                if (level.name().equalsIgnoreCase(name)) {
-                    return level;
+        public static LogLevel fromName(String name) {
+            for (LogLevel it : LogLevel.values()) {
+                if (it.name().equalsIgnoreCase(name)) {
+                    return it;
                 }
             }
             return null; // or throw an IllegalArgumentException if preferred
