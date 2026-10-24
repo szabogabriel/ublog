@@ -1,6 +1,6 @@
 <link rel="stylesheet" href="https://unpkg.com/easymde@2.18.0/dist/easymde.min.css">
 <section class="login-panel entry-editor" aria-labelledby="edit-entry-title">
-	<h2 id="edit-entry-title">Edit {{ENTRY_NAME}}{{^IS_ROOT_ENTRY}} in {{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}</h2>
+	<h2 id="edit-entry-title">{{STRING_EDIT_ENTRY}} {{ENTRY_NAME}}{{^IS_ROOT_ENTRY}} {{STRING_IN}} {{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}</h2>
 	{{#HAS_SUCCESS_MESSAGE}}
 	<div style="margin-bottom: 18px; padding: 12px 14px; color: #174538; background: #dfeee4; border-left: 3px solid #286452; font: 13px/1.5 var(--sans);" role="status">{{SUCCESS_MESSAGE}}</div>
 	{{/HAS_SUCCESS_MESSAGE}}
@@ -14,14 +14,14 @@
 	<form id="edit-entry-form" action="/editentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
 		<div class="login-field">
-			<label for="entry-content">CONTENT (MARKDOWN)</label>
+			<label for="entry-content">{{STRING_CONTENT_MARKDOWN}}</label>
 			<textarea id="entry-content" name="content">{{ENTRY_CONTENT}}</textarea>
 		</div>
 		<div class="login-field">
-			{{^IS_ROOT_ENTRY}}<label class="login-check"><input type="checkbox" name="published" value="true"{{#ENTRY_PUBLISHED}} checked{{/ENTRY_PUBLISHED}}> PUBLISHED</label>{{/IS_ROOT_ENTRY}}
+			{{^IS_ROOT_ENTRY}}<label class="login-check"><input type="checkbox" name="published" value="true"{{#ENTRY_PUBLISHED}} checked{{/ENTRY_PUBLISHED}}> {{STRING_PUBLISHED}}</label>{{/IS_ROOT_ENTRY}}
 		</div>
-		<button class="login-submit" type="submit">Save</button>
-		<a class="login-cancel" href="{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}">Cancel</a>
+		<button class="login-submit" type="submit">{{STRING_SAVE}}</button>
+		<a class="login-cancel" href="{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}">{{STRING_CANCEL}}</a>
 	</form>
 </section>
 <script src="https://unpkg.com/easymde@2.18.0/dist/easymde.min.js"></script>

@@ -1,14 +1,14 @@
 <section class="login-panel" aria-labelledby="login-title">
-  <h2 id="login-title">Welcome back</h2>
+  <h2 id="login-title">{{STRING_WELCOME_BACK}}</h2>
   <form action="/loginaction" method="post">
     <div class="login-field">
-      <label for="username">USERNAME</label>
+      <label for="username">{{STRING_USERNAME}}</label>
       <input type="text" id="username" name="username" autocomplete="username" required>
     </div>
     <div class="login-field">
-      <label for="password">PASSWORD</label>
+      <label for="password">{{STRING_PASSWORD}}</label>
       <input type="password" id="password" name="password" autocomplete="current-password" required>
     </div>
-    <button class="login-submit" type="submit">Log in</button>
+    <button class="login-submit" type="submit">{{STRING_LOG_IN}}</button>
   </form>
 </section>

@@ -1,27 +1,27 @@
 <header class="site-header">
   <div class="nav-wrap">
-    <a class="wordmark" href="/index" aria-label="Fieldnotes home">
+    <a class="wordmark" href="/index" aria-label="{{STRING_BRAND_HOME_LABEL}}">
       <span class="wordmark-symbol" aria-hidden="true">f.</span>
       <span class="wordmark-text">
-        <span class="wordmark-name">Fieldnotes</span>
-        <span class="wordmark-caption">A PERSONAL BLOG</span>
+        <span class="wordmark-name">{{STRING_BRAND_NAME}}</span>
+        <span class="wordmark-caption">{{STRING_BRAND_CAPTION}}</span>
       </span>
     </a>
     <div class="nav-groups">
       <ul class="nav-links">
         {{#TOPICS}}<li><a href="/{{name}}">{{name}}</a></li>{{/TOPICS}}
-        {{#LOGGED_IN}}<li><a href="/createtopic">New</a></li><li><a href="/createentry">New page</a></li>{{/LOGGED_IN}}
+        {{#LOGGED_IN}}<li><a href="/createtopic">{{STRING_NEW}}</a></li><li><a href="/createentry">{{STRING_NEW_PAGE}}</a></li>{{/LOGGED_IN}}
         {{#QUICK_LINKS}}<li><a href="/{{name}}">{{name}}</a></li>{{/QUICK_LINKS}}
       </ul>
       <div class="account-links">
         {{#LOGGED_IN}}
         <a href="/user">{{USERNAME}}</a>
         <form action="/logout" method="post">
-          <button type="submit">Log out</button>
+          <button type="submit">{{STRING_LOG_OUT}}</button>
         </form>
         {{/LOGGED_IN}}
         {{^LOGGED_IN}}
-        <a class="login-link" href="/login">Log in</a>
+        <a class="login-link" href="/login">{{STRING_LOG_IN}}</a>
         {{/LOGGED_IN}}
       </div>
     </div>

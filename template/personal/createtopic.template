@@ -1,6 +1,6 @@
 <section class="login-panel" aria-labelledby="create-topic-title">
-	<h2 id="create-topic-title">Create topic</h2>
-	<p style="margin: 0 0 18px; color: #5d625e; font: 15px/1.7 var(--sans);">Choose the name for the new topic.</p>
+	<h2 id="create-topic-title">{{STRING_CREATE_TOPIC}}</h2>
+	<p style="margin: 0 0 18px; color: #5d625e; font: 15px/1.7 var(--sans);">{{STRING_CREATE_TOPIC_HELP}}</p>
 	{{#HAS_SUCCESS_MESSAGE}}
 	<div style="margin-bottom: 18px; padding: 12px 14px; color: #174538; background: #dfeee4; border-left: 3px solid #286452; font: 13px/1.5 var(--sans);" role="status">{{SUCCESS_MESSAGE}}</div>
 	{{/HAS_SUCCESS_MESSAGE}}
@@ -14,9 +14,9 @@
 	<form action="/createtopic" method="post">
 		<input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
 		<div class="login-field">
-			<label for="topic-name">TOPIC NAME</label>
-			<input type="text" id="topic-name" name="topicName" placeholder="example-topic" required>
+			<label for="topic-name">{{STRING_TOPIC_NAME}}</label>
+			<input type="text" id="topic-name" name="topicName" placeholder="{{STRING_EXAMPLE_TOPIC}}" required>
 		</div>
-		<button class="login-submit" type="submit">Submit</button>
+		<button class="login-submit" type="submit">{{STRING_SUBMIT}}</button>
 	</form>
 </section>

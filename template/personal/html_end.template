@@ -1,6 +1,6 @@
 <footer class="site-footer">
   <div class="site-footer-inner">
-    <p class="footer-note">FIELDNOTES &middot; STORIES, PLACES, SMALL THINGS</p>
+    <p class="footer-note">{{STRING_FOOTER_NOTE}}</p>
     <span class="footer-mark" aria-hidden="true">f.</span>
   </div>
 </footer>

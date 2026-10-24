@@ -1,11 +1,11 @@
 <section class="login-panel entry-files" id="entry-files" data-topic="{{ENTRY_TOPIC}}" data-entry="{{ENTRY_NAME}}" data-csrf="{{CSRF_TOKEN}}" aria-labelledby="entry-files-title">
-	<h3 id="entry-files-title">Files</h3>
+	<h3 id="entry-files-title">{{STRING_FILES}}</h3>
 	<p id="entry-files-status" style="font: 13px/1.5 var(--sans);" role="status"></p>
 	<div class="login-field">
-		<label for="entry-file-file">UPLOAD FILE</label>
+		<label for="entry-file-file">{{STRING_UPLOAD_FILE}}</label>
 		<input type="file" id="entry-file-file">
 	</div>
-	<button class="login-submit" type="button" id="entry-file-upload">Upload</button>
+	<button class="login-submit" type="button" id="entry-file-upload">{{STRING_UPLOAD}}</button>
 	<ul id="entry-file-list" style="list-style: none; padding: 0; margin-top: 18px; font: 13px/1.8 var(--sans);"></ul>
 </section>
 <script>
@@ -15,6 +15,7 @@
 		var status = document.getElementById('entry-files-status');
 		var fileInput = document.getElementById('entry-file-file');
 		var nameInput = document.getElementById('entry-name');
+		var strings = document.body.dataset;
 
 		function entryName() {
 			var name = nameInput ? nameInput.value : panel.dataset.entry;
@@ -34,15 +35,15 @@
 				var snippet = '[' + file.name + '](' + file.url + ')';
 				var insert = document.createElement('button');
 				insert.type = 'button';
-				insert.textContent = 'Insert';
+				insert.textContent = strings.stringInsert;
 				insert.addEventListener('click', function () {
 					if (window.entryEditor) { window.entryEditor.codemirror.replaceSelection(snippet); }
 				});
 				var remove = document.createElement('button');
 				remove.type = 'button';
-				remove.textContent = 'Delete';
+				remove.textContent = strings.stringDelete;
 				remove.addEventListener('click', function () {
-					if (confirm('Delete file ' + file.name + '?')) { send({ action: 'delete', fileName: file.name }); }
+					if (confirm(strings.stringConfirmDeleteFile.replace('{name}', file.name))) { send({ action: 'delete', fileName: file.name }); }
 				});
 				var code = document.createElement('code');
 				code.textContent = snippet;
@@ -53,25 +54,25 @@
 			status.textContent = data.error || '';
 		}
 		function handle(response) {
-			return response.json().catch(function () { return { error: 'Request failed (HTTP ' + response.status + ').' }; })
+			return response.json().catch(function () { return { error: strings.stringRequestFailedHttp.replace('{status}', response.status) }; })
 				.then(render);
 		}
 		function refresh() {
-			if (!entryName()) { render({ error: 'Enter an entry name to manage files.' }); return; }
+			if (!entryName()) { render({ error: strings.stringEnterEntryNameManageFiles }); return; }
 			fetch(endpoint()).then(handle);
 		}
 		function send(fields, file) {
-			if (!entryName()) { render({ error: 'Enter an entry name first.' }); return; }
+			if (!entryName()) { render({ error: strings.stringEnterEntryNameFirst }); return; }
 			var form = new FormData();
 			form.append('csrfToken', panel.dataset.csrf);
 			Object.keys(fields).forEach(function (key) { form.append(key, fields[key]); });
 			if (file) { form.append('file', file); }
 			fetch(endpoint(), { method: 'POST', body: form }).then(handle)
-				.catch(function () { status.textContent = 'Request failed.'; });
+				.catch(function () { status.textContent = strings.stringRequestFailed; });
 		}
 
 		document.getElementById('entry-file-upload').addEventListener('click', function () {
-			if (!fileInput.files.length) { status.textContent = 'Please choose a file.'; return; }
+			if (!fileInput.files.length) { status.textContent = strings.stringChooseFile; return; }
 			send({ action: 'upload' }, fileInput.files[0]);
 			fileInput.value = '';
 		});

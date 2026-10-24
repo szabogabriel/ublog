@@ -1,5 +1,5 @@
 <section class="login-panel" aria-labelledby="user-details-title">
-	<h2 id="user-details-title">Your profile</h2>
+	<h2 id="user-details-title">{{STRING_YOUR_PROFILE}}</h2>
 	{{#HAS_SUCCESS_MESSAGE}}
 	<div style="margin-bottom: 18px; padding: 12px 14px; color: #174538; background: #dfeee4; border-left: 3px solid #286452; font: 13px/1.5 var(--sans);" role="status">{{SUCCESS_MESSAGE}}</div>
 	{{/HAS_SUCCESS_MESSAGE}}
@@ -10,43 +10,43 @@
 	<div style="margin-bottom: 18px; padding: 12px 14px; color: #7a2f24; background: #f7e6e0; border-left: 3px solid #e45e3a; font: 13px/1.5 var(--sans);" role="alert">{{ERROR_MESSAGE}}</div>
 	{{/HAS_ERROR_MESSAGE}}
 	<div class="login-field">
-		<label for="user-name">NAME</label>
+		<label for="user-name">{{STRING_NAME}}</label>
 		<input type="text" id="user-name" value="{{USER_NAME}}" readonly aria-readonly="true">
 	</div>
 	<div class="login-field">
-		<label for="user-username">USERNAME</label>
+		<label for="user-username">{{STRING_USERNAME}}</label>
 		<input type="text" id="user-username" value="{{USER_USERNAME}}" readonly aria-readonly="true">
 	</div>
 
 	<form action="/passwordchange" method="post">
 		<input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
-		<h3 style="margin: 28px 0 18px; font: 500 21px/1.2 var(--serif);">Change password</h3>
+		<h3 style="margin: 28px 0 18px; font: 500 21px/1.2 var(--serif);">{{STRING_CHANGE_PASSWORD}}</h3>
 		<div class="login-field">
-			<label for="current-password">CURRENT PASSWORD</label>
+			<label for="current-password">{{STRING_CURRENT_PASSWORD}}</label>
 			<input type="password" id="current-password" name="currentPassword" autocomplete="current-password" required>
 		</div>
 		<div class="login-field">
-			<label for="new-password">NEW PASSWORD</label>
+			<label for="new-password">{{STRING_NEW_PASSWORD}}</label>
 			<input type="password" id="new-password" name="newPassword" autocomplete="new-password" required>
 		</div>
         <div class="login-field">
-			<label for="new-password-repeat">REPEAT PASSWORD</label>
+			<label for="new-password-repeat">{{STRING_REPEAT_PASSWORD}}</label>
 			<input type="password" id="new-password-repeat" name="newPasswordRepeat" autocomplete="new-password-repeat" required>
 		</div>
-		<button class="login-submit" type="submit">Update password</button>
+		<button class="login-submit" type="submit">{{STRING_UPDATE_PASSWORD}}</button>
 	</form>
 
 	{{#HAS_TEMPLATE_PROPERTIES}}
 	<form action="/templateproperties" method="post">
 		<input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
-		<h3 style="margin: 28px 0 18px; font: 500 21px/1.2 var(--serif);">Template settings</h3>
+		<h3 style="margin: 28px 0 18px; font: 500 21px/1.2 var(--serif);">{{STRING_TEMPLATE_SETTINGS}}</h3>
 		{{#TEMPLATE_PROPERTIES}}
 		<div class="login-field">
 			<label for="prop-{{key}}">{{key}}</label>
 			<input type="text" id="prop-{{key}}" name="prop_{{key}}" value="{{value}}">
 		</div>
 		{{/TEMPLATE_PROPERTIES}}
-		<button class="login-submit" type="submit">Save settings</button>
+		<button class="login-submit" type="submit">{{STRING_SAVE_SETTINGS}}</button>
 	</form>
 	{{/HAS_TEMPLATE_PROPERTIES}}
 	{{>profileimage.template}}

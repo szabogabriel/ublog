@@ -4,60 +4,60 @@
   {{#IS_INDEX}}
   <section class="opening" aria-labelledby="opening-title">
     <div class="opening-copy">
-      <p class="eyebrow"><span class="eyebrow-mark"></span> A PERSONAL JOURNAL <span class="eyebrow-divider">/</span> {{PAGE_TITLE}}</p>
-      <h1 id="opening-title">{{INDEX_TITLE}}</h1>
-      <p class="opening-note">{{INDEX_SUBTITLE}}</p>
-      <a class="text-link" href="#latest">Read the latest <span aria-hidden="true">&darr;</span></a>
+      <p class="eyebrow"><span class="eyebrow-mark"></span> {{STRING_JOURNAL_TAGLINE}} <span class="eyebrow-divider">/</span> {{PAGE_TITLE}}</p>
+      <h1 id="opening-title">{{STRING_INDEX_TITLE}}</h1>
+      <p class="opening-note">{{STRING_INDEX_SUBTITLE}}</p>
+      <a class="text-link" href="#latest">{{STRING_READ_LATEST}} <span aria-hidden="true">&darr;</span></a>
     </div>
-    <div class="opening-image" role="img" aria-label="A quiet mountain lake at the end of the day">
-      <span class="image-caption">NOTES FROM HERE AND THERE</span>
+    <div class="opening-image" role="img" aria-label="{{STRING_OPENING_IMAGE_LABEL}}">
+      <span class="image-caption">{{STRING_IMAGE_CAPTION}}</span>
     </div>
   </section>
   {{/IS_INDEX}}
   {{^IS_INDEX}}
   <section class="page-header" aria-labelledby="page-title">
-    <p class="eyebrow"><span class="eyebrow-mark"></span> A PERSONAL JOURNAL</p>
+    <p class="eyebrow"><span class="eyebrow-mark"></span> {{STRING_JOURNAL_TAGLINE}}</p>
     <h1 id="page-title">{{PAGE_TITLE}}</h1>
   </section>
   {{/IS_INDEX}}
 
   <div class="content-grid" id="latest">
-    <section class="writing-column" aria-label="Blog content">
+    <section class="writing-column" aria-label="{{STRING_BLOG_CONTENT}}">
       <div class="section-heading">
-        <p class="eyebrow">THE JOURNAL</p>
+        <p class="eyebrow">{{STRING_JOURNAL}}</p>
         <span class="section-rule"></span>
       </div>
       <article class="prose">{{{DATA}}}</article>
       {{#IS_INDEX}}
         {{#LOGGED_IN}}
-          <p><a class="text-link" href="/editentry/{{PAGE_TITLE}}">Edit</a></p>
+          <p><a class="text-link" href="/editentry/{{PAGE_TITLE}}">{{STRING_EDIT}}</a></p>
         {{/LOGGED_IN}}
       {{/IS_INDEX}}
       {{#IS_ENTRY_VIEW}}
         {{#LOGGED_IN}}
-          <p><a class="text-link" href="/editentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}">Edit</a></p>
-          <form action="/deleteentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}" method="post" onsubmit="return confirm('Delete this entry?');">
+          <p><a class="text-link" href="/editentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}">{{STRING_EDIT}}</a></p>
+          <form action="/deleteentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}" method="post" onsubmit="return confirm(document.body.dataset.stringConfirmDeleteEntry);">
             <input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
-            <button type="submit" class="text-link">Delete</button>
+            <button type="submit" class="text-link">{{STRING_DELETE}}</button>
           </form>
         {{/LOGGED_IN}}
       {{/IS_ENTRY_VIEW}}
       {{#IS_TOPIC_LISTING}}
         {{#LOGGED_IN}}
           <a class="entry-row" href="/createentry/{{category}}">
-            <span class="entry-label">FIELD NOTE</span>
-            <span class="entry-title">New</span>
+            <span class="entry-label">{{STRING_FIELD_NOTE}}</span>
+            <span class="entry-title">{{STRING_NEW}}</span>
             <span class="entry-meta"><span class="entry-category">{{category}}</span></span>
             <span class="entry-arrow" aria-hidden="true">&rarr;</span>
           </a>
         {{/LOGGED_IN}}
         {{#ENTRIES}}
           <a class="entry-row" href="/{{category}}/{{name}}">
-            <span class="entry-label">FIELD NOTE</span>
-            <span class="entry-title">{{name}}{{#UNLISTED}} <em>(unlisted)</em>{{/UNLISTED}}</span>
+            <span class="entry-label">{{STRING_FIELD_NOTE}}</span>
+            <span class="entry-title">{{name}}{{#UNLISTED}} <em>{{STRING_UNLISTED}}</em>{{/UNLISTED}}</span>
             <span class="entry-meta">
               <span class="entry-category">{{category}}</span>
-              {{#LOGGED_IN}}<button type="button" class="entry-copy" data-link="{{DIRECT_LINK}}" onclick="event.preventDefault(); event.stopPropagation(); navigator.clipboard.writeText(location.origin + this.dataset.link); this.textContent = 'COPIED';">COPY LINK</button>{{/LOGGED_IN}}
+              {{#LOGGED_IN}}<button type="button" class="entry-copy" data-link="{{DIRECT_LINK}}" onclick="event.preventDefault(); event.stopPropagation(); navigator.clipboard.writeText(location.origin + this.dataset.link); this.textContent = document.body.dataset.stringCopied;">{{STRING_COPY_LINK}}</button>{{/LOGGED_IN}}
             </span>
             <span class="entry-arrow" aria-hidden="true">&rarr;</span>
           </a>
@@ -87,21 +87,21 @@
 
     <aside class="sidebar">
       <section class="sidebar-section">
-        <p class="eyebrow">BROWSE BY TOPIC</p>
+        <p class="eyebrow">{{STRING_BROWSE_BY_TOPIC}}</p>
         <ul class="topic-list">
           {{#TOPICS}}<li><a href="/{{name}}">{{name}}<span aria-hidden="true">&nearr;</span></a></li>{{/TOPICS}}
-          {{#LOGGED_IN}}<li><a href="/createtopic">New</a></li>{{/LOGGED_IN}}
+          {{#LOGGED_IN}}<li><a href="/createtopic">{{STRING_NEW}}</a></li>{{/LOGGED_IN}}
         </ul>
       </section>
       <section class="sidebar-section">
-        <p class="eyebrow">A FEW MORE THINGS</p>
+        <p class="eyebrow">{{STRING_MORE_THINGS}}</p>
         <ul class="topic-list">
           {{#QUICK_LINKS}}<li><a href="/{{name}}">{{name}}<span aria-hidden="true">&nearr;</span></a></li>{{/QUICK_LINKS}}
         </ul>
       </section>
       <div class="sidebar-note">
         <span class="note-symbol" aria-hidden="true">*</span>
-        <p>Made slowly, shared openly.</p>
+        <p>{{STRING_SIDEBAR_NOTE}}</p>
       </div>
     </aside>
   </div>

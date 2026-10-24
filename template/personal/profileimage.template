@@ -1,11 +1,11 @@
 <div id="profile-images" data-csrf="{{CSRF_TOKEN}}">
-	<h3 style="margin: 28px 0 18px; font: 500 21px/1.2 var(--serif);">Profile picture</h3>
+	<h3 style="margin: 28px 0 18px; font: 500 21px/1.2 var(--serif);">{{STRING_PROFILE_PICTURE}}</h3>
 	<p id="profile-images-status" style="font: 13px/1.5 var(--sans);" role="status"></p>
 	<div class="login-field">
-		<label for="profile-image-file">UPLOAD IMAGE</label>
+		<label for="profile-image-file">{{STRING_UPLOAD_IMAGE}}</label>
 		<input type="file" id="profile-image-file" accept=".jpg,.jpeg,.png,.gif,.bmp,.webp">
 	</div>
-	<button class="login-submit" type="button" id="profile-image-upload">Upload</button>
+	<button class="login-submit" type="button" id="profile-image-upload">{{STRING_UPLOAD}}</button>
 	<ul id="profile-image-list" style="list-style: none; padding: 0; margin-top: 18px; font: 13px/1.8 var(--sans);"></ul>
 </div>
 <script>
@@ -14,6 +14,7 @@
 		var list = document.getElementById('profile-image-list');
 		var status = document.getElementById('profile-images-status');
 		var fileInput = document.getElementById('profile-image-file');
+		var strings = document.body.dataset;
 
 		function render(data) {
 			list.textContent = '';
@@ -25,9 +26,9 @@
 				link.textContent = image.name;
 				var remove = document.createElement('button');
 				remove.type = 'button';
-				remove.textContent = 'Delete';
+				remove.textContent = strings.stringDelete;
 				remove.addEventListener('click', function () {
-					if (confirm('Delete image ' + image.name + '?')) { send({ action: 'delete', fileName: image.name }); }
+					if (confirm(strings.stringConfirmDeleteImage.replace('{name}', image.name))) { send({ action: 'delete', fileName: image.name }); }
 				});
 				item.appendChild(link);
 				item.appendChild(document.createTextNode(' '));
@@ -37,7 +38,7 @@
 			status.textContent = data.error || '';
 		}
 		function handle(response) {
-			return response.json().catch(function () { return { error: 'Request failed (HTTP ' + response.status + ').' }; })
+			return response.json().catch(function () { return { error: strings.stringRequestFailedHttp.replace('{status}', response.status) }; })
 				.then(render);
 		}
 		function send(fields, file) {
@@ -46,11 +47,11 @@
 			Object.keys(fields).forEach(function (key) { form.append(key, fields[key]); });
 			if (file) { form.append('file', file); }
 			fetch('/imagemanage/', { method: 'POST', body: form }).then(handle)
-				.catch(function () { status.textContent = 'Request failed.'; });
+				.catch(function () { status.textContent = strings.stringRequestFailed; });
 		}
 
 		document.getElementById('profile-image-upload').addEventListener('click', function () {
-			if (!fileInput.files.length) { status.textContent = 'Please choose an image file.'; return; }
+			if (!fileInput.files.length) { status.textContent = strings.stringChooseImageFile; return; }
 			send({ action: 'upload' }, fileInput.files[0]);
 			fileInput.value = '';
 		});
