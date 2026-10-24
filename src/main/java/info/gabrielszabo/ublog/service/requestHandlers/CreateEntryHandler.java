@@ -70,7 +70,8 @@ public class CreateEntryHandler extends AbstractRequestHandler {
             return createClientError(HttpStatus.FORBIDDEN, "Invalid CSRF token");
         }
 
-        boolean published = form.get("published") != null;
+        // Root entries are menu items and must stay reachable, so they cannot be unlisted.
+        boolean published = ContentService.isRoot(topic) || form.get("published") != null;
         context.setEntryPublished(published);
         String entryName = form.get("entryName") == null ? "" : form.get("entryName").trim();
         String content = form.get("content") == null ? "" : form.get("content");

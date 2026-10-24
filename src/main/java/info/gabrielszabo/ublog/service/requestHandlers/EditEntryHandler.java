@@ -50,7 +50,7 @@ public class EditEntryHandler extends AbstractRequestHandler {
         context.setIsEditEntry();
         context.setEntryTopic(topic);
         context.setEntryDraft(entry, currentContent);
-        context.setEntryPublished(!contentService.isEntryUnlisted(topic, entry));
+        context.setEntryPublished(ContentService.isRoot(topic) || !contentService.isEntryUnlisted(topic, entry));
         context.setCsrfToken(sessionService.getCsrfToken(session.getSessionId()));
 
         HttpMethods method = request.getMethod();
@@ -79,7 +79,7 @@ public class EditEntryHandler extends AbstractRequestHandler {
         }
 
         String content = form.get("content") == null ? "" : form.get("content");
-        boolean published = form.get("published") != null;
+        boolean published = ContentService.isRoot(topic) || form.get("published") != null;
         context.setEntryDraft(entry, content);
         context.setEntryPublished(published);
         if (content.isBlank()) {

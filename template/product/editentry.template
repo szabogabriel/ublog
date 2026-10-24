@@ -8,7 +8,7 @@
       <textarea id="entry-content" name="content">{{ENTRY_CONTENT}}</textarea>
     </div>
     <div class="field">
-      <label><input type="checkbox" name="published" value="true"{{#ENTRY_PUBLISHED}} checked{{/ENTRY_PUBLISHED}}> Published</label>
+      {{^IS_ROOT_ENTRY}}<label><input type="checkbox" name="published" value="true"{{#ENTRY_PUBLISHED}} checked{{/ENTRY_PUBLISHED}}> Published</label>{{/IS_ROOT_ENTRY}}
     </div>
     <button class="btn btn-primary" type="submit">{{EDITOR_SAVE}}</button>
     <a class="btn btn-ghost" href="{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}">{{EDITOR_CANCEL}}</a>
