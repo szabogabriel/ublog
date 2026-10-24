@@ -47,7 +47,7 @@ public class ImageManageHandler extends AbstractRequestHandler {
         if (parts.length < 1 || parts.length > 2) {
             return json(HttpStatus.NOT_FOUND, null, null, "Unknown entry");
         }
-        // A single segment is an entry in the blog root.
+        // One segment is a root entry; an empty one is the image folder root.
         String topic = parts.length == 2 ? parts[0] : "";
         String entry = parts[parts.length - 1];
 
@@ -152,7 +152,8 @@ public class ImageManageHandler extends AbstractRequestHandler {
         StringBuilder body = new StringBuilder("{");
         List<String> images = topic == null ? null : imageService.list(topic, entry);
         if (images != null) {
-            String base = "/image/" + (topic.isEmpty() ? "" : topic + "/") + ImageService.normalizeEntry(entry) + "/";
+            String base = "/image/" + (topic.isEmpty() ? "" : topic + "/")
+                    + (entry.isBlank() ? "" : ImageService.normalizeEntry(entry) + "/");
             body.append("\"images\":[");
             for (int i = 0; i < images.size(); i++) {
                 if (i > 0) {

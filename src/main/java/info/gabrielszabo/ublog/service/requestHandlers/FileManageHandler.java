@@ -44,11 +44,12 @@ public class FileManageHandler extends AbstractRequestHandler {
             return json(HttpStatus.FORBIDDEN, null, null, "User not logged in");
         }
         String[] parts = request.getPath().substring(PATH_PREFIX.length()).split("/", -1);
-        if (parts.length != 2) {
+        if (parts.length < 1 || parts.length > 2) {
             return json(HttpStatus.NOT_FOUND, null, null, "Unknown entry");
         }
-        String topic = parts[0];
-        String entry = parts[1];
+        // A single segment is an entry in the blog root.
+        String topic = parts.length == 2 ? parts[0] : "";
+        String entry = parts[parts.length - 1];
 
         if (request.getMethod() == HttpMethods.GET) {
             List<String> files = fileService.list(topic, entry);
@@ -151,7 +152,7 @@ public class FileManageHandler extends AbstractRequestHandler {
         StringBuilder body = new StringBuilder("{");
         List<String> files = topic == null ? null : fileService.list(topic, entry);
         if (files != null) {
-            String base = "/file/" + topic + "/" + FileService.normalizeEntry(entry) + "/";
+            String base = "/file/" + (topic.isEmpty() ? "" : topic + "/") + FileService.normalizeEntry(entry) + "/";
             body.append("\"files\":[");
             for (int i = 0; i < files.size(); i++) {
                 if (i > 0) {

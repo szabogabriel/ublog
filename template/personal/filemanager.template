@@ -21,7 +21,7 @@
 			return name.trim().replace(/ +/g, '_');
 		}
 		function endpoint() {
-			return '/filemanage/' + encodeURIComponent(panel.dataset.topic) + '/' + encodeURIComponent(entryName());
+			return '/filemanage/' + (panel.dataset.topic ? encodeURIComponent(panel.dataset.topic) + '/' : '') + encodeURIComponent(entryName());
 		}
 		function render(data) {
 			list.textContent = '';

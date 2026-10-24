@@ -49,4 +49,5 @@
 		<button class="login-submit" type="submit">Save settings</button>
 	</form>
 	{{/HAS_TEMPLATE_PROPERTIES}}
+	{{>profileimage.template}}
 </section>

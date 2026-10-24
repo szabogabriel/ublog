@@ -40,4 +40,5 @@
     <button class="btn btn-primary" type="submit">{{USER_SETTINGS_BUTTON}}</button>
   </form>
   {{/HAS_TEMPLATE_PROPERTIES}}
+  {{>profileimage.template}}
 </section>

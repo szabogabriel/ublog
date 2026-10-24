@@ -61,6 +61,7 @@
 				<button type="submit" class="btn btn-primary btn-block">Save settings</button>
 			</form>
 			{{/HAS_TEMPLATE_PROPERTIES}}
+			{{>profileimage.template}}
 		</div>
 	</div>
 </div>

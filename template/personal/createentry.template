@@ -33,6 +33,4 @@
 	window.entryEditor = new EasyMDE({ element: document.getElementById('entry-content'), spellChecker: false, forceSync: true });
 </script>
 {{>imagemanager.template}}
-{{^IS_ROOT_ENTRY}}
 {{>filemanager.template}}
-{{/IS_ROOT_ENTRY}}

@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 
 import info.gabrielszabo.ublog.config.Config;
 
-/** Manages the files stored under [FILE_FOLDER]/[TOPIC]/[ENTRY]. Any file type is accepted. */
+/** Manages the files stored under [FILE_FOLDER]/[TOPIC]/[ENTRY], or [FILE_FOLDER]/[ENTRY] for root entries. Any file type is accepted. */
 public class FileService {
 
     private static final Pattern FILE_NAME = Pattern.compile("^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$");
@@ -124,10 +124,12 @@ public class FileService {
 
     private Path entryFolder(String topic, String entry) {
         String normalized = normalizeEntry(entry);
-        if (!contentService.topicExists(topic) || normalized == null
+        boolean isRoot = ContentService.isRoot(topic);
+        if (!(isRoot || contentService.topicExists(topic)) || normalized == null
                 || !ENTRY_NAME.matcher(normalized).matches()) {
             return null;
         }
-        return Path.of(Config.FILE_FOLDER.value()).resolve(topic).resolve(normalized);
+        Path base = Path.of(Config.FILE_FOLDER.value());
+        return (isRoot ? base : base.resolve(topic)).resolve(normalized);
     }
 }

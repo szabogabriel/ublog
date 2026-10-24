@@ -1,0 +1,61 @@
+<hr style="margin: 30px 0 24px;">
+<div id="profile-images" data-csrf="{{CSRF_TOKEN}}">
+	<h2 style="font-size: 20px; margin-top: 0; margin-bottom: 18px;">Profile picture</h2>
+	<p id="profile-images-status" role="status"></p>
+	<div class="form-group">
+		<label for="profile-image-file" class="control-label">Upload image</label>
+		<input type="file" id="profile-image-file" accept=".jpg,.jpeg,.png,.gif,.bmp,.webp">
+	</div>
+	<button type="button" class="btn btn-primary" id="profile-image-upload">Upload</button>
+	<ul id="profile-image-list" class="list-unstyled" style="margin-top: 18px;"></ul>
+</div>
+<script>
+	(function () {
+		var panel = document.getElementById('profile-images');
+		var list = document.getElementById('profile-image-list');
+		var status = document.getElementById('profile-images-status');
+		var fileInput = document.getElementById('profile-image-file');
+
+		function render(data) {
+			list.textContent = '';
+			(data.images || []).forEach(function (image) {
+				var item = document.createElement('li');
+				var link = document.createElement('a');
+				link.href = image.url;
+				link.target = '_blank';
+				link.textContent = image.name;
+				var remove = document.createElement('button');
+				remove.type = 'button';
+				remove.className = 'btn btn-default btn-xs';
+				remove.textContent = 'Delete';
+				remove.addEventListener('click', function () {
+					if (confirm('Delete image ' + image.name + '?')) { send({ action: 'delete', fileName: image.name }); }
+				});
+				item.appendChild(link);
+				item.appendChild(document.createTextNode(' '));
+				item.appendChild(remove);
+				list.appendChild(item);
+			});
+			status.textContent = data.error || '';
+		}
+		function handle(response) {
+			return response.json().catch(function () { return { error: 'Request failed (HTTP ' + response.status + ').' }; })
+				.then(render);
+		}
+		function send(fields, file) {
+			var form = new FormData();
+			form.append('csrfToken', panel.dataset.csrf);
+			Object.keys(fields).forEach(function (key) { form.append(key, fields[key]); });
+			if (file) { form.append('file', file); }
+			fetch('/imagemanage/', { method: 'POST', body: form }).then(handle)
+				.catch(function () { status.textContent = 'Request failed.'; });
+		}
+
+		document.getElementById('profile-image-upload').addEventListener('click', function () {
+			if (!fileInput.files.length) { status.textContent = 'Please choose an image file.'; return; }
+			send({ action: 'upload' }, fileInput.files[0]);
+			fileInput.value = '';
+		});
+		fetch('/imagemanage/').then(handle);
+	})();
+</script>

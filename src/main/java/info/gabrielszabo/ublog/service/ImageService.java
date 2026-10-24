@@ -133,11 +133,15 @@ public class ImageService {
     private Path entryFolder(String topic, String entry) {
         String normalized = normalizeEntry(entry);
         boolean isRoot = ContentService.isRoot(topic);
+        Path base = Path.of(Config.IMAGE_FOLDER.value());
+        // Root topic with an empty entry denotes the image folder itself (e.g. profile picture).
+        if (isRoot && "".equals(normalized)) {
+            return base;
+        }
         if (!(isRoot || contentService.topicExists(topic)) || normalized == null
                 || !ENTRY_NAME.matcher(normalized).matches()) {
             return null;
         }
-        Path base = Path.of(Config.IMAGE_FOLDER.value());
         return (isRoot ? base : base.resolve(topic)).resolve(normalized);
     }
 }
