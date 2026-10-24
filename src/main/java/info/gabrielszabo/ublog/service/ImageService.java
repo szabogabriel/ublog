@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 
 import info.gabrielszabo.ublog.config.Config;
 
-/** Manages the images stored under [IMAGE_FOLDER]/[TOPIC]/[ENTRY]. */
+/** Manages the images stored under [IMAGE_FOLDER]/[TOPIC]/[ENTRY], or [IMAGE_FOLDER]/[ENTRY] for root entries. */
 public class ImageService {
 
     // SVG is excluded on purpose: served from this origin it could carry scripts.
@@ -132,10 +132,12 @@ public class ImageService {
 
     private Path entryFolder(String topic, String entry) {
         String normalized = normalizeEntry(entry);
-        if (!contentService.topicExists(topic) || normalized == null
+        boolean isRoot = ContentService.isRoot(topic);
+        if (!(isRoot || contentService.topicExists(topic)) || normalized == null
                 || !ENTRY_NAME.matcher(normalized).matches()) {
             return null;
         }
-        return Path.of(Config.IMAGE_FOLDER.value()).resolve(topic).resolve(normalized);
+        Path base = Path.of(Config.IMAGE_FOLDER.value());
+        return (isRoot ? base : base.resolve(topic)).resolve(normalized);
     }
 }

@@ -44,11 +44,12 @@ public class ImageManageHandler extends AbstractRequestHandler {
             return json(HttpStatus.FORBIDDEN, null, null, "User not logged in");
         }
         String[] parts = request.getPath().substring(PATH_PREFIX.length()).split("/", -1);
-        if (parts.length != 2) {
+        if (parts.length < 1 || parts.length > 2) {
             return json(HttpStatus.NOT_FOUND, null, null, "Unknown entry");
         }
-        String topic = parts[0];
-        String entry = parts[1];
+        // A single segment is an entry in the blog root.
+        String topic = parts.length == 2 ? parts[0] : "";
+        String entry = parts[parts.length - 1];
 
         if (request.getMethod() == HttpMethods.GET) {
             List<String> images = imageService.list(topic, entry);
@@ -151,7 +152,7 @@ public class ImageManageHandler extends AbstractRequestHandler {
         StringBuilder body = new StringBuilder("{");
         List<String> images = topic == null ? null : imageService.list(topic, entry);
         if (images != null) {
-            String base = "/image/" + topic + "/" + ImageService.normalizeEntry(entry) + "/";
+            String base = "/image/" + (topic.isEmpty() ? "" : topic + "/") + ImageService.normalizeEntry(entry) + "/";
             body.append("\"images\":[");
             for (int i = 0; i < images.size(); i++) {
                 if (i > 0) {

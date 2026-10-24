@@ -25,7 +25,7 @@
       return name.trim().replace(/ +/g, '_');
     }
     function endpoint() {
-      return '/imagemanage/' + encodeURIComponent(text.topic) + '/' + encodeURIComponent(entryName());
+      return '/imagemanage/' + (text.topic ? encodeURIComponent(text.topic) + '/' : '') + encodeURIComponent(entryName());
     }
     function button(label, onClick) {
       var b = document.createElement('button');

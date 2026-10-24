@@ -49,8 +49,8 @@ Only `index.template` is requested by name. The other file names are conventions
 | Create entry | `GET`/`POST /createentry[/{topic}]` (multipart: `csrfToken`, `entryName`, `content`, optional `published`) | yes | `IS_CREATE_ENTRY`, `ENTRY_TOPIC`, `IS_ROOT_ENTRY`, `ENTRY_PUBLISHED`, `CSRF_TOKEN`; on failure `ENTRY_NAME`, `ENTRY_CONTENT` (draft) and an error message; on success a success message | No topic in the URL means root entry |
 | Edit entry | `GET`/`POST`/`PUT /editentry[/{topic}]/{entry}` (multipart: `csrfToken`, `content`, optional `published`) | yes | `IS_EDIT_ENTRY`, `ENTRY_TOPIC`, `IS_ROOT_ENTRY`, `ENTRY_NAME`, `ENTRY_CONTENT`, `ENTRY_PUBLISHED`, `CSRF_TOKEN`, message | Plain forms use POST. The bundled template submits with `PUT` through `fetch` |
 | Delete entry | `POST /deleteentry[/{topic}]/{entry}` (urlencoded: `csrfToken`) | yes | none | `303` redirect to `/{topic}` or `/` |
-| Image manager API | `GET`/`POST /imagemanage/{topic}/{entry}` (multipart: `csrfToken`, `action=upload\|delete`, `file`, `fileName`) | yes | none | Returns JSON, not HTML |
-| Image | `GET /image/{topic}/{entry}/{file}` | no | none | Serves the file |
+| Image manager API | `GET`/`POST /imagemanage[/{topic}]/{entry}` (multipart: `csrfToken`, `action=upload\|delete`, `file`, `fileName`) | yes | none | Returns JSON, not HTML |
+| Image | `GET /image[/{topic}]/{entry}/{file}` | no | none | Serves the file |
 | File manager API | `GET`/`POST /filemanage/{topic}/{entry}` (multipart: `csrfToken`, `action=upload\|delete`, `file`, `fileName`) | yes | none | Returns JSON, not HTML |
 | File download | `GET /file/{topic}/{entry}/{file}` | no | none | Served as attachment |
 

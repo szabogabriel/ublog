@@ -35,7 +35,7 @@
 			.then(function (html) { document.open(); document.write(html); document.close(); });
 	});
 </script>
-{{^IS_ROOT_ENTRY}}
 {{>imagemanager.template}}
+{{^IS_ROOT_ENTRY}}
 {{>filemanager.template}}
 {{/IS_ROOT_ENTRY}}

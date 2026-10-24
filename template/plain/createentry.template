@@ -35,7 +35,7 @@
 <script>
 	window.entryEditor = new EasyMDE({ element: document.getElementById('entry-content'), spellChecker: false, forceSync: true });
 </script>
-{{^IS_ROOT_ENTRY}}
 {{>imagemanager.template}}
+{{^IS_ROOT_ENTRY}}
 {{>filemanager.template}}
 {{/IS_ROOT_ENTRY}}
