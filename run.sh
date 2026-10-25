@@ -39,13 +39,13 @@ checkArgs() {
         echo "Usage: $0 [options]"
         echo "Options:"
         echo "  -c, --compile           Compile the project"
-        echo "  -ui, --ui-version       Set the UI version: personal, plain or product
-                                        (default: personal)."
+        echo "  -ui, --ui-version       Set the UI version: personal, plain, product
+                                        or ublog (default: personal)."
         echo "  -h, --help              Display this help message"
         echo "  -m, --memory            Set the memory size (default: 8m)"
         exit 0
     fi
-    if [[ "$UI_VERSION" != "personal" ]] && [[ "$UI_VERSION" != "plain" ]] && [[ "$UI_VERSION" != "product" ]]; then
+    if [[ "$UI_VERSION" != "personal" ]] && [[ "$UI_VERSION" != "plain" ]] && [[ "$UI_VERSION" != "product" ]] && [[ "$UI_VERSION" != "ublog" ]]; then
         echo "Invalid UI version: $UI_VERSION"
         echo "Valid options are: personal, plain, product"
         exit 1

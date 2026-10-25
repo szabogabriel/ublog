@@ -1,0 +1,3 @@
+{{#HAS_SUCCESS_MESSAGE}}<div class="message message-success" role="status">{{SUCCESS_MESSAGE}}</div>{{/HAS_SUCCESS_MESSAGE}}
+{{#HAS_INFO_MESSAGE}}<div class="message message-info" role="status">{{INFO_MESSAGE}}</div>{{/HAS_INFO_MESSAGE}}
+{{#HAS_ERROR_MESSAGE}}<div class="message message-error" role="alert">{{ERROR_MESSAGE}}</div>{{/HAS_ERROR_MESSAGE}}

@@ -1,0 +1,27 @@
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <a class="brand" href="/index"><span class="brand-mark" aria-hidden="true">{{LOGO_MARK}}</span><span class="brand-name">{{SITE_NAME}}</span></a>
+      <p>{{SITE_TAGLINE}}</p>
+    </div>
+    <div>
+      <h4>{{FOOTER_SITE_HEADING}}</h4>
+      <ul>
+        {{#TOPICS}}<li><a href="/{{name}}">{{name}}</a></li>{{/TOPICS}}
+        {{#QUICK_LINKS}}<li><a href="/{{name}}">{{name}}</a></li>{{/QUICK_LINKS}}
+        {{^LOGGED_IN}}<li><a href="/login">{{NAV_LOGIN}}</a></li>{{/LOGGED_IN}}
+        <li><a href="mailto:{{COMPANY_EMAIL}}">Contact us</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>{{FOOTER_PROJECT_HEADING}}</h4>
+      <ul>
+        <li><a href="{{LINK_GITHUB}}">GitHub</a></li>
+        <li><a href="{{LINK_DOCKER}}">Docker Hub</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="container footer-legal">{{FOOTER_LEGAL}}</div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,131 @@
+{{>html_start.template}}
+{{>navbar.template}}
+<main>
+  {{#IS_INDEX}}
+  <div class="container messages">{{>messages.template}}</div>
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <p class="eyebrow">{{HERO_EYEBROW}}</p>
+        <h1>{{HERO_TITLE}}</h1>
+        <p class="lead">{{HERO_SUBTITLE}}</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary btn-large" href="{{HERO_PRIMARY_URL}}">{{HERO_PRIMARY_CTA}}</a>
+          <a class="btn btn-secondary btn-large" href="{{HERO_SECONDARY_URL}}">{{HERO_SECONDARY_CTA}}</a>
+        </div>
+        <p class="hero-note">{{HERO_NOTE}}</p>
+      </div>
+      <div class="terminal" id="quickstart">
+        <div class="terminal-bar"><span></span><span></span><span></span><em>{{QUICKSTART_TITLE}}</em></div>
+        <pre>{{QUICKSTART_COMMAND}}</pre>
+        <p class="terminal-foot">{{QUICKSTART_NOTE}}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" data-visible="{{SHOW_PRINCIPLES}}">
+    <div class="container">
+      <header class="section-head">
+        <p class="eyebrow">{{PRINCIPLES_EYEBROW}}</p>
+        <h2>{{PRINCIPLES_TITLE}}</h2>
+      </header>
+      <div class="grid grid-4">
+        <article class="card"><span class="card-icon">{{PRINCIPLE_1_ICON}}</span><h3>{{PRINCIPLE_1_TITLE}}</h3><p>{{PRINCIPLE_1_TEXT}}</p></article>
+        <article class="card"><span class="card-icon">{{PRINCIPLE_2_ICON}}</span><h3>{{PRINCIPLE_2_TITLE}}</h3><p>{{PRINCIPLE_2_TEXT}}</p></article>
+        <article class="card"><span class="card-icon">{{PRINCIPLE_3_ICON}}</span><h3>{{PRINCIPLE_3_TITLE}}</h3><p>{{PRINCIPLE_3_TEXT}}</p></article>
+        <article class="card"><span class="card-icon">{{PRINCIPLE_4_ICON}}</span><h3>{{PRINCIPLE_4_TITLE}}</h3><p>{{PRINCIPLE_4_TEXT}}</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="topics">
+    <div class="container">
+      <header class="section-head">
+        <p class="eyebrow">{{TOPICS_EYEBROW}}</p>
+        <h2>{{TOPICS_TITLE}}</h2>
+        <p class="lead">{{TOPICS_SUBTITLE}}</p>
+      </header>
+      <div class="grid grid-3">
+        {{#TOPICS}}<a class="topic-card" href="/{{name}}"><h3>{{name}}</h3><span>{{TOPICS_OPEN}} &rarr;</span></a>{{/TOPICS}}
+      </div>
+      {{^TOPICS}}<p class="topic-empty">{{TOPICS_EMPTY}}</p>{{/TOPICS}}
+      {{#LOGGED_IN}}<p style="margin-top: 24px"><a class="btn btn-secondary" href="/createtopic">{{NAV_NEW_TOPIC}}</a></p>{{/LOGGED_IN}}
+    </div>
+  </section>
+
+  <section class="section" data-visible="{{SHOW_INDEX_CONTENT}}">
+    <div class="container container-narrow">
+      <header class="section-head">
+        <p class="eyebrow">{{INDEX_CONTENT_EYEBROW}}</p>
+        <h2>{{INDEX_CONTENT_TITLE}}</h2>
+      </header>
+      <article class="prose">{{{DATA}}}</article>
+      {{#LOGGED_IN}}
+      <p><a class="btn btn-secondary" href="/editentry/{{PAGE_TITLE}}">{{ENTRY_EDIT}}</a></p>
+      {{/LOGGED_IN}}
+    </div>
+  </section>
+
+  <section class="section section-alt" id="community" data-visible="{{SHOW_COMMUNITY}}">
+    <div class="container">
+      <header class="section-head">
+        <p class="eyebrow">{{COMMUNITY_EYEBROW}}</p>
+        <h2>{{COMMUNITY_TITLE}}</h2>
+        <p class="lead">{{COMMUNITY_SUBTITLE}}</p>
+      </header>
+      <div class="community">
+        <a class="card" href="{{COMMUNITY_1_URL}}"><h3>{{COMMUNITY_1_TITLE}}</h3><p>{{COMMUNITY_1_TEXT}}</p></a>
+        <a class="card" href="{{COMMUNITY_2_URL}}"><h3>{{COMMUNITY_2_TITLE}}</h3><p>{{COMMUNITY_2_TEXT}}</p></a>
+        <a class="card" href="{{COMMUNITY_3_URL}}"><h3>{{COMMUNITY_3_TITLE}}</h3><p>{{COMMUNITY_3_TEXT}}</p></a>
+        <a class="card" href="{{COMMUNITY_4_URL}}"><h3>{{COMMUNITY_4_TITLE}}</h3><p>{{COMMUNITY_4_TEXT}}</p></a>
+      </div>
+    </div>
+  </section>
+  {{/IS_INDEX}}
+
+  {{^IS_INDEX}}
+  <section class="page-head">
+    <div class="container container-narrow">
+      <p class="breadcrumb"><a href="/index">{{PAGE_BREADCRUMB_HOME}}</a>{{#IS_TOPIC_LISTING}} / {{category}}{{/IS_TOPIC_LISTING}}{{#IS_ENTRY_VIEW}}{{^IS_ROOT_ENTRY}} / <a href="/{{ENTRY_TOPIC}}">{{ENTRY_TOPIC}}</a>{{/IS_ROOT_ENTRY}}{{/IS_ENTRY_VIEW}}</p>
+      <h1>{{PAGE_TITLE}}</h1>
+    </div>
+  </section>
+
+  <section class="section page-body">
+    <div class="container container-narrow">
+      {{>messages.template}}
+      <article class="prose">{{{DATA}}}</article>
+
+      {{#IS_ENTRY_VIEW}}
+        {{#LOGGED_IN}}
+        <div class="admin-actions">
+          <a class="btn btn-secondary" href="/editentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}">{{ENTRY_EDIT}}</a>
+          <form action="/deleteentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}" method="post" onsubmit="return confirm(this.dataset.confirm);" data-confirm="{{ENTRY_DELETE_CONFIRM}}">
+            <input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
+            <button type="submit" class="btn btn-danger">{{ENTRY_DELETE}}</button>
+          </form>
+        </div>
+        {{/LOGGED_IN}}
+      {{/IS_ENTRY_VIEW}}
+
+      {{#IS_TOPIC_LISTING}}
+      <div class="entry-list">
+        {{#LOGGED_IN}}
+        <a class="entry-card entry-card-new" href="/createentry/{{category}}"><h3>{{TOPIC_NEW_ENTRY}}</h3><span aria-hidden="true">+</span></a>
+        {{/LOGGED_IN}}
+        {{#ENTRIES}}
+        <a class="entry-card" href="/{{category}}/{{name}}"><h3>{{name}}{{#UNLISTED}} <small>({{TOPIC_ENTRY_UNLISTED}})</small>{{/UNLISTED}}</h3><span>{{TOPIC_ENTRY_LABEL}} &rarr;</span>{{#LOGGED_IN}}<button type="button" class="btn" data-link="{{DIRECT_LINK}}" onclick="event.preventDefault(); event.stopPropagation(); navigator.clipboard.writeText(location.origin + this.dataset.link); this.textContent = '{{TOPIC_ENTRY_COPIED}}';">{{TOPIC_ENTRY_COPY_LINK}}</button>{{/LOGGED_IN}}</a>
+        {{/ENTRIES}}
+      </div>
+      {{/IS_TOPIC_LISTING}}
+
+      {{#LOGIN}}{{>login.template}}{{/LOGIN}}
+      {{#USER_DETAILS}}{{>user.template}}{{/USER_DETAILS}}
+      {{#IS_CREATE_TOPIC}}{{>createtopic.template}}{{/IS_CREATE_TOPIC}}
+      {{#IS_CREATE_ENTRY}}{{>createentry.template}}{{/IS_CREATE_ENTRY}}
+      {{#IS_EDIT_ENTRY}}{{>editentry.template}}{{/IS_EDIT_ENTRY}}
+    </div>
+  </section>
+  {{/IS_INDEX}}
+</main>
+{{>html_end.template}}

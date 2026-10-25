@@ -1,0 +1,62 @@
+<div id="profile-images" data-csrf="{{CSRF_TOKEN}}"
+  data-delete="{{IMAGES_DELETE}}" data-delete-confirm="{{IMAGES_DELETE_CONFIRM}}"
+  data-choose-file="{{IMAGES_CHOOSE_FILE}}" data-failed="{{IMAGES_FAILED}}">
+  <h3>{{IMAGES_TITLE}}</h3>
+  <p id="profile-images-status" class="panel-hint" role="status"></p>
+  <div class="field">
+    <label for="profile-image-file">{{IMAGES_LABEL_UPLOAD}}</label>
+    <input type="file" id="profile-image-file" accept=".jpg,.jpeg,.png,.gif,.bmp,.webp">
+  </div>
+  <button class="btn btn-primary" type="button" id="profile-image-upload">{{IMAGES_UPLOAD}}</button>
+  <ul id="profile-image-list" class="image-list"></ul>
+</div>
+<script>
+  (function () {
+    var panel = document.getElementById('profile-images');
+    var text = panel.dataset;
+    var list = document.getElementById('profile-image-list');
+    var status = document.getElementById('profile-images-status');
+    var fileInput = document.getElementById('profile-image-file');
+
+    function render(data) {
+      list.textContent = '';
+      (data.images || []).forEach(function (image) {
+        var item = document.createElement('li');
+        var link = document.createElement('a');
+        link.href = image.url;
+        link.target = '_blank';
+        link.rel = 'noopener';
+        link.textContent = image.name;
+        var remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'btn btn-ghost btn-small';
+        remove.textContent = text.delete;
+        remove.addEventListener('click', function () {
+          if (confirm(text.deleteConfirm + ' ' + image.name + '?')) { send({ action: 'delete', fileName: image.name }); }
+        });
+        item.appendChild(link);
+        item.appendChild(remove);
+        list.appendChild(item);
+      });
+      status.textContent = data.error || '';
+    }
+    function handle(response) {
+      return response.json().catch(function () { return { error: text.failed + ' (HTTP ' + response.status + ')' }; }).then(render);
+    }
+    function send(fields, file) {
+      var form = new FormData();
+      form.append('csrfToken', text.csrf);
+      Object.keys(fields).forEach(function (key) { form.append(key, fields[key]); });
+      if (file) { form.append('file', file); }
+      fetch('/imagemanage/', { method: 'POST', body: form }).then(handle)
+        .catch(function () { status.textContent = text.failed; });
+    }
+
+    document.getElementById('profile-image-upload').addEventListener('click', function () {
+      if (!fileInput.files.length) { status.textContent = text.chooseFile; return; }
+      send({ action: 'upload' }, fileInput.files[0]);
+      fileInput.value = '';
+    });
+    fetch('/imagemanage/').then(handle);
+  })();
+</script>

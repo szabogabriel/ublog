@@ -1,0 +1,87 @@
+<section class="panel panel-wide" id="entry-files" data-topic="{{ENTRY_TOPIC}}" data-entry="{{ENTRY_NAME}}" data-csrf="{{CSRF_TOKEN}}"
+  data-insert="{{FILES_INSERT}}" data-delete="{{FILES_DELETE}}" data-delete-confirm="{{FILES_DELETE_CONFIRM}}"
+  data-need-name="{{FILES_NEED_NAME}}" data-choose-file="{{FILES_CHOOSE_FILE}}" data-failed="{{FILES_FAILED}}"
+  aria-labelledby="entry-files-title">
+  <h3 id="entry-files-title">{{FILES_TITLE}}</h3>
+  <p id="entry-files-status" class="panel-hint" role="status"></p>
+  <div class="field">
+    <label for="entry-file-file">{{FILES_LABEL_UPLOAD}}</label>
+    <input type="file" id="entry-file-file">
+  </div>
+  <button class="btn btn-primary" type="button" id="entry-file-upload">{{FILES_UPLOAD}}</button>
+  <ul id="entry-file-list" class="file-list"></ul>
+</section>
+<script>
+  (function () {
+    var panel = document.getElementById('entry-files');
+    var text = panel.dataset;
+    var list = document.getElementById('entry-file-list');
+    var status = document.getElementById('entry-files-status');
+    var fileInput = document.getElementById('entry-file-file');
+    var nameInput = document.getElementById('entry-name');
+
+    function entryName() {
+      var name = nameInput ? nameInput.value : text.entry;
+      return name.trim().replace(/ +/g, '_');
+    }
+    function endpoint() {
+      return '/filemanage/' + (text.topic ? encodeURIComponent(text.topic) + '/' : '') + encodeURIComponent(entryName());
+    }
+    function button(label, onClick) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'btn btn-ghost btn-small';
+      b.textContent = label;
+      b.addEventListener('click', onClick);
+      return b;
+    }
+    function render(data) {
+      list.textContent = '';
+      (data.files || []).forEach(function (file) {
+        var item = document.createElement('li');
+        var link = document.createElement('a');
+        link.href = file.url;
+        link.target = '_blank';
+        link.rel = 'noopener';
+        link.textContent = file.name;
+        var snippet = '[' + file.name + '](' + file.url + ')';
+        var code = document.createElement('code');
+        code.textContent = snippet;
+        item.appendChild(link);
+        item.appendChild(code);
+        item.appendChild(button(text.insert, function () {
+          if (window.entryEditor) { window.entryEditor.codemirror.replaceSelection(snippet); }
+        }));
+        item.appendChild(button(text.delete, function () {
+          if (confirm(text.deleteConfirm + ' ' + file.name + '?')) { send({ action: 'delete', fileName: file.name }); }
+        }));
+        list.appendChild(item);
+      });
+      status.textContent = data.error || '';
+    }
+    function handle(response) {
+      return response.json().catch(function () { return { error: text.failed + ' (HTTP ' + response.status + ')' }; }).then(render);
+    }
+    function refresh() {
+      if (!entryName()) { render({ error: text.needName }); return; }
+      fetch(endpoint()).then(handle);
+    }
+    function send(fields, file) {
+      if (!entryName()) { render({ error: text.needName }); return; }
+      var form = new FormData();
+      form.append('csrfToken', text.csrf);
+      Object.keys(fields).forEach(function (key) { form.append(key, fields[key]); });
+      if (file) { form.append('file', file); }
+      fetch(endpoint(), { method: 'POST', body: form }).then(handle)
+        .catch(function () { status.textContent = text.failed; });
+    }
+
+    document.getElementById('entry-file-upload').addEventListener('click', function () {
+      if (!fileInput.files.length) { status.textContent = text.chooseFile; return; }
+      send({ action: 'upload' }, fileInput.files[0]);
+      fileInput.value = '';
+    });
+    if (nameInput) { nameInput.addEventListener('change', refresh); }
+    refresh();
+  })();
+</script>

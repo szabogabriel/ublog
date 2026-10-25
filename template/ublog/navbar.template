@@ -1,0 +1,28 @@
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="/index" aria-label="{{SITE_NAME}}">
+      <span class="brand-mark" aria-hidden="true">{{LOGO_MARK}}</span>
+      <span class="brand-name">{{SITE_NAME}}</span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <ul class="nav-links">
+        {{#TOPICS}}<li><a href="/{{name}}">{{name}}</a></li>{{/TOPICS}}
+        {{#QUICK_LINKS}}<li><a href="/{{name}}">{{name}}</a></li>{{/QUICK_LINKS}}
+      </ul>
+      <div class="nav-actions">
+        {{#LOGGED_IN}}
+        <a class="nav-link" href="/createtopic">{{NAV_NEW_TOPIC}}</a>
+        <a class="nav-link" href="/createentry">{{NAV_NEW_PAGE}}</a>
+        <a class="nav-link" href="/user">{{USERNAME}}</a>
+        <form action="/logout" method="post">
+          <button class="btn btn-ghost" type="submit">{{NAV_LOGOUT}}</button>
+        </form>
+        {{/LOGGED_IN}}
+        {{^LOGGED_IN}}
+        <a class="nav-link" href="{{LINK_GITHUB}}">GitHub</a>
+        <a class="btn btn-primary" href="{{NAV_CTA_URL}}">{{NAV_CTA}}</a>
+        {{/LOGGED_IN}}
+      </div>
+    </nav>
+  </div>
+</header>

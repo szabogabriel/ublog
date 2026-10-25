@@ -1,0 +1,29 @@
+<link rel="stylesheet" href="https://unpkg.com/easymde@2.18.0/dist/easymde.min.css">
+<section class="panel panel-wide" aria-labelledby="edit-entry-title">
+  <h2 id="edit-entry-title">{{EDITOR_EDIT_TITLE}} {{ENTRY_NAME}}{{^IS_ROOT_ENTRY}} {{EDITOR_IN_TOPIC}} {{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}</h2>
+  <form id="edit-entry-form" action="/editentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
+    <div class="field">
+      <label for="entry-content">{{EDITOR_LABEL_CONTENT}}</label>
+      <textarea id="entry-content" name="content">{{ENTRY_CONTENT}}</textarea>
+    </div>
+    <div class="field">
+      {{^IS_ROOT_ENTRY}}<label><input type="checkbox" name="published" value="true"{{#ENTRY_PUBLISHED}} checked{{/ENTRY_PUBLISHED}}> Published</label>{{/IS_ROOT_ENTRY}}
+    </div>
+    <button class="btn btn-primary" type="submit">{{EDITOR_SAVE}}</button>
+    <a class="btn btn-ghost" href="{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}">{{EDITOR_CANCEL}}</a>
+  </form>
+</section>
+<script src="https://unpkg.com/easymde@2.18.0/dist/easymde.min.js"></script>
+<script>
+  window.entryEditor = new EasyMDE({ element: document.getElementById('entry-content'), spellChecker: false, forceSync: true });
+  // Without JavaScript the form falls back to a plain POST.
+  document.getElementById('edit-entry-form').addEventListener('submit', function (event) {
+    event.preventDefault();
+    fetch(this.action, { method: 'PUT', body: new FormData(this) })
+      .then(function (response) { return response.text(); })
+      .then(function (html) { document.open(); document.write(html); document.close(); });
+  });
+</script>
+{{>imagemanager.template}}
+{{>filemanager.template}}

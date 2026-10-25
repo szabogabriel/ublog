@@ -1,0 +1,15 @@
+<section class="panel" aria-labelledby="login-title">
+  <h2 id="login-title">{{LOGIN_TITLE}}</h2>
+  <p class="panel-hint">{{LOGIN_SUBTITLE}}</p>
+  <form action="/loginaction" method="post">
+    <div class="field">
+      <label for="username">{{LOGIN_LABEL_USERNAME}}</label>
+      <input type="text" id="username" name="username" autocomplete="username" required>
+    </div>
+    <div class="field">
+      <label for="password">{{LOGIN_LABEL_PASSWORD}}</label>
+      <input type="password" id="password" name="password" autocomplete="current-password" required>
+    </div>
+    <button class="btn btn-primary btn-block" type="submit">{{LOGIN_BUTTON}}</button>
+  </form>
+</section>
