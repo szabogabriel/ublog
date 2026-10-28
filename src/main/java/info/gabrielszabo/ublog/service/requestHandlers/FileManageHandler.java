@@ -16,6 +16,7 @@ import info.gabrielszabo.ublog.server.http.HttpStatus;
 import info.gabrielszabo.ublog.server.http.MultipartStreamReader;
 import info.gabrielszabo.ublog.service.FileService;
 import info.gabrielszabo.ublog.service.SessionService;
+import info.gabrielszabo.ublog.service.UserService;
 import info.gabrielszabo.ublog.service.blog.BlogContext;
 import info.gabrielszabo.ublog.service.blog.BlogContextFactory;
 import info.gabrielszabo.ublog.service.template.TemplateService;
@@ -28,8 +29,8 @@ public class FileManageHandler extends AbstractRequestHandler {
     private final FileService fileService;
 
     public FileManageHandler(BlogContextFactory contextFactory, SessionService sessionService,
-            TemplateService templateService, FileService fileService) {
-        super(contextFactory, sessionService, templateService);
+            TemplateService templateService, UserService userService, FileService fileService) {
+        super(contextFactory, sessionService, templateService, userService);
         this.fileService = fileService;
     }
 
@@ -43,6 +44,11 @@ public class FileManageHandler extends AbstractRequestHandler {
         if (!session.isLoggedIn()) {
             return json(HttpStatus.FORBIDDEN, null, null, "User not logged in");
         }
+
+        if (!session.isEditor()) {
+            return createClientError(HttpStatus.FORBIDDEN, "User not an editor");
+        }
+
         String[] parts = request.getPath().substring(PATH_PREFIX.length()).split("/", -1);
         if (parts.length < 1 || parts.length > 2) {
             return json(HttpStatus.NOT_FOUND, null, null, "Unknown entry");

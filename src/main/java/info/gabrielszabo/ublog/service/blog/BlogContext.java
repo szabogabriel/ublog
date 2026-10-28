@@ -27,10 +27,12 @@ public interface BlogContext {
     void setUsername(String username);
     void setName(String name);
     void setLoggedIn(boolean loginSuccessful);
+    void setEditor(boolean editor);
     void setInitialLogin();
     void setLoggingOut();
 
     boolean isLoggedIn();
+    boolean isEditor();
     boolean isLoggingOut();
     boolean isInitialLogin();
     boolean isCreateTopic();

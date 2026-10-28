@@ -23,6 +23,7 @@ public class MustacheBlogContext implements BlogContext{
     private static final String USERNAME = "USERNAME";
     private static final String NAME = "NAME";
     private static final String LOGGED_IN = "LOGGED_IN";
+    private static final String EDITOR = "EDITOR";
 
     private static final String USER_DETAILS = "USER_DETAILS";
     private static final String USER_USERNAME = "USER_USERNAME";
@@ -335,5 +336,15 @@ public class MustacheBlogContext implements BlogContext{
     @Override
     public boolean isCreateEntry() {
         return context.containsKey(IS_CREATE_ENTRY) && (Boolean) context.get(IS_CREATE_ENTRY);
+    }
+
+    @Override
+    public void setEditor(boolean editor) {
+        context.put(EDITOR, editor);
+    }
+
+    @Override
+    public boolean isEditor() {
+        return context.containsKey(EDITOR) && (Boolean) context.get(EDITOR);
     }
 }

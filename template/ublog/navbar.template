@@ -11,8 +11,10 @@
       </ul>
       <div class="nav-actions">
         {{#LOGGED_IN}}
+        {{#EDITOR}}
         <a class="nav-link" href="/createtopic">{{NAV_NEW_TOPIC}}</a>
         <a class="nav-link" href="/createentry">{{NAV_NEW_PAGE}}</a>
+        {{/EDITOR}}
         <a class="nav-link" href="/user">{{USERNAME}}</a>
         <form action="/logout" method="post">
           <button class="btn btn-ghost" type="submit">{{NAV_LOGOUT}}</button>

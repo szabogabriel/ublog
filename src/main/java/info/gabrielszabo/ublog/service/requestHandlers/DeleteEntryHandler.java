@@ -10,6 +10,7 @@ import info.gabrielszabo.ublog.server.http.HttpResponse;
 import info.gabrielszabo.ublog.server.http.HttpStatus;
 import info.gabrielszabo.ublog.service.ContentService;
 import info.gabrielszabo.ublog.service.SessionService;
+import info.gabrielszabo.ublog.service.UserService;
 import info.gabrielszabo.ublog.service.blog.BlogContext;
 import info.gabrielszabo.ublog.service.blog.BlogContextFactory;
 import info.gabrielszabo.ublog.service.template.TemplateService;
@@ -21,8 +22,8 @@ public class DeleteEntryHandler extends AbstractRequestHandler {
     private final ContentService contentService;
 
     public DeleteEntryHandler(BlogContextFactory contextFactory, SessionService sessionService,
-            TemplateService templateService, ContentService contentService) {
-        super(contextFactory, sessionService, templateService);
+            TemplateService templateService, ContentService contentService, UserService userService) {
+        super(contextFactory, sessionService, templateService, userService);
         this.contentService = contentService;
     }
 
@@ -36,6 +37,11 @@ public class DeleteEntryHandler extends AbstractRequestHandler {
         if (!session.isLoggedIn()) {
             return createClientError(HttpStatus.FORBIDDEN, "User not logged in");
         }
+
+        if (!session.isEditor()) {
+            return createClientError(HttpStatus.FORBIDDEN, "User not an editor");
+        }
+
         if (request.getMethod() != HttpMethods.POST) {
             HttpResponse response = createClientError(HttpStatus.METHOD_NOT_ALLOWED, "Delete entry requires POST");
             response.addHeader("Allow", "POST");

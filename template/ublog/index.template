@@ -49,7 +49,7 @@
         {{#TOPICS}}<a class="topic-card" href="/{{name}}"><h3>{{name}}</h3><span>{{TOPICS_OPEN}} &rarr;</span></a>{{/TOPICS}}
       </div>
       {{^TOPICS}}<p class="topic-empty">{{TOPICS_EMPTY}}</p>{{/TOPICS}}
-      {{#LOGGED_IN}}<p style="margin-top: 24px"><a class="btn btn-secondary" href="/createtopic">{{NAV_NEW_TOPIC}}</a></p>{{/LOGGED_IN}}
+      {{#EDITOR}}{{#LOGGED_IN}}<p style="margin-top: 24px"><a class="btn btn-secondary" href="/createtopic">{{NAV_NEW_TOPIC}}</a></p>{{/LOGGED_IN}}{{/EDITOR}}
     </div>
   </section>
 
@@ -60,9 +60,9 @@
         <h2>{{INDEX_CONTENT_TITLE}}</h2>
       </header>
       <article class="prose">{{{DATA}}}</article>
-      {{#LOGGED_IN}}
+      {{#EDITOR}}{{#LOGGED_IN}}
       <p><a class="btn btn-secondary" href="/editentry/{{PAGE_TITLE}}">{{ENTRY_EDIT}}</a></p>
-      {{/LOGGED_IN}}
+      {{/LOGGED_IN}}{{/EDITOR}}
     </div>
   </section>
 
@@ -97,7 +97,7 @@
       <article class="prose">{{{DATA}}}</article>
 
       {{#IS_ENTRY_VIEW}}
-        {{#LOGGED_IN}}
+        {{#EDITOR}}{{#LOGGED_IN}}
         <div class="admin-actions">
           <a class="btn btn-secondary" href="/editentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}">{{ENTRY_EDIT}}</a>
           <form action="/deleteentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}" method="post" onsubmit="return confirm(this.dataset.confirm);" data-confirm="{{ENTRY_DELETE_CONFIRM}}">
@@ -105,14 +105,14 @@
             <button type="submit" class="btn btn-danger">{{ENTRY_DELETE}}</button>
           </form>
         </div>
-        {{/LOGGED_IN}}
+        {{/LOGGED_IN}}{{/EDITOR}}
       {{/IS_ENTRY_VIEW}}
 
       {{#IS_TOPIC_LISTING}}
       <div class="entry-list">
-        {{#LOGGED_IN}}
+        {{#EDITOR}}{{#LOGGED_IN}}
         <a class="entry-card entry-card-new" href="/createentry/{{category}}"><h3>{{TOPIC_NEW_ENTRY}}</h3><span aria-hidden="true">+</span></a>
-        {{/LOGGED_IN}}
+        {{/LOGGED_IN}}{{/EDITOR}}
         {{#ENTRIES}}
         <a class="entry-card" href="/{{category}}/{{name}}"><h3>{{name}}{{#UNLISTED}} <small>({{TOPIC_ENTRY_UNLISTED}})</small>{{/UNLISTED}}</h3><span>{{TOPIC_ENTRY_LABEL}} &rarr;</span>{{#LOGGED_IN}}<button type="button" class="btn" data-link="{{DIRECT_LINK}}" onclick="event.preventDefault(); event.stopPropagation(); navigator.clipboard.writeText(location.origin + this.dataset.link); this.textContent = '{{TOPIC_ENTRY_COPIED}}';">{{TOPIC_ENTRY_COPY_LINK}}</button>{{/LOGGED_IN}}</a>
         {{/ENTRIES}}
@@ -121,9 +121,11 @@
 
       {{#LOGIN}}{{>login.template}}{{/LOGIN}}
       {{#USER_DETAILS}}{{>user.template}}{{/USER_DETAILS}}
+      {{#EDITOR}}{{#LOGGED_IN}}
       {{#IS_CREATE_TOPIC}}{{>createtopic.template}}{{/IS_CREATE_TOPIC}}
       {{#IS_CREATE_ENTRY}}{{>createentry.template}}{{/IS_CREATE_ENTRY}}
       {{#IS_EDIT_ENTRY}}{{>editentry.template}}{{/IS_EDIT_ENTRY}}
+      {{/LOGGED_IN}}{{/EDITOR}}
     </div>
   </section>
   {{/IS_INDEX}}

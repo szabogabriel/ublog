@@ -36,7 +36,7 @@
 		<button class="login-submit" type="submit">{{STRING_UPDATE_PASSWORD}}</button>
 	</form>
 
-	{{#HAS_TEMPLATE_PROPERTIES}}
+	{{#EDITOR}}{{#HAS_TEMPLATE_PROPERTIES}}
 	<form action="/templateproperties" method="post">
 		<input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
 		<h3 style="margin: 28px 0 18px; font: 500 21px/1.2 var(--serif);">{{STRING_TEMPLATE_SETTINGS}}</h3>
@@ -48,6 +48,6 @@
 		{{/TEMPLATE_PROPERTIES}}
 		<button class="login-submit" type="submit">{{STRING_SAVE_SETTINGS}}</button>
 	</form>
-	{{/HAS_TEMPLATE_PROPERTIES}}
-	{{>profileimage.template}}
+	{{/HAS_TEMPLATE_PROPERTIES}}{{/EDITOR}}
+	{{#EDITOR}}{{>profileimage.template}}{{/EDITOR}}
 </section>

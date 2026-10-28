@@ -14,8 +14,10 @@ import info.gabrielszabo.ublog.server.http.HttpRequest;
 import info.gabrielszabo.ublog.server.http.HttpResponse;
 import info.gabrielszabo.ublog.server.http.HttpStatus;
 import info.gabrielszabo.ublog.service.SessionService;
+import info.gabrielszabo.ublog.service.UserService;
 import info.gabrielszabo.ublog.service.blog.BlogContext;
 import info.gabrielszabo.ublog.service.blog.BlogContextFactory;
+import info.gabrielszabo.ublog.service.log.LogService;
 import info.gabrielszabo.ublog.service.template.TemplateService;
 
 class AbstractRequestHandlerTest {
@@ -40,7 +42,32 @@ class AbstractRequestHandlerTest {
                     @Override
                     public void saveTemplateProperties(Properties properties) {
                     }
-                });
+                }, new UserService(new LogService() {
+                    @Override
+                    public void logMessage(LogService.LogLevel level, String message) {
+                    }
+
+                    @Override
+                    public void logInfo(String info) {
+                    }
+
+                    @Override
+                    public void logError(String error) {
+                    }
+
+                    @Override
+                    public void logDebug(String debugInfo) {
+                    }
+
+                    @Override
+                    public void logWarning(String warning) {
+                    }
+
+                    @Override
+                    public void logTrace(String traceInfo) {
+                    }
+
+                }));
 
         HttpResponse response = handler.clientError(HttpStatus.FORBIDDEN, "Forbidden");
         ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -54,8 +81,8 @@ class AbstractRequestHandlerTest {
     private static final class TestRequestHandler extends AbstractRequestHandler {
 
         private TestRequestHandler(BlogContextFactory contextFactory, SessionService sessionService,
-                TemplateService templateService) {
-            super(contextFactory, sessionService, templateService);
+                TemplateService templateService, UserService userService) {
+            super(contextFactory, sessionService, templateService, userService);
         }
 
         private HttpResponse clientError(HttpStatus status, String message) {

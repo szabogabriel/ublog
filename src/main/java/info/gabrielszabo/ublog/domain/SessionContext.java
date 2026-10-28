@@ -3,6 +3,7 @@ package info.gabrielszabo.ublog.domain;
 public class SessionContext {
     private String sessionId;
     private boolean isLoggedIn = false;
+    private boolean isEditor = false;
     private boolean isInitialLogin = false;
     private boolean isLoggingOut = false;
     private boolean isImageRequest = false;
@@ -41,6 +42,14 @@ public class SessionContext {
 
     public void setLoggingOut(boolean isLoggingOut) {
         this.isLoggingOut = isLoggingOut;
+    }
+
+    public boolean isEditor() {
+        return isEditor;
+    }
+
+    public void setEditor(boolean isEditor) {
+        this.isEditor = isEditor;
     }
 
     public boolean isImageRequest() {

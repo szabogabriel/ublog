@@ -4,25 +4,25 @@
 {{{DATA}}}
 
 {{#IS_INDEX}}
-    {{#LOGGED_IN}}
+    {{#EDITOR}}{{#LOGGED_IN}}
         <p><a href="/editentry/{{PAGE_TITLE}}">Edit</a></p>
-    {{/LOGGED_IN}}
+    {{/LOGGED_IN}}{{/EDITOR}}
 {{/IS_INDEX}}
 
 {{#IS_ENTRY_VIEW}}
-    {{#LOGGED_IN}}
+    {{#EDITOR}}{{#LOGGED_IN}}
         <p><a href="/editentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}">{{STRING_EDIT}}</a></p>
         <form action="/deleteentry{{^IS_ROOT_ENTRY}}/{{ENTRY_TOPIC}}{{/IS_ROOT_ENTRY}}/{{ENTRY_NAME}}" method="post" onsubmit="return confirm('{{STRING_PROMPT_DELETE_ENTRY}}');">
             <input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
             <button type="submit">{{STRING_DELETE}}</button>
         </form>
-    {{/LOGGED_IN}}
+    {{/LOGGED_IN}}{{/EDITOR}}
 {{/IS_ENTRY_VIEW}}
 
 {{#IS_TOPIC_LISTING}}
-    {{#LOGGED_IN}}
+    {{#EDITOR}}{{#LOGGED_IN}}
         <h2><a href="/createentry/{{category}}">{{STRING_NEW}}</a></h2>
-    {{/LOGGED_IN}}
+    {{/LOGGED_IN}}{{/EDITOR}}
     {{#ENTRIES}}
         <h2><a href="/{{category}}/{{name}}">{{name}}</a>{{#UNLISTED}} <small class="text-muted">(unlisted)</small>{{/UNLISTED}}{{#LOGGED_IN}} <button type="button" class="btn btn-default btn-xs" data-link="{{DIRECT_LINK}}" onclick="navigator.clipboard.writeText(location.origin + this.dataset.link); this.textContent = 'Copied';">{{STRING_COPY_LINK}}</button>{{/LOGGED_IN}}<br/></h2>
     {{/ENTRIES}}
@@ -36,16 +36,16 @@
     {{>user.template}}
 {{/USER_DETAILS}}
 
-{{#IS_CREATE_TOPIC}}
-    {{>createtopic.template}}
-{{/IS_CREATE_TOPIC}}
+{{#EDITOR}}{{#LOGGED_IN}}
+    {{#IS_CREATE_TOPIC}}{{>createtopic.template}}{{/IS_CREATE_TOPIC}}
+{{/LOGGED_IN}}{{/EDITOR}}
 
-{{#IS_CREATE_ENTRY}}
-    {{>createentry.template}}
-{{/IS_CREATE_ENTRY}}
+{{#EDITOR}}{{#LOGGED_IN}}
+    {{#IS_CREATE_ENTRY}}{{>createentry.template}}{{/IS_CREATE_ENTRY}}
+{{/LOGGED_IN}}{{/EDITOR}}
 
-{{#IS_EDIT_ENTRY}}
-    {{>editentry.template}}
-{{/IS_EDIT_ENTRY}}
+{{#EDITOR}}{{#LOGGED_IN}}
+    {{#IS_EDIT_ENTRY}}{{>editentry.template}}{{/IS_EDIT_ENTRY}}
+{{/LOGGED_IN}}{{/EDITOR}}
 
 {{>html_end.template}}

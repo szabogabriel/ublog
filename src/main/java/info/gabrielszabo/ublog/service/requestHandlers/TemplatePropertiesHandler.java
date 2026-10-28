@@ -23,12 +23,9 @@ public class TemplatePropertiesHandler extends AbstractRequestHandler {
 
     private static final String FIELD_PREFIX = "prop_";
 
-    private final UserService userService;
-
     public TemplatePropertiesHandler(BlogContextFactory contextFactory, SessionService sessionService,
             TemplateService templateService, UserService userService) {
-        super(contextFactory, sessionService, templateService);
-        this.userService = userService;
+        super(contextFactory, sessionService, templateService, userService);
     }
 
     @Override
@@ -40,6 +37,9 @@ public class TemplatePropertiesHandler extends AbstractRequestHandler {
     protected HttpResponse handleRequest(BlogContext context, SessionContext session, HttpRequest request) {
         if (!session.isLoggedIn()) {
             return createClientError(HttpStatus.FORBIDDEN, "User not logged in");
+        }
+        if (!session.isEditor()) {
+            return createClientError(HttpStatus.FORBIDDEN, "User not an editor");
         }
         if (request.getMethod() != HttpMethods.POST) {
             HttpResponse response = createClientError(HttpStatus.METHOD_NOT_ALLOWED,

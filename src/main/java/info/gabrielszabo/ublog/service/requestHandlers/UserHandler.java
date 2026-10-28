@@ -15,12 +15,9 @@ import info.gabrielszabo.ublog.service.template.TemplateService;
 
 public class UserHandler extends AbstractRequestHandler {
     
-    private final UserService userService;
-
     public UserHandler(BlogContextFactory contextFactory, SessionService sessionService,
             TemplateService templateService, UserService userService) {
-        super(contextFactory, sessionService, templateService);
-        this.userService = userService;
+        super(contextFactory, sessionService, templateService, userService);
     }
 
     @Override

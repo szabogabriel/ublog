@@ -21,14 +21,12 @@ import info.gabrielszabo.ublog.service.template.TemplateService;
 
 public class LoginActionHandler extends AbstractRequestHandler {
 
-    private final UserService userService;
     private final LoginService loginService;
     private final LogService log;
 
     public LoginActionHandler(BlogContextFactory contextFactory, SessionService sessionService,
             TemplateService templateService, UserService userService, LoginService loginService, LogService log) {
-        super(contextFactory, sessionService, templateService);
-        this.userService = userService;
+        super(contextFactory, sessionService, templateService, userService);
         this.loginService = loginService;
         this.log = log;
     }
@@ -75,6 +73,7 @@ public class LoginActionHandler extends AbstractRequestHandler {
         }
 
         context.setLoggedIn(loginSuccessful);
+        context.setEditor(loginSuccessful && userService.isEditor(username));
         context.addIndexToContext();
 
         HttpResponse response = createHttpResponseFromContext(context, session);

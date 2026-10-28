@@ -16,6 +16,7 @@ import info.gabrielszabo.ublog.server.http.HttpStatus;
 import info.gabrielszabo.ublog.server.http.MultipartStreamReader;
 import info.gabrielszabo.ublog.service.ImageService;
 import info.gabrielszabo.ublog.service.SessionService;
+import info.gabrielszabo.ublog.service.UserService;
 import info.gabrielszabo.ublog.service.blog.BlogContext;
 import info.gabrielszabo.ublog.service.blog.BlogContextFactory;
 import info.gabrielszabo.ublog.service.template.TemplateService;
@@ -28,8 +29,8 @@ public class ImageManageHandler extends AbstractRequestHandler {
     private final ImageService imageService;
 
     public ImageManageHandler(BlogContextFactory contextFactory, SessionService sessionService,
-            TemplateService templateService, ImageService imageService) {
-        super(contextFactory, sessionService, templateService);
+            TemplateService templateService, UserService userService, ImageService imageService) {
+        super(contextFactory, sessionService, templateService, userService);
         this.imageService = imageService;
     }
 
@@ -42,6 +43,9 @@ public class ImageManageHandler extends AbstractRequestHandler {
     protected HttpResponse handleRequest(BlogContext context, SessionContext session, HttpRequest request) {
         if (!session.isLoggedIn()) {
             return json(HttpStatus.FORBIDDEN, null, null, "User not logged in");
+        }
+        if (!session.isEditor()) {
+            return createClientError(HttpStatus.FORBIDDEN, "User not an editor");
         }
         String[] parts = request.getPath().substring(PATH_PREFIX.length()).split("/", -1);
         if (parts.length < 1 || parts.length > 2) {

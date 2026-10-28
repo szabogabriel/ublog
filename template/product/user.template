@@ -27,7 +27,7 @@
     <button class="btn btn-primary" type="submit">{{USER_PASSWORD_BUTTON}}</button>
   </form>
 
-  {{#HAS_TEMPLATE_PROPERTIES}}
+  {{#EDITOR}}{{#HAS_TEMPLATE_PROPERTIES}}
   <form action="/templateproperties" method="post">
     <input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
     <h3>{{USER_SETTINGS_TITLE}}</h3>
@@ -39,6 +39,6 @@
     {{/TEMPLATE_PROPERTIES}}
     <button class="btn btn-primary" type="submit">{{USER_SETTINGS_BUTTON}}</button>
   </form>
-  {{/HAS_TEMPLATE_PROPERTIES}}
-  {{>profileimage.template}}
+  {{/HAS_TEMPLATE_PROPERTIES}}{{/EDITOR}}
+  {{#EDITOR}}{{>profileimage.template}}{{/EDITOR}}
 </section>

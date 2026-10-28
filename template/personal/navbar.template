@@ -10,7 +10,7 @@
     <div class="nav-groups">
       <ul class="nav-links">
         {{#TOPICS}}<li><a href="/{{name}}">{{name}}</a></li>{{/TOPICS}}
-        {{#LOGGED_IN}}<li><a href="/createtopic">{{STRING_NEW}}</a></li><li><a href="/createentry">{{STRING_NEW_PAGE}}</a></li>{{/LOGGED_IN}}
+        {{#EDITOR}}{{#LOGGED_IN}}<li><a href="/createtopic">{{STRING_NEW}}</a></li><li><a href="/createentry">{{STRING_NEW_PAGE}}</a></li>{{/LOGGED_IN}}{{/EDITOR}}
         {{#QUICK_LINKS}}<li><a href="/{{name}}">{{name}}</a></li>{{/QUICK_LINKS}}
       </ul>
       <div class="account-links">

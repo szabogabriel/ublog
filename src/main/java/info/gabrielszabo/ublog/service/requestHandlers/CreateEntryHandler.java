@@ -8,6 +8,7 @@ import info.gabrielszabo.ublog.server.http.HttpStatus;
 import info.gabrielszabo.ublog.server.http.MultipartForm;
 import info.gabrielszabo.ublog.service.ContentService;
 import info.gabrielszabo.ublog.service.SessionService;
+import info.gabrielszabo.ublog.service.UserService;
 import info.gabrielszabo.ublog.service.blog.BlogContext;
 import info.gabrielszabo.ublog.service.blog.BlogContextFactory;
 import info.gabrielszabo.ublog.service.template.TemplateService;
@@ -19,8 +20,8 @@ public class CreateEntryHandler extends AbstractRequestHandler {
     private final ContentService contentService;
 
     public CreateEntryHandler(BlogContextFactory contextFactory, SessionService sessionService,
-            TemplateService templateService, ContentService contentService) {
-        super(contextFactory, sessionService, templateService);
+            TemplateService templateService, ContentService contentService, UserService userService) {
+        super(contextFactory, sessionService, templateService, userService);
         this.contentService = contentService;
     }
 
@@ -34,6 +35,10 @@ public class CreateEntryHandler extends AbstractRequestHandler {
     protected HttpResponse handleRequest(BlogContext context, SessionContext session, HttpRequest request) {
         if (!session.isLoggedIn()) {
             return createClientError(HttpStatus.FORBIDDEN, "User not logged in");
+        }
+
+        if (!session.isEditor()) {
+            return createClientError(HttpStatus.FORBIDDEN, "User not an editor");
         }
 
         String topic = request.getPath().length() > PATH_PREFIX.length()

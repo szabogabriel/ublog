@@ -60,6 +60,11 @@ public class UserService {
         return Optional.of(user);
     }
 
+    public boolean isEditor(String username) {
+        Optional<User> userOpt = getUser(username);
+        return userOpt.isPresent() && Boolean.TRUE.equals(userOpt.get().getEditor());
+    }
+
     public String getFullName(String username) {
         Optional<User> userOpt = getUser(username);
         if (userOpt.isPresent()) {

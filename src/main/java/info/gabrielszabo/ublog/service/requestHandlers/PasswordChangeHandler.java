@@ -22,13 +22,11 @@ import info.gabrielszabo.ublog.service.template.TemplateService;
 
 public class PasswordChangeHandler extends AbstractRequestHandler {
 
-    private final UserService userService;
     private final LoginService loginService;
 
     public PasswordChangeHandler(BlogContextFactory contextFactory, SessionService sessionService,
             TemplateService templateService, UserService userService, LoginService loginService) {
-        super(contextFactory, sessionService, templateService);
-        this.userService = userService;
+        super(contextFactory, sessionService, templateService, userService);
         this.loginService = loginService;
     }
 

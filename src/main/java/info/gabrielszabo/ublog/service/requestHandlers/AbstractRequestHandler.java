@@ -10,6 +10,7 @@ import info.gabrielszabo.ublog.server.http.HttpRequest;
 import info.gabrielszabo.ublog.server.http.HttpResponse;
 import info.gabrielszabo.ublog.server.http.HttpStatus;
 import info.gabrielszabo.ublog.service.SessionService;
+import info.gabrielszabo.ublog.service.UserService;
 import info.gabrielszabo.ublog.service.blog.BlogContext;
 import info.gabrielszabo.ublog.service.blog.BlogContextFactory;
 import info.gabrielszabo.ublog.service.template.TemplateService;
@@ -21,12 +22,14 @@ public abstract class AbstractRequestHandler {
     protected final BlogContextFactory contextFactory;
     protected final SessionService sessionService;
     protected final TemplateService templateService;
+    protected final UserService userService;
 
     public AbstractRequestHandler(BlogContextFactory contextFactory, SessionService sessionService,
-            TemplateService templateService) {
+            TemplateService templateService, UserService userService) {
         this.contextFactory = contextFactory;
         this.sessionService = sessionService;
         this.templateService = templateService;
+        this.userService = userService;
     }
 
     public abstract boolean matches(String path);
@@ -38,13 +41,16 @@ public abstract class AbstractRequestHandler {
         String sessionId = getSessionId(request);
         String sessionUsername = sessionService.getUsernameForSession(sessionId);
         boolean isLoggedIn = sessionUsername != null;
+        boolean isEditor = isLoggedIn && userService.isEditor(sessionUsername);
 
         sessionContext.setLoggedIn(isLoggedIn);
+        sessionContext.setEditor(isEditor);
         sessionContext.setSessionId(sessionId);
         blogContext.setLoggedIn(isLoggedIn);
 
         if (isLoggedIn) {
             blogContext.setUsername(sessionUsername);
+            blogContext.setEditor(isEditor);
         }
 
         HttpResponse response = handleRequest(blogContext, sessionContext, request);

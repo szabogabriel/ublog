@@ -11,6 +11,7 @@ import info.gabrielszabo.ublog.server.http.HttpRequest;
 import info.gabrielszabo.ublog.server.http.HttpResponse;
 import info.gabrielszabo.ublog.server.http.HttpStatus;
 import info.gabrielszabo.ublog.service.SessionService;
+import info.gabrielszabo.ublog.service.UserService;
 import info.gabrielszabo.ublog.service.blog.BlogContext;
 import info.gabrielszabo.ublog.service.blog.BlogContextFactory;
 import info.gabrielszabo.ublog.service.log.LogService;
@@ -24,8 +25,8 @@ public class FileHandler extends AbstractRequestHandler {
     private final LogService log;
 
     public FileHandler(BlogContextFactory contextFactory, SessionService sessionService,
-            TemplateService templateService, LogService log) {
-        super(contextFactory, sessionService, templateService);
+            TemplateService templateService, UserService userService, LogService log) {
+        super(contextFactory, sessionService, templateService, userService);
         this.log = log;
     }
 
