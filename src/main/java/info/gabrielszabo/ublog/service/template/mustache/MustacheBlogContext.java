@@ -145,6 +145,9 @@ public class MustacheBlogContext implements BlogContext{
         Category[] categories = contentProvider.getCategories();
         List<Map<String, Object>> categoryNames = new ArrayList<>();
         for (Category category : categories) {
+            if (!isEditor() && contentProvider.getEntries(category, isLoggedIn()).length == 0) {
+                continue;
+            }
             Map<String, Object> categoryMap = new HashMap<>();
             categoryMap.put("name", category.getName());
             categoryNames.add(categoryMap);
@@ -220,6 +223,7 @@ public class MustacheBlogContext implements BlogContext{
     @Override
     public void setUsername(String username) {
         context.put(USERNAME, username);
+        context.put(BLOG_CATEGORIES, getBlogCategories());
     }
 
     @Override
@@ -341,6 +345,7 @@ public class MustacheBlogContext implements BlogContext{
     @Override
     public void setEditor(boolean editor) {
         context.put(EDITOR, editor);
+        context.put(BLOG_CATEGORIES, getBlogCategories());
     }
 
     @Override
