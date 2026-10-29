@@ -74,8 +74,20 @@ public class UserService {
         return "";
     }
 
-    public synchronized boolean updatePassword(String username, String encodedPassword) {
-        if (!isValidUsername(username) || encodedPassword == null || encodedPassword.isBlank()) {
+    public boolean updatePassword(String username, String encodedPassword) {
+        if (encodedPassword == null || encodedPassword.isBlank()) {
+            return false;
+        }
+        return updateProperty(username, "password", encodedPassword);
+    }
+
+    /** Stores the token hash, or removes the token when tokenHash is null. */
+    public boolean updateToken(String username, String tokenHash) {
+        return updateProperty(username, "token", tokenHash);
+    }
+
+    private synchronized boolean updateProperty(String username, String key, String value) {
+        if (!isValidUsername(username)) {
             return false;
         }
         File targetFile = new File(userFolder, username + ".properties");
@@ -83,10 +95,14 @@ public class UserService {
         try (FileInputStream input = new FileInputStream(targetFile)) {
             props.load(input);
         } catch (IOException e) {
-            log.logError("Failed to load credentials for password update");
+            log.logError("Failed to load user properties for update");
             return false;
         }
-        props.setProperty("password", encodedPassword);
+        if (value == null) {
+            props.remove(key);
+        } else {
+            props.setProperty(key, value);
+        }
         Path temporaryFile = null;
         try {
             temporaryFile = Files.createTempFile(targetFile.toPath().getParent(), targetFile.getName(), ".tmp");
@@ -100,14 +116,14 @@ public class UserService {
                 Files.move(temporaryFile, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (IOException e) {
-            log.logError("Failed to persist upgraded password hash");
+            log.logError("Failed to persist user properties");
             return false;
         } finally {
             if (temporaryFile != null) {
                 try {
                     Files.deleteIfExists(temporaryFile);
                 } catch (IOException ignored) {
-                    log.logWarning("Failed to remove temporary credential file");
+                    log.logWarning("Failed to remove temporary user file");
                 }
             }
         }

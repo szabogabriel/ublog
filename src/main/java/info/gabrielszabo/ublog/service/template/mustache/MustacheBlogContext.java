@@ -28,6 +28,9 @@ public class MustacheBlogContext implements BlogContext{
     private static final String USER_DETAILS = "USER_DETAILS";
     private static final String USER_USERNAME = "USER_USERNAME";
     private static final String USER_NAME = "USER_NAME";
+    private static final String HAS_TOKEN = "HAS_TOKEN";
+    private static final String GENERATED_TOKEN = "GENERATED_TOKEN";
+    private static final String HAS_GENERATED_TOKEN = "HAS_GENERATED_TOKEN";
 
     private static final String CSRF_TOKEN = "CSRF_TOKEN";
     private static final String TEMPLATE_PROPERTIES = "TEMPLATE_PROPERTIES";
@@ -200,6 +203,13 @@ public class MustacheBlogContext implements BlogContext{
     public void setUserDetails(User user) {
         context.put(USER_USERNAME, user.getUsername());
         context.put(USER_NAME, user.getName());
+        context.put(HAS_TOKEN, user.getToken() != null && !user.getToken().isBlank());
+    }
+
+    @Override
+    public void setGeneratedToken(String token) {
+        context.put(GENERATED_TOKEN, token);
+        context.put(HAS_GENERATED_TOKEN, Boolean.TRUE);
     }
 
     @Override

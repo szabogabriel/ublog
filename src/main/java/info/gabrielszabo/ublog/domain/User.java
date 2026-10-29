@@ -8,11 +8,13 @@ public class User {
     private final String password;
     private final String status;
     private final Boolean editor;
+    private final String token;
 
     public User(Properties props) {
         this.name = props.getProperty("name");
         this.password = props.getProperty("password");
         this.status = props.getProperty("status");
+        this.token = props.getProperty("token");
         try {
             this.editor = Boolean.valueOf(props.getProperty("editor", "false"));
         } catch (Exception e) {
@@ -29,6 +31,7 @@ public class User {
         this.password = password;
         this.status = status;
         this.editor = editor;
+        this.token = null;
     }
 
     public void setUsername(String username) {
@@ -53,5 +56,9 @@ public class User {
 
     public Boolean getEditor() {
         return editor;
+    }
+
+    public String getToken() {
+        return token;
     }
 }

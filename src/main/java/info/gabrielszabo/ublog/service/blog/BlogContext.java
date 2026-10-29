@@ -23,6 +23,7 @@ public interface BlogContext {
 
     void setCsrfToken(String csrfToken);
     void setUserDetails(User user);
+    void setGeneratedToken(String token);
     void setTemplateProperties(java.util.Properties properties);
     void setUsername(String username);
     void setName(String name);

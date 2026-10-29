@@ -27,6 +27,26 @@
     <button class="btn btn-primary" type="submit">{{USER_PASSWORD_BUTTON}}</button>
   </form>
 
+  <h3>{{USER_TOKEN_TITLE}}</h3>
+  {{#HAS_GENERATED_TOKEN}}
+  <div class="field">
+    <label for="user-token">{{USER_TOKEN_LABEL}}</label>
+    <input type="text" id="user-token" value="{{GENERATED_TOKEN}}" readonly onclick="this.select()">
+    <p>{{USER_TOKEN_SHOWN_ONCE}}</p>
+  </div>
+  {{/HAS_GENERATED_TOKEN}}
+  {{^HAS_GENERATED_TOKEN}}{{#HAS_TOKEN}}<p>{{USER_TOKEN_PRESENT}}</p>{{/HAS_TOKEN}}{{^HAS_TOKEN}}<p>{{USER_TOKEN_ABSENT}}</p>{{/HAS_TOKEN}}{{/HAS_GENERATED_TOKEN}}
+  <form action="/tokengenerate" method="post">
+    <input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
+    <button class="btn btn-primary" type="submit">{{USER_TOKEN_GENERATE_BUTTON}}</button>
+  </form>
+  {{#HAS_TOKEN}}
+  <form action="/tokendelete" method="post">
+    <input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
+    <button class="btn" type="submit">{{USER_TOKEN_DELETE_BUTTON}}</button>
+  </form>
+  {{/HAS_TOKEN}}
+
   {{#EDITOR}}{{#HAS_TEMPLATE_PROPERTIES}}
   <form action="/templateproperties" method="post">
     <input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">

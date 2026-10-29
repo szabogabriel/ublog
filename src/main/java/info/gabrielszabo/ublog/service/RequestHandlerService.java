@@ -25,6 +25,7 @@ import info.gabrielszabo.ublog.service.requestHandlers.LoginHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.LogoutHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.PasswordChangeHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.TemplatePropertiesHandler;
+import info.gabrielszabo.ublog.service.requestHandlers.TokenHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.UnlistedHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.UserHandler;
 import info.gabrielszabo.ublog.service.template.TemplateService;
@@ -46,6 +47,7 @@ public class RequestHandlerService implements HttpRequestHandler {
                 userService, loginService, log));
         requestHandlers.add(new PasswordChangeHandler(contextFactory, sessionService, templateService,
             userService, loginService));
+        requestHandlers.add(new TokenHandler(contextFactory, sessionService, templateService, userService));
         requestHandlers.add(new TemplatePropertiesHandler(contextFactory, sessionService, templateService,
                 userService));
         requestHandlers.add(new LogoutHandler(contextFactory, sessionService, templateService, userService));

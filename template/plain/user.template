@@ -46,6 +46,28 @@
 				<button type="submit" class="btn btn-primary btn-block">Update password</button>
 			</form>
 
+			<hr style="margin: 30px 0 24px;">
+
+			<h2 style="font-size: 20px; margin-top: 0; margin-bottom: 18px;">Access token</h2>
+			{{#HAS_GENERATED_TOKEN}}
+			<div class="form-group">
+				<label for="user-token" class="control-label">Your new token</label>
+				<input type="text" class="form-control" id="user-token" value="{{GENERATED_TOKEN}}" readonly onclick="this.select()">
+				<p class="help-block">Copy this token now. It is shown only once.</p>
+			</div>
+			{{/HAS_GENERATED_TOKEN}}
+			{{^HAS_GENERATED_TOKEN}}{{#HAS_TOKEN}}<p>A token has been generated.</p>{{/HAS_TOKEN}}{{^HAS_TOKEN}}<p>No token has been generated.</p>{{/HAS_TOKEN}}{{/HAS_GENERATED_TOKEN}}
+			<form action="/tokengenerate" method="post" novalidate>
+				<input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
+				<button type="submit" class="btn btn-primary btn-block">Generate token</button>
+			</form>
+			{{#HAS_TOKEN}}
+			<form action="/tokendelete" method="post" novalidate style="margin-top: 10px;">
+				<input type="hidden" name="csrfToken" value="{{CSRF_TOKEN}}">
+				<button type="submit" class="btn btn-default btn-block">Delete token</button>
+			</form>
+			{{/HAS_TOKEN}}
+
 			{{#EDITOR}}{{#HAS_TEMPLATE_PROPERTIES}}
 			<hr style="margin: 30px 0 24px;">
 
