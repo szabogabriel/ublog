@@ -28,7 +28,7 @@ public class MustacheTemplateRender implements TemplateService {
 
     private final Map<String, Object> stringsMap = new ConcurrentHashMap<>();
 
-    private final StringCache<String> contentCache;
+    private final StringCache<CacheKey> contentCache;
     private final Boolean contentCachingEnabled = Boolean.valueOf(Config.MUSTACHE_CONTENT_CACHING_ENABLED.value());
 
     public MustacheTemplateRender() {
@@ -56,7 +56,7 @@ public class MustacheTemplateRender implements TemplateService {
         }
         Map<String, Object> contextData = ((MustacheBlogContext) context).getContextData();
         contextData.putAll(stringsMap);
-        String cacheKey = template + contextData.hashCode();
+        CacheKey cacheKey = new CacheKey(template, contextData);
 
         if (contentCachingEnabled) {
             ret = contentCache.getCachedContent(cacheKey);
@@ -122,6 +122,9 @@ public class MustacheTemplateRender implements TemplateService {
     private File getThemesFile() {
         File stringsFile = new File(Config.MUSTACHE_TEMPLATES_FOLDER.value(), THEME_PROPERTIES_FILE);
         return stringsFile;
+    }
+
+    private record CacheKey(String templateName, Map<String, Object> contextData) {
     }
 
 }
