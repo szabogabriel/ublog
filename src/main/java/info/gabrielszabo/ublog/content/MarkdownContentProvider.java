@@ -18,13 +18,12 @@ import info.gabrielszabo.ublog.config.Config;
 import info.gabrielszabo.ublog.domain.Category;
 import info.gabrielszabo.ublog.domain.EntryDescriptor;
 import info.gabrielszabo.ublog.markdown.MarkdownRenderingService;
+import info.gabrielszabo.ublog.utils.StringCache;
 
 public class MarkdownContentProvider implements ContentProvider {
 
     private static final java.util.regex.Pattern UNLISTED_FILE_NAME =
             java.util.regex.Pattern.compile("^[0-9a-f]{32}$");
-
-    private static final int ENTRY_CACHE_SIZE = Integer.parseInt(Config.ENTRY_CACHCE_SIZE_KB.value()) * 1024;
 
     private final File rootFolder;
     private final Path contentRoot;
@@ -35,9 +34,9 @@ public class MarkdownContentProvider implements ContentProvider {
     private final Map<String, Category> categoriesCache = new ConcurrentHashMap<>();
     private final Map<String, Map<String, EntryDescriptor>> entriesCache = new ConcurrentHashMap<>();
     private final Map<String, Map<String, EntryDescriptor>> unlistedEntriesCache = new ConcurrentHashMap<>();
-    private final Map<EntryDescriptor, String> entryContentCache = new ConcurrentHashMap<>();
-    private int currentCacheSize = 0;
-    private final Object cacheLock = new Object();
+
+    private final StringCache<EntryDescriptor> stringCache = new StringCache<>(Integer.parseInt(Config.ENTRY_CACHE_SIZE_KB.value()) * 1024);
+    private final boolean entryCacheEnabled = Boolean.parseBoolean(Config.ENTRY_CACHE_ENABLED.value());
     
     // Watchdog thread
     private Thread watchdogThread;
@@ -64,10 +63,7 @@ public class MarkdownContentProvider implements ContentProvider {
         categoriesCache.clear();
         entriesCache.clear();
         unlistedEntriesCache.clear();
-        synchronized (cacheLock) {
-            entryContentCache.clear();
-            currentCacheSize = 0;
-        }
+        stringCache.clear();
 
         File[] rootFiles = rootFolder.listFiles();
         if (rootFiles == null) return;
@@ -255,7 +251,7 @@ public class MarkdownContentProvider implements ContentProvider {
     @Override
     @SuppressWarnings("CallToPrintStackTrace")
     public String getEntryContentAsHttp(EntryDescriptor entry, boolean includeUnlisted) {
-        String ret = includeUnlisted ? "" : getCachedContent(entry);
+        String ret = includeUnlisted ? "" : (entryCacheEnabled ? stringCache.getCachedContent(entry) : "");
         if (!"".equals(ret)) {
             return ret;
         }
@@ -279,8 +275,8 @@ public class MarkdownContentProvider implements ContentProvider {
         }
 
         String rendered = markdownRenderingService.renderToHtml(ret);
-        if (!includeUnlisted) {
-            cacheContent(entry, rendered);
+        if (!includeUnlisted && entryCacheEnabled) {
+            stringCache.cacheContent(entry, rendered);
         }
         return rendered;
     }
@@ -385,47 +381,6 @@ public class MarkdownContentProvider implements ContentProvider {
         } catch (IOException e) {
             return absoluteRoot;
         }
-    }
-
-    private String getCachedContent(EntryDescriptor entry) {
-        return entryContentCache.getOrDefault(entry, "");
-    }
-
-    private void cacheContent(EntryDescriptor entry, String content) {
-        if (content == null) {
-            return;
-        }
-
-        synchronized (cacheLock) {
-            String previous = entryContentCache.remove(entry);
-            
-            if (previous != null) {
-                currentCacheSize -= previous.length();
-            }
-
-            int contentSize = content.length();
-
-            if (contentSize > ENTRY_CACHE_SIZE) {
-                return;
-            }
-
-            while (contentSize + currentCacheSize > ENTRY_CACHE_SIZE) {
-                EntryDescriptor[] cachedEntries = entryContentCache.keySet().toArray(EntryDescriptor[]::new);
-                if (cachedEntries.length == 0) {
-                    break;
-                }
-
-                int randomIndex = java.util.concurrent.ThreadLocalRandom.current().nextInt(cachedEntries.length);
-                
-                String removed = entryContentCache.remove(cachedEntries[randomIndex]);
-                if (removed != null) {
-                    currentCacheSize -= removed.length();
-                }
-            }
-        }
-
-        entryContentCache.put(entry, content);
-        currentCacheSize += content.length();
     }
 
     @Override

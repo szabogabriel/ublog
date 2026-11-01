@@ -14,8 +14,9 @@ import com.jmtemplate.Template;
 import info.gabrielszabo.ublog.config.Config;
 import info.gabrielszabo.ublog.service.blog.BlogContext;
 import info.gabrielszabo.ublog.service.template.TemplateService;
+import info.gabrielszabo.ublog.utils.StringCache;
 
-public class MustacheTemplateService implements TemplateService {
+public class contentCache implements TemplateService {
 
     private static final String THEME_PROPERTIES_FILE = "theme.properties";
 
@@ -27,8 +28,12 @@ public class MustacheTemplateService implements TemplateService {
 
     private final Map<String, Object> stringsMap = new ConcurrentHashMap<>();
 
-    public MustacheTemplateService() {
+    private final StringCache<String> contentCache;
+    private final Boolean contentCachingEnabled = Boolean.valueOf(Config.MUSTACHE_CONTENT_CACHING_ENABLED.value());
+
+    public contentCache() {
         this.templateFolder = new File(Config.MUSTACHE_TEMPLATES_FOLDER.value());
+        this.contentCache = new StringCache<>(Integer.parseInt(Config.MUSTACHE_CONTENT_CACHE_SIZE_KB.value()) * 1024);
         File stringsFile = getThemesFile();
         if (stringsFile.exists() && stringsFile.isFile()) {
             try (FileInputStream fis = new FileInputStream(stringsFile)) {
@@ -49,12 +54,23 @@ public class MustacheTemplateService implements TemplateService {
         if (template == null) {
             throw new IllegalArgumentException("Template name cannot be null");
         }
+        Map<String, Object> contextData = ((MustacheBlogContext) context).getContextData();
+        String cacheKey = template + contextData.hashCode();
+
+        if (contentCachingEnabled) {
+            ret = contentCache.getCachedContent(cacheKey);
+            if (!"".equals(ret)) {
+                return ret;
+            }
+        }
 
         Template templateInstance = getTemplate(template);
         synchronized (templateInstance) {
-            Map<String, Object> contextData = ((MustacheBlogContext) context).getContextData();
             contextData.putAll(stringsMap);
             ret = templateInstance.render(contextData);
+            if (contentCachingEnabled) {
+                contentCache.cacheContent(cacheKey, ret);
+            }
         }
         return ret;
     }

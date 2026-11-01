@@ -24,7 +24,7 @@ import info.gabrielszabo.ublog.service.log.ConsoleLogService;
 import info.gabrielszabo.ublog.service.log.LogService;
 import info.gabrielszabo.ublog.service.template.TemplateService;
 import info.gabrielszabo.ublog.service.template.mustache.MustacheBlogContextFactory;
-import info.gabrielszabo.ublog.service.template.mustache.MustacheTemplateService;
+import info.gabrielszabo.ublog.service.template.mustache.contentCache;
 
 public enum Config {
 
@@ -33,8 +33,11 @@ public enum Config {
     MUSTACHE_TEMPLATES_CACHING_ENABLED("mustache.templates.caching.enabled", "true"),
     MUSTACHE_TEMPLATES_FOLDER("mustache.templates.folder", "./template"),
     MUSTACHE_TEMPLATE_UPDATE("mustache.template.update", "false"),
+    MUSTACHE_CONTENT_CACHING_ENABLED("mustache.content.caching.enabled", "true"),
+    MUSTACHE_CONTENT_CACHE_SIZE_KB("mustache.content.cache.size.kb", "1024"),
 
-    ENTRY_CACHCE_SIZE_KB("entry.cache.size.kb", "1024"),
+    ENTRY_CACHE_SIZE_KB("entry.cache.size.kb", "1024"),
+    ENTRY_CACHE_ENABLED("entry.cache.enabled", "true"),
 
     SERVER_PORT("server.port", "8080"),
 
@@ -58,7 +61,7 @@ public enum Config {
     SERVICE_MARKDOWN_RENDERING(ServiceFactory.PREFIX_IMPL + MarkdownRenderingService.class.getName(), CommonmarkRenderingService.class.getName()),
     SERVICE_REQUEST_HANDLER(ServiceFactory.PREFIX_IMPL + HttpRequestHandler.class.getName(), RequestHandlerService.class.getName()),
     SERVICE_SOCKET_HANDLER(ServiceFactory.PREFIX_IMPL + SocketHandler.class.getName(), PooledSocketHandler.class.getName()),
-    SERVICE_TEMPLATE_SERVICE(ServiceFactory.PREFIX_IMPL + TemplateService.class.getName(), MustacheTemplateService.class.getName()),
+    SERVICE_TEMPLATE_SERVICE(ServiceFactory.PREFIX_IMPL + TemplateService.class.getName(), contentCache.class.getName()),
     SERVICE_USER_SERVICE(ServiceFactory.PREFIX_IMPL + UserService.class.getName(), UserService.class.getName()),
 
     ;
