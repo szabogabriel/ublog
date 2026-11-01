@@ -16,7 +16,7 @@ import info.gabrielszabo.ublog.service.blog.BlogContext;
 import info.gabrielszabo.ublog.service.template.TemplateService;
 import info.gabrielszabo.ublog.utils.StringCache;
 
-public class contentCache implements TemplateService {
+public class MustacheTemplateRender implements TemplateService {
 
     private static final String THEME_PROPERTIES_FILE = "theme.properties";
 
@@ -31,7 +31,7 @@ public class contentCache implements TemplateService {
     private final StringCache<String> contentCache;
     private final Boolean contentCachingEnabled = Boolean.valueOf(Config.MUSTACHE_CONTENT_CACHING_ENABLED.value());
 
-    public contentCache() {
+    public MustacheTemplateRender() {
         this.templateFolder = new File(Config.MUSTACHE_TEMPLATES_FOLDER.value());
         this.contentCache = new StringCache<>(Integer.parseInt(Config.MUSTACHE_CONTENT_CACHE_SIZE_KB.value()) * 1024);
         File stringsFile = getThemesFile();
@@ -55,6 +55,7 @@ public class contentCache implements TemplateService {
             throw new IllegalArgumentException("Template name cannot be null");
         }
         Map<String, Object> contextData = ((MustacheBlogContext) context).getContextData();
+        contextData.putAll(stringsMap);
         String cacheKey = template + contextData.hashCode();
 
         if (contentCachingEnabled) {
@@ -66,7 +67,6 @@ public class contentCache implements TemplateService {
 
         Template templateInstance = getTemplate(template);
         synchronized (templateInstance) {
-            contextData.putAll(stringsMap);
             ret = templateInstance.render(contextData);
             if (contentCachingEnabled) {
                 contentCache.cacheContent(cacheKey, ret);
@@ -110,6 +110,7 @@ public class contentCache implements TemplateService {
         try (FileOutputStream fos = new FileOutputStream(stringsFile)) {
             properties.store(fos, null);
             stringsMap.clear();
+            contentCache.clear();
             for (String key : properties.stringPropertyNames()) {
                 stringsMap.put(key, properties.getProperty(key));
             }

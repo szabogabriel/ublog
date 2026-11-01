@@ -24,7 +24,7 @@ import info.gabrielszabo.ublog.service.log.ConsoleLogService;
 import info.gabrielszabo.ublog.service.log.LogService;
 import info.gabrielszabo.ublog.service.template.TemplateService;
 import info.gabrielszabo.ublog.service.template.mustache.MustacheBlogContextFactory;
-import info.gabrielszabo.ublog.service.template.mustache.contentCache;
+import info.gabrielszabo.ublog.service.template.mustache.MustacheTemplateRender;
 
 public enum Config {
 
@@ -61,7 +61,7 @@ public enum Config {
     SERVICE_MARKDOWN_RENDERING(ServiceFactory.PREFIX_IMPL + MarkdownRenderingService.class.getName(), CommonmarkRenderingService.class.getName()),
     SERVICE_REQUEST_HANDLER(ServiceFactory.PREFIX_IMPL + HttpRequestHandler.class.getName(), RequestHandlerService.class.getName()),
     SERVICE_SOCKET_HANDLER(ServiceFactory.PREFIX_IMPL + SocketHandler.class.getName(), PooledSocketHandler.class.getName()),
-    SERVICE_TEMPLATE_SERVICE(ServiceFactory.PREFIX_IMPL + TemplateService.class.getName(), contentCache.class.getName()),
+    SERVICE_TEMPLATE_SERVICE(ServiceFactory.PREFIX_IMPL + TemplateService.class.getName(), MustacheTemplateRender.class.getName()),
     SERVICE_USER_SERVICE(ServiceFactory.PREFIX_IMPL + UserService.class.getName(), UserService.class.getName()),
 
     ;

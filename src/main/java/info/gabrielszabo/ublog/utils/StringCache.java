@@ -67,10 +67,10 @@ public class StringCache<T> {
                     currentCacheSize -= removed.length();
                 }
             }
-        }
 
-        contentCache.put(entry, content);
-        currentCacheSize += content.length();
+            contentCache.put(entry, content);
+            currentCacheSize += content.length();
+        }
     }
     
 }
