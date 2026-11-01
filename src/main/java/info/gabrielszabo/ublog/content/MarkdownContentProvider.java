@@ -36,6 +36,7 @@ public class MarkdownContentProvider implements ContentProvider {
     private final Map<String, Map<String, EntryDescriptor>> entriesCache = new ConcurrentHashMap<>();
     private final Map<String, Map<String, EntryDescriptor>> unlistedEntriesCache = new ConcurrentHashMap<>();
     private final Map<EntryDescriptor, String> entryContentCache = new ConcurrentHashMap<>();
+    private int currentCacheSize = 0;
     
     // Watchdog thread
     private Thread watchdogThread;
@@ -274,7 +275,9 @@ public class MarkdownContentProvider implements ContentProvider {
         }
 
         String rendered = markdownRenderingService.renderToHtml(ret);
-        cacheContent(entry, rendered);
+        if (!includeUnlisted) {
+            cacheContent(entry, rendered);
+        }
         return rendered;
     }
 
@@ -394,22 +397,25 @@ public class MarkdownContentProvider implements ContentProvider {
         }
 
         if (entryContentCache.containsKey(entry)) {
+            String tmpEntry = entryContentCache.get(entry);
+            if (tmpEntry != null) {
+            currentCacheSize -= tmpEntry.length();
+            }
             entryContentCache.remove(entry);
         }
 
-        int cacheSize = entryContentCache.size();
-        int contentSize = content.getBytes().length;
-        while (contentSize + cacheSize > ENTRY_CACHE_SIZE) {
+        int contentSize = content.length();
+        while (contentSize + currentCacheSize > ENTRY_CACHE_SIZE) {
             EntryDescriptor[] cachedEntries = entryContentCache.keySet().toArray(EntryDescriptor[]::new);
             if (cachedEntries.length == 0) {
                 break;
             }
 
             int randomIndex = java.util.concurrent.ThreadLocalRandom.current().nextInt(cachedEntries.length);
-            entryContentCache.remove(cachedEntries[randomIndex]);
-            cacheSize = entryContentCache.size();
+            currentCacheSize -= entryContentCache.remove(cachedEntries[randomIndex]).length();
         }
         entryContentCache.put(entry, content);
+        currentCacheSize += content.length();
     }
 
     @Override
