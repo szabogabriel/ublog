@@ -37,6 +37,7 @@ public class MarkdownContentProvider implements ContentProvider {
     private final Map<String, Map<String, EntryDescriptor>> unlistedEntriesCache = new ConcurrentHashMap<>();
     private final Map<EntryDescriptor, String> entryContentCache = new ConcurrentHashMap<>();
     private int currentCacheSize = 0;
+    private final Object cacheLock = new Object();
     
     // Watchdog thread
     private Thread watchdogThread;
@@ -63,7 +64,10 @@ public class MarkdownContentProvider implements ContentProvider {
         categoriesCache.clear();
         entriesCache.clear();
         unlistedEntriesCache.clear();
-        entryContentCache.clear();
+        synchronized (cacheLock) {
+            entryContentCache.clear();
+            currentCacheSize = 0;
+        }
 
         File[] rootFiles = rootFolder.listFiles();
         if (rootFiles == null) return;
@@ -251,7 +255,7 @@ public class MarkdownContentProvider implements ContentProvider {
     @Override
     @SuppressWarnings("CallToPrintStackTrace")
     public String getEntryContentAsHttp(EntryDescriptor entry, boolean includeUnlisted) {
-        String ret = getCachedContent(entry);
+        String ret = includeUnlisted ? "" : getCachedContent(entry);
         if (!"".equals(ret)) {
             return ret;
         }
@@ -384,11 +388,7 @@ public class MarkdownContentProvider implements ContentProvider {
     }
 
     private String getCachedContent(EntryDescriptor entry) {
-        String ret = "";
-        if (entryContentCache.containsKey(entry)) {
-            ret = entryContentCache.get(entry);
-        }
-        return ret;
+        return entryContentCache.getOrDefault(entry, "");
     }
 
     private void cacheContent(EntryDescriptor entry, String content) {
@@ -396,24 +396,34 @@ public class MarkdownContentProvider implements ContentProvider {
             return;
         }
 
-        if (entryContentCache.containsKey(entry)) {
-            String tmpEntry = entryContentCache.get(entry);
-            if (tmpEntry != null) {
-            currentCacheSize -= tmpEntry.length();
-            }
-            entryContentCache.remove(entry);
-        }
-
-        int contentSize = content.length();
-        while (contentSize + currentCacheSize > ENTRY_CACHE_SIZE) {
-            EntryDescriptor[] cachedEntries = entryContentCache.keySet().toArray(EntryDescriptor[]::new);
-            if (cachedEntries.length == 0) {
-                break;
+        synchronized (cacheLock) {
+            String previous = entryContentCache.remove(entry);
+            
+            if (previous != null) {
+                currentCacheSize -= previous.length();
             }
 
-            int randomIndex = java.util.concurrent.ThreadLocalRandom.current().nextInt(cachedEntries.length);
-            currentCacheSize -= entryContentCache.remove(cachedEntries[randomIndex]).length();
+            int contentSize = content.length();
+
+            if (contentSize > ENTRY_CACHE_SIZE) {
+                return;
+            }
+
+            while (contentSize + currentCacheSize > ENTRY_CACHE_SIZE) {
+                EntryDescriptor[] cachedEntries = entryContentCache.keySet().toArray(EntryDescriptor[]::new);
+                if (cachedEntries.length == 0) {
+                    break;
+                }
+
+                int randomIndex = java.util.concurrent.ThreadLocalRandom.current().nextInt(cachedEntries.length);
+                
+                String removed = entryContentCache.remove(cachedEntries[randomIndex]);
+                if (removed != null) {
+                    currentCacheSize -= removed.length();
+                }
+            }
         }
+
         entryContentCache.put(entry, content);
         currentCacheSize += content.length();
     }
