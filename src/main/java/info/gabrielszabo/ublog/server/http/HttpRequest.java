@@ -83,21 +83,23 @@ public class HttpRequest {
     public static HttpRequest readFrom(InputStream input) throws IOException {
         ByteArrayOutputStream headerBytes = new ByteArrayOutputStream();
         int matchedTerminatorBytes = 0;
-        int current;
-        while ((current = input.read()) != -1) {
-            headerBytes.write(current);
+        int read;
+        byte[] buffer = new byte[256];
+        do {
+            read = input.read(buffer);
+            headerBytes.write(buffer, 0, read);
             if (headerBytes.size() > MAX_HEADER_BYTES) {
                 throw new RequestException(HttpStatus.REQUEST_HEADER_FIELDS_TOO_LARGE, "Request headers too large");
             }
-            if (current == HEADER_TERMINATOR[matchedTerminatorBytes]) {
+            if (buffer[read - 1] == HEADER_TERMINATOR[matchedTerminatorBytes]) {
                 matchedTerminatorBytes++;
                 if (matchedTerminatorBytes == HEADER_TERMINATOR.length) {
                     break;
                 }
             } else {
-                matchedTerminatorBytes = current == '\r' ? 1 : 0;
+                matchedTerminatorBytes = buffer[read - 1] == '\r' ? 1 : 0;
             }
-        }
+        } while (read == buffer.length);
         if (matchedTerminatorBytes != HEADER_TERMINATOR.length) {
             throw new RequestException(HttpStatus.BAD_REQUEST, "Incomplete HTTP headers");
         }

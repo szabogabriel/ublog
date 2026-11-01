@@ -13,7 +13,7 @@ public class HttpResponse {
 
     private String httpVersion = "1.1";
     private HttpStatus status;
-    private String body;
+    private byte[] body;
     private InputStream bodyStream;
     private int contentLength;
     private String contentType = "text/plain; charset=UTF-8";
@@ -34,8 +34,8 @@ public class HttpResponse {
 
     public void setBody(String body) {
         bodyStream = null;
-        this.body = (body == null) ? "" : body;
-        contentLength = this.body.getBytes(StandardCharsets.UTF_8).length;
+        this.body = (body == null) ? "".getBytes(StandardCharsets.UTF_8) : body.getBytes(StandardCharsets.UTF_8);
+        contentLength = this.body.length;
     }
 
     public void setBody(InputStream bodyStream, int contentLength) {
@@ -95,7 +95,7 @@ public class HttpResponse {
     public void writeResponse(OutputStream outputStream) throws IOException {
         outputStream.write(toHttpResponseHead().getBytes(StandardCharsets.UTF_8));
         if (body != null) {
-            outputStream.write(body.getBytes(StandardCharsets.UTF_8));
+            outputStream.write(body);
             outputStream.flush();
         } else if (bodyStream != null) {
             try (InputStream is = bodyStream) {

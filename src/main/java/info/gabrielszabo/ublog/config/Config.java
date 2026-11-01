@@ -45,7 +45,7 @@ public enum Config {
     SESSION_COOKIE_SECURE("session.cookie.secure", "false"),
 
     SOCKET_HANDLER_THREAD_POOL_SIZE("socket.handler.thread.pool.size", "10"),
-    SOCKET_HANDLER_QUEUE_CAPACITY("socket.handler.queue.capacity", "100"),
+    SOCKET_HANDLER_QUEUE_CAPACITY("socket.handler.queue.capacity", "500"),
 
     BLOG_FOLDER("blog.folder", "./blogFolder"),
     FILE_FOLDER("file.folder", "./fileFolder"),
