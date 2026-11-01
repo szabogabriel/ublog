@@ -34,6 +34,8 @@ public enum Config {
     MUSTACHE_TEMPLATES_FOLDER("mustache.templates.folder", "./template"),
     MUSTACHE_TEMPLATE_UPDATE("mustache.template.update", "false"),
 
+    ENTRY_CACHCE_SIZE_KB("entry.cache.size.kb", "1024"),
+
     SERVER_PORT("server.port", "8080"),
 
     SESSION_TIMEOUT("session.timeout", "60"),

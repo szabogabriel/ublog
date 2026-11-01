@@ -24,6 +24,8 @@ public class MarkdownContentProvider implements ContentProvider {
     private static final java.util.regex.Pattern UNLISTED_FILE_NAME =
             java.util.regex.Pattern.compile("^[0-9a-f]{32}$");
 
+    private static final int ENTRY_CACHE_SIZE = Integer.parseInt(Config.ENTRY_CACHCE_SIZE_KB.value()) * 1024;
+
     private final File rootFolder;
     private final Path contentRoot;
     private final MarkdownRenderingService markdownRenderingService;
@@ -33,6 +35,7 @@ public class MarkdownContentProvider implements ContentProvider {
     private final Map<String, Category> categoriesCache = new ConcurrentHashMap<>();
     private final Map<String, Map<String, EntryDescriptor>> entriesCache = new ConcurrentHashMap<>();
     private final Map<String, Map<String, EntryDescriptor>> unlistedEntriesCache = new ConcurrentHashMap<>();
+    private final Map<EntryDescriptor, String> entryContentCache = new ConcurrentHashMap<>();
     
     // Watchdog thread
     private Thread watchdogThread;
@@ -59,6 +62,7 @@ public class MarkdownContentProvider implements ContentProvider {
         categoriesCache.clear();
         entriesCache.clear();
         unlistedEntriesCache.clear();
+        entryContentCache.clear();
 
         File[] rootFiles = rootFolder.listFiles();
         if (rootFiles == null) return;
@@ -246,7 +250,10 @@ public class MarkdownContentProvider implements ContentProvider {
     @Override
     @SuppressWarnings("CallToPrintStackTrace")
     public String getEntryContentAsHttp(EntryDescriptor entry, boolean includeUnlisted) {
-        String ret = "";
+        String ret = getCachedContent(entry);
+        if (!"".equals(ret)) {
+            return ret;
+        }
         Path entryFile = resolveEntryPath(entry, includeUnlisted);
         if (entryFile != null && Files.isSymbolicLink(entryFile)) {
             entryFile = unlistedTarget(entryFile);
@@ -265,7 +272,10 @@ public class MarkdownContentProvider implements ContentProvider {
             // Return a default error message if Error.md itself is missing
             ret = "# Error\n\nRequested content not found.";
         }
-        return markdownRenderingService.renderToHtml(ret);
+
+        String rendered = markdownRenderingService.renderToHtml(ret);
+        cacheContent(entry, rendered);
+        return rendered;
     }
 
     private Path unlistedTarget(Path link) {
@@ -368,6 +378,38 @@ public class MarkdownContentProvider implements ContentProvider {
         } catch (IOException e) {
             return absoluteRoot;
         }
+    }
+
+    private String getCachedContent(EntryDescriptor entry) {
+        String ret = "";
+        if (entryContentCache.containsKey(entry)) {
+            ret = entryContentCache.get(entry);
+        }
+        return ret;
+    }
+
+    private void cacheContent(EntryDescriptor entry, String content) {
+        if (content == null) {
+            return;
+        }
+
+        if (entryContentCache.containsKey(entry)) {
+            entryContentCache.remove(entry);
+        }
+
+        int cacheSize = entryContentCache.size();
+        int contentSize = content.getBytes().length;
+        while (contentSize + cacheSize > ENTRY_CACHE_SIZE) {
+            EntryDescriptor[] cachedEntries = entryContentCache.keySet().toArray(EntryDescriptor[]::new);
+            if (cachedEntries.length == 0) {
+                break;
+            }
+
+            int randomIndex = java.util.concurrent.ThreadLocalRandom.current().nextInt(cachedEntries.length);
+            entryContentCache.remove(cachedEntries[randomIndex]);
+            cacheSize = entryContentCache.size();
+        }
+        entryContentCache.put(entry, content);
     }
 
     @Override
