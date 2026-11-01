@@ -1,6 +1,7 @@
 package info.gabrielszabo.ublog.server.http;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -80,41 +81,33 @@ public class HttpRequest {
     }
 
     public static HttpRequest readFrom(InputStream input) throws IOException {
-        // ByteArrayOutputStream headerBytes = new ByteArrayOutputStream();
-        // int matchedTerminatorBytes = 0;
+        ByteArrayOutputStream headerBytes = new ByteArrayOutputStream();
+        int matchedTerminatorBytes = 0;
         int current;
-        byte[] buffer = new byte[MAX_HEADER_BYTES];
-        // while ((current = input.read(buffer)) != -1) {
-            current = input.read(buffer);
-            // headerBytes.write(buffer, 0, current);
-            // if (headerBytes.size() > MAX_HEADER_BYTES) {
-            //     throw new RequestException(HttpStatus.REQUEST_HEADER_FIELDS_TOO_LARGE, "Request headers too large");
-            // }
-            // if (current == HEADER_TERMINATOR[matchedTerminatorBytes]) {
-            //     matchedTerminatorBytes++;
-            //     if (matchedTerminatorBytes == HEADER_TERMINATOR.length) {
-            //         break;
-            //     }
-            // } else {
-            //     matchedTerminatorBytes = current == '\r' ? 1 : 0;
-            // }
-            for (int i = 1; i <= HEADER_TERMINATOR.length; i++) {
-                if (buffer[current - i] != HEADER_TERMINATOR[HEADER_TERMINATOR.length - i]) {
-                    throw new RequestException(HttpStatus.REQUEST_HEADER_FIELDS_TOO_LARGE, "Incomplete HTTP headers");
-                }
+        while ((current = input.read()) != -1) {
+            headerBytes.write(current);
+            if (headerBytes.size() > MAX_HEADER_BYTES) {
+                throw new RequestException(HttpStatus.REQUEST_HEADER_FIELDS_TOO_LARGE, "Request headers too large");
             }
-        // }
-        // if (matchedTerminatorBytes != HEADER_TERMINATOR.length) {
-        //     throw new RequestException(HttpStatus.BAD_REQUEST, "Incomplete HTTP headers");
-        // }
+            if (current == HEADER_TERMINATOR[matchedTerminatorBytes]) {
+                matchedTerminatorBytes++;
+                if (matchedTerminatorBytes == HEADER_TERMINATOR.length) {
+                    break;
+                }
+            } else {
+                matchedTerminatorBytes = current == '\r' ? 1 : 0;
+            }
+        }
+        if (matchedTerminatorBytes != HEADER_TERMINATOR.length) {
+            throw new RequestException(HttpStatus.BAD_REQUEST, "Incomplete HTTP headers");
+        }
 
-        // byte[] header = headerBytes.toByteArray();
-        // if (header.length > MAX_REQUEST_BYTES) {
-        //     throw new RequestException(HttpStatus.PAYLOAD_TOO_LARGE, "Request too large");
-        // }
+        byte[] header = headerBytes.toByteArray();
+        if (header.length > MAX_REQUEST_BYTES) {
+            throw new RequestException(HttpStatus.PAYLOAD_TOO_LARGE, "Request too large");
+        }
         HttpRequest request = new HttpRequest();
-        // String headerSection = new String(header, StandardCharsets.ISO_8859_1);
-        String headerSection = new String(buffer, 0, current);
+        String headerSection = new String(header, StandardCharsets.ISO_8859_1);
         int contentLength = request.parseHeaders(headerSection);
         if (request.isStreamedUpload()) {
             if (contentLength > MAX_IMAGE_UPLOAD_BYTES) {
@@ -123,7 +116,7 @@ public class HttpRequest {
             request.bodyStream = new LimitedInputStream(input, contentLength);
             return request;
         }
-        if (contentLength > MAX_REQUEST_BYTES - current) {
+        if (contentLength > MAX_REQUEST_BYTES - header.length) {
             throw new RequestException(HttpStatus.PAYLOAD_TOO_LARGE, "Request too large");
         }
 
