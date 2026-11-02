@@ -8,6 +8,9 @@ public class QueryString {
     private final Map<String, String> parameters = new HashMap<>();
 
     public QueryString(String queryString) {
+        if (queryString == null || queryString.isEmpty()) {
+            return;
+        }
         String[] pairs = queryString.split("&");
         for (String pair : pairs) {
             String[] keyValue = pair.split("=");
