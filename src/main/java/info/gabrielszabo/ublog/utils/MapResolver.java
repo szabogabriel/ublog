@@ -107,7 +107,7 @@ public class MapResolver<K, V> implements Map<K, V> {
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hashCode(mapPrimary);
+        return java.util.Objects.hash(mapPrimary, mapSecondary);
     }
 
     @Override
@@ -119,7 +119,8 @@ public class MapResolver<K, V> implements Map<K, V> {
             return false;
         }
         MapResolver<?, ?> other = (MapResolver<?, ?>) obj;
-        return java.util.Objects.equals(mapPrimary, other.mapPrimary);
+        return java.util.Objects.equals(mapPrimary, other.mapPrimary)
+            && java.util.Objects.equals(mapSecondary, other.mapSecondary);
     }
     
 }
