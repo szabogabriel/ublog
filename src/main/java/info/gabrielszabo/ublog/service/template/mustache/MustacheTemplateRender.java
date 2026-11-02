@@ -9,11 +9,11 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.jmtemplate.Template;
-
+import info.gabrielszabo.jmtemplate.Template;
 import info.gabrielszabo.ublog.config.Config;
 import info.gabrielszabo.ublog.service.blog.BlogContext;
 import info.gabrielszabo.ublog.service.template.TemplateService;
+import info.gabrielszabo.ublog.utils.MapResolver;
 import info.gabrielszabo.ublog.utils.StringCache;
 
 public class MustacheTemplateRender implements TemplateService {
@@ -54,9 +54,13 @@ public class MustacheTemplateRender implements TemplateService {
         if (template == null) {
             throw new IllegalArgumentException("Template name cannot be null");
         }
-        Map<String, Object> contextData = ((MustacheBlogContext) context).getContextData();
-        contextData.putAll(stringsMap);
-        CacheKey cacheKey = new CacheKey(template, contextData);
+        
+        MapResolver<String, Object> resolver = new MapResolver<>();
+        // Map<String, Object> contextData = ((MustacheBlogContext) context).getContextData();
+        resolver.setPrimaryMap(((MustacheBlogContext) context).getContextData());
+        resolver.setSecondaryMap(stringsMap);
+        // contextData.putAll(stringsMap);
+        CacheKey cacheKey = new CacheKey(template, resolver);
 
         if (contentCachingEnabled) {
             ret = contentCache.getCachedContent(cacheKey);
@@ -67,7 +71,7 @@ public class MustacheTemplateRender implements TemplateService {
 
         Template templateInstance = getTemplate(template);
         synchronized (templateInstance) {
-            ret = templateInstance.render(contextData);
+            ret = templateInstance.render(resolver);
             if (contentCachingEnabled) {
                 contentCache.cacheContent(cacheKey, ret);
             }
