@@ -41,6 +41,8 @@ public enum Config {
 
     SERVER_PORT("server.port", "8080"),
 
+    SITE_BASE_URL("site.base.url", ""),
+
     SESSION_TIMEOUT("session.timeout", "60"),
     SESSION_COOKIE_SECURE("session.cookie.secure", "false"),
 

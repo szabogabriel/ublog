@@ -3,6 +3,7 @@ package info.gabrielszabo.ublog.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import info.gabrielszabo.ublog.content.ContentProvider;
 import info.gabrielszabo.ublog.server.http.HttpRequest;
 import info.gabrielszabo.ublog.server.http.HttpRequestHandler;
 import info.gabrielszabo.ublog.server.http.HttpResponse;
@@ -25,6 +26,8 @@ import info.gabrielszabo.ublog.service.requestHandlers.LoginHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.LogoutHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.McpHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.PasswordChangeHandler;
+import info.gabrielszabo.ublog.service.requestHandlers.RobotsHandler;
+import info.gabrielszabo.ublog.service.requestHandlers.SitemapHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.TemplatePropertiesHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.TokenHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.UnlistedHandler;
@@ -37,10 +40,13 @@ public class RequestHandlerService implements HttpRequestHandler {
     private final List<AbstractRequestHandler> requestHandlers = new ArrayList<>();
 
     public RequestHandlerService(BlogContextFactory contextFactory, TemplateService templateService,
-            UserService userService, LoginService loginService, SessionService sessionService, LogService log, ContentService contentService) {
+            UserService userService, LoginService loginService, SessionService sessionService, LogService log, ContentService contentService,
+            ContentProvider contentProvider) {
         this.log = log;
 
         requestHandlers.add(new McpHandler(contextFactory, sessionService, templateService, contentService, userService));
+        requestHandlers.add(new RobotsHandler(contextFactory, sessionService, templateService, userService));
+        requestHandlers.add(new SitemapHandler(contextFactory, sessionService, templateService, userService, contentProvider));
         requestHandlers.add(new IndexHandler(contextFactory, sessionService, templateService, userService));
         requestHandlers.add(new ImageHandler(contextFactory, sessionService, templateService, userService, log));
         requestHandlers.add(new UserHandler(contextFactory, sessionService, templateService, userService));
