@@ -2,11 +2,6 @@ package info.gabrielszabo.ublog.service.requestHandlers;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Base64;
-import java.util.HexFormat;
 import java.util.Optional;
 
 import info.gabrielszabo.ublog.domain.SessionContext;
@@ -20,14 +15,13 @@ import info.gabrielszabo.ublog.service.UserService;
 import info.gabrielszabo.ublog.service.blog.BlogContext;
 import info.gabrielszabo.ublog.service.blog.BlogContextFactory;
 import info.gabrielszabo.ublog.service.template.TemplateService;
+import info.gabrielszabo.ublog.utils.CryptoUtils;
 
 public class TokenHandler extends AbstractRequestHandler {
 
     private static final String GENERATE_PATH = "/tokengenerate";
     private static final String DELETE_PATH = "/tokendelete";
-    private static final int TOKEN_BYTES = 32;
 
-    private final SecureRandom random = new SecureRandom();
 
     public TokenHandler(BlogContextFactory contextFactory, SessionService sessionService,
             TemplateService templateService, UserService userService) {
@@ -54,8 +48,8 @@ public class TokenHandler extends AbstractRequestHandler {
         }
 
         boolean generate = request.getPath().equals(GENERATE_PATH);
-        String plainToken = generate ? generateToken() : null;
-        String hash = generate ? hash(plainToken) : null;
+        String plainToken = generate ? CryptoUtils.INSTANCE.generateToken() : null;
+        String hash = generate ? CryptoUtils.INSTANCE.hash(plainToken) : null;
 
         if (!userService.updateToken(context.getUsername(), hash)) {
             return createUserDetailsResponse(context, session, null, "The token could not be updated right now. Please try again.");
@@ -85,21 +79,6 @@ public class TokenHandler extends AbstractRequestHandler {
             context.addErrorMessage(error);
         }
         return createHttpResponseFromContext(context, session);
-    }
-
-    private String generateToken() {
-        byte[] bytes = new byte[TOKEN_BYTES];
-        random.nextBytes(bytes);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
-    }
-
-    private String hash(String token) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            return HexFormat.of().formatHex(digest.digest(token.getBytes(StandardCharsets.UTF_8)));
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 not available", e);
-        }
     }
 
     private String parseCsrfToken(String body) {

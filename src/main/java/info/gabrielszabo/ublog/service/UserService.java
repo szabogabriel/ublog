@@ -86,6 +86,19 @@ public class UserService {
         return updateProperty(username, "token", tokenHash);
     }
 
+    public Optional<User> getUserByToken(String tokenHash) {
+        if (tokenHash == null || tokenHash.isBlank()) {
+            return Optional.empty();
+        }
+        for (String username : userCache.keySet()) {
+            Optional<User> userOpt = getUser(username);
+            if (userOpt.isPresent() && tokenHash.equals(userOpt.get().getToken())) {
+                return userOpt;
+            }
+        }
+        return Optional.empty();
+    }
+
     private synchronized boolean updateProperty(String username, String key, String value) {
         if (!isValidUsername(username)) {
             return false;
