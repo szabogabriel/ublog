@@ -25,12 +25,18 @@ The following are the runtime environment variables used by the application. Def
 | Variable | Container default | Purpose |
 | --- | --- | --- |
 | `SERVER_PORT` | `8080` | TCP port the HTTP server listens on inside the container. |
+| `SITE_BASE_URL` | `` | The base URL to be used for sitemap.xml and robots.txt. |
+| `LOG_LEVEL` | `INFO` | The log level to be used. Possible options are `ERROR`, `WARNING`, `INFO`, `TRACE`, `DEBUG` |
 | `BLOG_FOLDER` | `/app/blogFolder` | Markdown content root. The app may create categories and entries here. |
 | `USER_FOLDER` | `/app/userFolder` | User `.properties` files. Password updates write to this folder. |
 | `IMAGE_FOLDER` | `/app/imageFolder` | Folder for files served under `/image/`. |
+| `ENTRY_CACHE_SIZE_KB` | `1024` | Sets the size of the cache for the markdown page rendered to HTML. |
+| `ENTRY_CACHE_ENABLED` | `true` | Enable caching of the rendered data omitting template render entirely. |
 | `MUSTACHE_TEMPLATES_FOLDER` | `/app/template/personal` | Mustache templates and optional `strings.properties`. |
 | `MUSTACHE_TEMPLATES_CACHING_ENABLED` | `true` | Cache compiled templates after first use. |
 | `MUSTACHE_TEMPLATE_UPDATE` | `false` | Pass template-update mode to the Mustache template loader. |
+| `MUSTACHE_CONTENT_CACHING_ENABLED` | `true` | Enable caching of the rendered data omitting template render entirely. |
+| `MUSTACHE_CONTENT_CACHE_SIZE_KB` | `1024` | Sets the size of the cache for the rendered pages. |
 | `SESSION_TIMEOUT` | `60` | Session idle timeout in minutes. |
 | `SESSION_COOKIE_SECURE` | `false` | Set the session cookie's `Secure` attribute. Enable when HTTPS is provided by a reverse proxy. |
 | `SOCKET_HANDLER_THREAD_POOL_SIZE` | `10` | Number of request-handler threads. |
