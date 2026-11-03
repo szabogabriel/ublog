@@ -23,6 +23,7 @@ import info.gabrielszabo.ublog.service.requestHandlers.IndexHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.LoginActionHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.LoginHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.LogoutHandler;
+import info.gabrielszabo.ublog.service.requestHandlers.McpHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.PasswordChangeHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.TemplatePropertiesHandler;
 import info.gabrielszabo.ublog.service.requestHandlers.TokenHandler;
@@ -39,6 +40,7 @@ public class RequestHandlerService implements HttpRequestHandler {
             UserService userService, LoginService loginService, SessionService sessionService, LogService log, ContentService contentService) {
         this.log = log;
 
+        requestHandlers.add(new McpHandler(contextFactory, sessionService, templateService, contentService, userService));
         requestHandlers.add(new IndexHandler(contextFactory, sessionService, templateService, userService));
         requestHandlers.add(new ImageHandler(contextFactory, sessionService, templateService, userService, log));
         requestHandlers.add(new UserHandler(contextFactory, sessionService, templateService, userService));

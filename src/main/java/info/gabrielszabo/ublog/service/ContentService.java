@@ -52,6 +52,48 @@ public class ContentService {
         return !Files.isSymbolicLink(topicPath) && Files.isDirectory(topicPath);
     }
 
+    /** Names of all topic folders. */
+    public java.util.List<String> listTopics() {
+        File[] files = blogFolder.listFiles();
+        java.util.List<String> topics = new java.util.ArrayList<>();
+        if (files != null) {
+            for (File file : files) {
+                if (topicExists(file.getName())) {
+                    topics.add(file.getName());
+                }
+            }
+        }
+        java.util.Collections.sort(topics);
+        return topics;
+    }
+
+    /**
+     * Entry names in a topic (empty topic = blog root). Unlisted entries are only
+     * included when includeUnlisted is set. Returns an empty list for unknown topics.
+     */
+    public java.util.List<String> listEntries(String topic, boolean includeUnlisted) {
+        java.util.List<String> names = new java.util.ArrayList<>();
+        if (!isEntryLocation(topic)) {
+            return names;
+        }
+        File[] files = entryFolder(topic).listFiles();
+        if (files != null) {
+            for (File file : files) {
+                String fileName = file.getName();
+                if (!fileName.endsWith(".md")) {
+                    continue;
+                }
+                String name = fileName.substring(0, fileName.length() - 3);
+                File entryFile = existingEntryFile(topic, name);
+                if (entryFile != null && (includeUnlisted || !isUnlisted(entryFile))) {
+                    names.add(name);
+                }
+            }
+        }
+        java.util.Collections.sort(names);
+        return names;
+    }
+
     /** An empty topic denotes the blog root. */
     public static boolean isRoot(String topic) {
         return topic != null && topic.isEmpty();

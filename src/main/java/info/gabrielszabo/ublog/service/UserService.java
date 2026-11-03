@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.security.MessageDigest;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Optional;
@@ -90,9 +92,18 @@ public class UserService {
         if (tokenHash == null || tokenHash.isBlank()) {
             return Optional.empty();
         }
-        for (String username : userCache.keySet()) {
-            Optional<User> userOpt = getUser(username);
-            if (userOpt.isPresent() && tokenHash.equals(userOpt.get().getToken())) {
+        String[] files = new File(userFolder).list();
+        if (files == null) {
+            return Optional.empty();
+        }
+        byte[] wanted = tokenHash.getBytes(StandardCharsets.UTF_8);
+        for (String file : files) {
+            if (!file.endsWith(".properties")) {
+                continue;
+            }
+            Optional<User> userOpt = getUser(file.substring(0, file.length() - ".properties".length()));
+            if (userOpt.isPresent() && userOpt.get().getToken() != null
+                    && MessageDigest.isEqual(wanted, userOpt.get().getToken().getBytes(StandardCharsets.UTF_8))) {
                 return userOpt;
             }
         }

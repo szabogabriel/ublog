@@ -2,8 +2,10 @@ package info.gabrielszabo.ublog.server.http;
 
 public enum HttpStatus {
     OK(200, "OK"),
+    ACCEPTED(202, "Accepted"),
     SEE_OTHER(303, "See Other"),
     BAD_REQUEST(400, "Bad Request"),
+    UNAUTHORIZED(401, "Unauthorized"),
     FORBIDDEN(403, "Forbidden"),
     METHOD_NOT_ALLOWED(405, "Method Not Allowed"),
     REQUEST_TIMEOUT(408, "Request Timeout"),
